@@ -20,14 +20,27 @@ header{height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);background:
 .status{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:auto;scrollbar-width:none}.status::-webkit-scrollbar{display:none}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
 .actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;position:relative}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.active{color:var(--good);border-color:#315740;background:#0d1712}.iconbtn.active::after{content:'';position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px rgba(103,211,145,.55)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr)}
-.pad{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+main{--history-w:0px;--media-w:420px;flex:1;min-height:0;display:grid;grid-template-columns:var(--history-w) minmax(0,1fr) 7px var(--media-w);overflow:hidden}
+body.history-open main{--history-w:280px}
+body.media-collapsed main{--media-w:54px}
+body.agent-open main{grid-template-columns:var(--history-w) minmax(0,1fr) 7px var(--media-w) minmax(340px,.64fr)}
+.pad{min-width:0;min-height:0;display:flex;flex-direction:column}
+.historyRail{display:none;min-width:0;min-height:0;flex-direction:column;background:#090b0d;border-right:1px solid var(--line);overflow:hidden}
+body.history-open .historyRail{display:flex}
+.historyRailBody{flex:1;min-height:0;overflow:auto;padding:8px 10px 12px}.historyRail .historylist{max-height:none}
+.railArrow{width:26px;height:26px;flex:0 0 26px;border:0;background:transparent;color:var(--dim);display:inline-flex;align-items:center;justify-content:center;padding:0}.railArrow:hover{color:var(--text);background:#111419}.railArrow svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .14s ease}
+#historyRailToggle{margin-left:-4px}body.history-open #historyRailToggle svg{transform:rotate(180deg)}
+.mediaSplitter{position:relative;min-width:7px;background:#090b0d;border-left:1px solid var(--line);border-right:1px solid var(--line);cursor:col-resize;touch-action:none;z-index:6}.mediaSplitter::after{content:'';position:absolute;left:2px;top:0;bottom:0;width:2px;background:transparent;transition:.12s}.mediaSplitter:hover::after,.mediaSplitter.dragging::after{background:var(--accent)}
+
 .panelhead{height:42px;flex:0 0 42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#0a0c0e}
 .paneltitle{font:800 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .panelmeta{margin-left:auto;font:9px var(--mono);color:var(--dim);white-space:nowrap}
 .editorwrap{position:relative;flex:1;min-height:0;overflow:hidden;background:transparent}
 #scratch{position:absolute;inset:0;width:100%;height:100%;resize:none;border:0;outline:0;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.65 var(--mono);caret-color:var(--accent);overflow:auto}
 #scratch::placeholder{color:#444c54}
+.markdownView{display:none;position:absolute;inset:0;overflow:auto;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.68 var(--mono);overflow-wrap:anywhere;z-index:2}
+.editorwrap.markdown-previewing .markdownView{display:block}.editorwrap.markdown-previewing #scratch{visibility:hidden;pointer-events:none}.editorwrap.markdown-previewing .cursorlayer{display:none}
+.markdownView h1,.markdownView h2,.markdownView h3,.markdownView h4,.markdownView h5,.markdownView h6{margin:1.05em 0 .45em;font-family:var(--sans);line-height:1.22;color:var(--text)}.markdownView h1{font-size:1.65em}.markdownView h2{font-size:1.38em}.markdownView h3{font-size:1.18em}.markdownView h4,.markdownView h5,.markdownView h6{font-size:1em}.markdownView p{margin:.55em 0}.markdownView ul,.markdownView ol{margin:.55em 0;padding-left:1.6em}.markdownView li{margin:.18em 0}.markdownView blockquote{margin:.75em 0;padding:.25em 0 .25em 12px;border-left:2px solid var(--line2);color:var(--muted)}.markdownView code{padding:1px 4px;border:1px solid var(--line);background:#0b0d0f;color:#d7dde2}.markdownView pre{margin:.8em 0;padding:12px;overflow:auto;border:1px solid var(--line);background:#07090b;color:#ccd3d9}.markdownView pre code{padding:0;border:0;background:transparent}.markdownView hr{border:0;border-top:1px solid var(--line);margin:1em 0}.markdownView a{color:#8fc0ff;text-decoration:none;border-bottom:1px solid rgba(143,192,255,.35)}.markdownView a:hover{color:#b6d7ff;border-bottom-color:currentColor}.markdownView .mdHint{margin-top:16px;color:var(--dim);font:8px/1.5 var(--mono);user-select:none}.markdownView>*:first-child{margin-top:0}
 .cursorlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
 .remoteSelection{position:absolute;background:var(--cursor,#fff);opacity:.16;border-radius:2px;transform:translateZ(0);transition:left .11s linear,top .11s linear,width .11s linear,height .11s linear}
 .remoteCursor{position:absolute;width:2px;background:var(--cursor,#fff);border-radius:1px;transform:translateZ(0);transition:left .11s linear,top .11s linear;height:22px;opacity:.96}
@@ -40,7 +53,9 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 .historyrow:last-child{border-bottom:0}.historydot{width:8px;height:8px;border-radius:50%;background:var(--user);margin-top:4px}.historywho{font:800 9px/1.4 var(--mono);color:var(--text)}.historydesc{font:9px/1.5 var(--mono);color:var(--muted);margin-top:2px;word-break:break-word}.historytime{font:8px var(--mono);color:var(--dim);white-space:nowrap}.historyempty{padding:18px 4px;text-align:center;color:var(--dim);font:9px/1.6 var(--mono)}
 .syncbar{flex:0 0 31px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
-.assets{min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e}
+.assets{min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e;overflow:hidden}
+.mediaCollapsed{display:none;flex:1;min-height:0;align-items:center;flex-direction:column;gap:9px;padding:10px 5px;overflow:auto}#mediaCollapsedStack{display:flex;flex-direction:column;align-items:center;gap:9px}.mediaCollapsedIcon{position:relative;width:34px;height:34px;border:1px solid var(--line);background:#0d1013;color:var(--dim);display:flex;align-items:center;justify-content:center}.mediaCollapsedIcon.on{color:var(--good);border-color:#315740}.mediaCollapsedIcon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mediaCollapsedIcon b{position:absolute;right:-4px;top:-5px;min-width:15px;height:15px;padding:0 3px;border:1px solid #333b43;background:#111419;color:var(--text);font:700 7px/13px var(--mono);text-align:center;border-radius:8px}.mediaCollapsedSep{width:24px;border-top:1px solid var(--line);margin:1px 0}
+body.media-collapsed .assets>.panelhead{padding:0 4px;justify-content:center}body.media-collapsed .assets>.panelhead .paneltitle,body.media-collapsed .assets>.panelhead .panelmeta{display:none}body.media-collapsed .assets>.liveSection,body.media-collapsed .assets>.drop,body.media-collapsed .assets>.assetlist,body.media-collapsed .assets>.transport{display:none}body.media-collapsed .assets>.mediaCollapsed{display:flex}body.media-collapsed #mediaToggle svg{transform:rotate(180deg)}
 .liveSection{border-bottom:1px solid var(--line);background:#090b0d;flex:0 0 auto}.liveHead{height:32px;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid var(--line);color:var(--dim);font:800 8px var(--mono);letter-spacing:.1em;text-transform:uppercase}.liveHead span:last-child{margin-left:auto;font-weight:500;letter-spacing:.03em}.liveGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;max-height:280px;overflow:auto}.liveEmpty{grid-column:1/-1;border:1px dashed var(--line);padding:12px;text-align:center;color:var(--dim);font:9px/1.5 var(--mono)}
 .mediaTile{position:relative;min-width:0;border:1px solid var(--line);background:#070809;overflow:hidden}.mediaTile.screen{grid-column:1/-1}.mediaTile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#050607}.mediaTile.screen video{object-fit:contain;max-height:220px}.mediaLabel{position:absolute;left:7px;bottom:7px;z-index:2;max-width:calc(100% - 14px);display:flex;align-items:center;gap:5px;padding:3px 6px;background:rgba(5,6,7,.76);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(6px);font:800 8px var(--mono);color:#eef1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mediaLabel i{width:6px;height:6px;border-radius:50%;background:var(--user,#fff);flex:0 0 auto}.mediaKind{color:var(--muted);font-weight:500}.audioTile{height:82px;padding:9px 9px 8px;display:flex;flex-direction:column;gap:7px}.audioTop{display:flex;align-items:center;gap:7px;min-width:0;font:800 8px var(--mono)}.audioTop .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.audioTop .kind{margin-left:auto;color:var(--dim);font-weight:500}.wave{display:block;width:100%;height:43px;background:#080a0c;border-top:1px solid #171b1f}.mediaMute{position:absolute;right:6px;top:6px;z-index:3;width:28px;height:28px;border:1px solid rgba(255,255,255,.14);background:rgba(5,6,7,.72);color:var(--muted);display:flex;align-items:center;justify-content:center}.mediaMute:hover{color:var(--text)}.mediaMute svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mediaTile.local{border-color:#33413a}.mediaTile.local::after{content:'YOU';position:absolute;right:6px;bottom:6px;padding:2px 4px;background:#111;color:var(--good);border:1px solid #294737;font:800 7px var(--mono)}
 .drop{margin:12px;border:1px dashed #3a424b;background:#0b0d0f;min-height:112px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;transition:.14s}.drop.drag{border-color:var(--accent);background:#151207}.drop strong{display:block;font:800 11px var(--mono);letter-spacing:.06em}.drop span{display:block;margin-top:6px;font:10px/1.5 var(--mono);color:var(--dim)}
@@ -53,7 +68,6 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 
 /* Agent-operable surface -------------------------------------------------- */
 .agentSurface{display:none;min-width:0;min-height:0;border-left:1px solid var(--line);background:#0b0d0f;flex-direction:column}
-body.agent-open main{grid-template-columns:minmax(0,1.05fr) minmax(320px,.72fr) minmax(340px,.64fr)}
 body.agent-open .agentSurface{display:flex}
 .agentBody{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
 .agentBlock{border:1px solid var(--line);background:#0d1013;padding:10px}
@@ -69,8 +83,8 @@ body.agent-open .agentSurface{display:flex}
 .agentFileInput{display:block;width:100%;padding:7px;border:1px dashed var(--line2);background:#090b0d;color:var(--muted);font:9px var(--mono)}
 .agentCommandGrid{display:grid;grid-template-columns:1fr;gap:6px}.agentResult.good{border-color:#315740}.agentResult.bad{border-color:#653737;color:#d99595}
 [data-agent-id]{scroll-margin:70px}
-@media(max-width:1180px){body.agent-open main{grid-template-columns:minmax(0,1fr) minmax(320px,.8fr)}body.agent-open .agentSurface{position:fixed;right:0;top:58px;bottom:0;width:min(420px,100vw);z-index:45;box-shadow:-18px 0 50px rgba(0,0,0,.45)}}
-@media(max-width:820px){body{overflow:auto}body.agent-open .agentSurface{top:0;width:100vw}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
+@media(max-width:1180px){body.agent-open main{grid-template-columns:var(--history-w) minmax(0,1fr) 7px var(--media-w)}body.agent-open .agentSurface{position:fixed;right:0;top:58px;bottom:0;width:min(420px,100vw);z-index:45;box-shadow:-18px 0 50px rgba(0,0,0,.45)}}
+@media(max-width:820px){body{overflow:auto}body.agent-open .agentSurface{top:0;width:100vw}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block;overflow:visible}.mediaSplitter{display:none}.historyRail{position:fixed;left:0;top:58px;bottom:0;width:min(320px,92vw);z-index:44;box-shadow:18px 0 50px rgba(0,0,0,.45)}.pad{height:56dvh;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}body.media-collapsed .assets>.panelhead{padding:0 12px;justify-content:flex-start}body.media-collapsed .assets>.panelhead .paneltitle,body.media-collapsed .assets>.panelhead .panelmeta{display:inline}body.media-collapsed .assets>.liveSection,body.media-collapsed .assets>.drop,body.media-collapsed .assets>.assetlist,body.media-collapsed .assets>.transport{display:initial}body.media-collapsed .assets>.mediaCollapsed{display:none}.drop{min-height:92px}#scratch,.markdownView{padding:16px;font-size:13px}}
 @media(max-width:500px){.brand{font-size:11px}.actions{gap:4px;flex-wrap:wrap;justify-content:flex-end}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}.liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}}
 </style>
 </head>
@@ -96,6 +110,9 @@ body.agent-open .agentSurface{display:flex}
       <button class="iconbtn" id="agentBtn" type="button" aria-label="Agent interface" title="Agent interface" data-agent-action="toggle-agent-surface">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M9 10h.01M15 10h.01M8 15h8M12 6V3M9 3h6"/></svg>
       </button>
+      <button class="iconbtn" id="markdownBtn" type="button" aria-label="Toggle Markdown formatting" title="Toggle Markdown formatting" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v10M4 7l4 6 4-6v10M15 7v10M15 13l3 4 3-4"/></svg>
+      </button>
       <button class="iconbtn" id="historyBtn" type="button" aria-label="Edit history" title="Edit history">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>
       </button>
@@ -114,16 +131,23 @@ body.agent-open .agentSurface{display:flex}
     </div>
   </header>
   <main>
+    <aside class="historyRail" id="historyRail" aria-label="Synchronized edit history">
+      <div class="panelhead"><span class="paneltitle">Edit history</span><span class="panelmeta" id="historyRailMeta">SYNCED</span><button class="railArrow" id="historyRailClose" type="button" aria-label="Close edit history" title="Close edit history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button></div>
+      <div class="historyRailBody"><div class="historylist" id="historyRailList" data-agent-id="edit-history"></div></div>
+    </aside>
     <section class="pad">
-      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <div class="panelhead"><button class="railArrow" id="historyRailToggle" type="button" aria-label="Toggle edit history" title="Toggle edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
       <div class="editorwrap" id="editorWrap">
         <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+        <div class="markdownView" id="markdownView" data-agent-id="markdown-view" aria-label="Rendered Markdown view" tabindex="0"></div>
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
       <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
     </section>
-    <section class="assets">
-      <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span></div>
+    <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
+    <section class="assets" id="mediaPanel">
+      <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse files and media" title="Collapse files and media" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <div class="mediaCollapsed" id="mediaCollapsed" aria-label="Collapsed media summary"><div id="mediaCollapsedStack"></div></div>
       <div class="liveSection" id="liveSection">
         <div class="liveHead"><span>Live peer media</span><span id="liveMeta">0 LIVE</span></div>
         <div class="liveGrid" id="liveGrid" data-agent-id="live-media"><div class="liveEmpty" id="liveEmpty">MIC / CAMERA / SCREEN streams appear here</div></div>
@@ -172,7 +196,7 @@ body.agent-open .agentSurface{display:flex}
             <button class="btn small" id="agentRun" type="button" data-agent-action="run-json-command">RUN COMMAND</button>
             <pre class="agentPre agentResult" id="agentResult" data-agent-id="command-result" aria-label="Agent command result">Ready for command.</pre>
           </div>
-          <div class="agentHint">Actions: <code>getState</code>, <code>setState</code>, <code>setText</code>, <code>appendText</code>, <code>prependText</code>, <code>insertText</code>, <code>replaceRange</code>, <code>clearText</code>, <code>addFileBase64</code>, <code>addFileText</code>, <code>getFileText</code>, <code>removeFile</code>, <code>startMedia</code>, <code>stopMedia</code>.</div>
+          <div class="agentHint">Actions: <code>getState</code>, <code>setState</code>, <code>setText</code>, <code>appendText</code>, <code>prependText</code>, <code>insertText</code>, <code>replaceRange</code>, <code>clearText</code>, <code>addFileBase64</code>, <code>addFileText</code>, <code>getFileText</code>, <code>removeFile</code>, <code>setView</code>, <code>startMedia</code>, <code>stopMedia</code>.</div>
         </section>
         <section class="agentBlock">
           <div class="agentLabel"><span>Programmatic contract</span><span>window.ScratchpadAgent</span></div>
@@ -185,7 +209,8 @@ await ScratchpadAgent.replaceRange(start,end,text)
 await ScratchpadAgent.addFile(fileOrPayload)
 await ScratchpadAgent.createFile(name,text,type)
 await ScratchpadAgent.getFile(id)
-await ScratchpadAgent.removeFile(id)</pre>
+await ScratchpadAgent.removeFile(id)
+await ScratchpadAgent.setView({markdown:true, historyOpen:true, mediaWidth:420})</pre>
         </section>
       </div>
     </aside>
@@ -223,7 +248,7 @@ await ScratchpadAgent.removeFile(id)</pre>
     <h2>Synchronized edit history</h2>
     <div class="modalbody">
       <div style="margin-bottom:10px;font:9px/1.55 var(--mono);color:var(--dim)">Recent edit bursts are part of the encrypted CRDT state, so peers converge on the same history even after reconnecting.</div>
-      <div class="historylist" id="historyList" data-agent-id="edit-history"></div>
+      <div class="historylist" id="historyList" data-agent-id="edit-history-modal"></div>
     </div>
     <div class="modalfoot"><button class="btn" id="closeHistory">CLOSE</button></div>
   </div>
@@ -273,6 +298,7 @@ const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessi
 let renderToken=0, networkReady=false, qrModule=null, remoteFlushTimer=null, ySaveTimer=null, ySendTimer=null, presenceTimer=null, presenceSweepTimer=null, historyTimer=null, pendingHistory=null;
 let agentStateTimer=null,agentPollTimer=null,agentReadyResolve=null;const agentReady=new Promise(r=>agentReadyResolve=r);const agentSubscribers=new Set();
 let outgoingY=[], isComposing=false, renderingEditor=false, editorShadow='', remoteStateRepairPending=false;
+let markdownEnabled=false,markdownEditing=false,mediaWidth=420,mediaExpandedWidth=420,mediaResizeStart=null;
 
 function toast(html,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.innerHTML=html; $('#toastBox').append(el);
@@ -370,11 +396,54 @@ function selectionRelative(){
 function resolveRelative(bytes){
   try{const abs=Y.createAbsolutePositionFromRelativePosition(Y.decodeRelativePosition(bytes),ydoc);return abs&&abs.type===ytext?abs.index:null}catch(_){return null}
 }
+function safeLinkHref(raw){
+  let value=String(raw||'').trim();if(/^www\./i.test(value))value='https://'+value;
+  try{const u=new URL(value,location.href);if(!['http:','https:','mailto:'].includes(u.protocol))return null;return u.href}catch(_){return null}
+}
+function renderMarkdownInline(raw){
+  const stash=[];const hold=html=>`\uE000${stash.push(html)-1}\uE001`;let s=String(raw||'');
+  s=s.replace(/`([^`\n]+)`/g,(_,x)=>hold('<code>'+escapeHtml(x)+'</code>'));
+  s=s.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g,(_,label,url)=>{const href=safeLinkHref(url);return href?hold(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`):escapeHtml(_)});
+  const bare=/(^|[\s(])((?:https?:\/\/|www\.)[^\s<]+[^\s<.,!?;:'"\)\]])/gi;
+  s=s.replace(bare,(m,prefix,url)=>{const href=safeLinkHref(url);return href?prefix+hold(`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`):m});
+  s=escapeHtml(s);
+  s=s.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>').replace(/__([^_\n]+)__/g,'<strong>$1</strong>').replace(/~~([^~\n]+)~~/g,'<del>$1</del>').replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>').replace(/(^|[^_])_([^_\n]+)_/g,'$1<em>$2</em>');
+  return s.replace(/\uE000(\d+)\uE001/g,(_,i)=>stash[Number(i)]||'');
+}
+function markdownToHtml(src){
+  const lines=String(src||'').replace(/\r\n?/g,'\n').split('\n'),out=[];let para=[],list=null,inCode=false,code=[];
+  const closePara=()=>{if(para.length){out.push('<p>'+para.map(renderMarkdownInline).join('<br>')+'</p>');para=[]}};
+  const closeList=()=>{if(list){out.push(`</${list}>`);list=null}};
+  for(const line of lines){
+    if(/^```/.test(line)){closePara();closeList();if(inCode){out.push('<pre><code>'+escapeHtml(code.join('\n'))+'</code></pre>');code=[];inCode=false}else inCode=true;continue}
+    if(inCode){code.push(line);continue}
+    if(!line.trim()){closePara();closeList();continue}
+    let m;if((m=line.match(/^(#{1,6})\s+(.+)$/))){closePara();closeList();const n=m[1].length;out.push(`<h${n}>${renderMarkdownInline(m[2])}</h${n}>`);continue}
+    if(/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(line)){closePara();closeList();out.push('<hr>');continue}
+    if((m=line.match(/^\s*>\s?(.*)$/))){closePara();closeList();out.push('<blockquote>'+renderMarkdownInline(m[1])+'</blockquote>');continue}
+    if((m=line.match(/^\s*[-+*]\s+(.+)$/))){closePara();if(list!=='ul'){closeList();out.push('<ul>');list='ul'}out.push('<li>'+renderMarkdownInline(m[1])+'</li>');continue}
+    if((m=line.match(/^\s*\d+[.)]\s+(.+)$/))){closePara();if(list!=='ol'){closeList();out.push('<ol>');list='ol'}out.push('<li>'+renderMarkdownInline(m[1])+'</li>');continue}
+    closeList();para.push(line)
+  }
+  closePara();closeList();if(inCode)out.push('<pre><code>'+escapeHtml(code.join('\n'))+'</code></pre>');
+  return out.join('')||'<p style="color:var(--dim)">Nothing to render yet.</p>'
+}
+function renderMarkdownView(){const v=$('#markdownView');if(!v||!ytext)return;v.innerHTML=markdownToHtml(ytext.toString())+'<div class="mdHint">Markdown view · links open in a new tab · click non-link content to edit source</div>'}
+function updateMarkdownMode(){const wrap=$('#editorWrap'),btn=$('#markdownBtn'),s=$('#scratch');const preview=markdownEnabled&&!markdownEditing&&document.activeElement!==s;wrap?.classList.toggle('markdown-previewing',preview);btn?.classList.toggle('active',markdownEnabled);btn?.setAttribute('aria-pressed',markdownEnabled?'true':'false');btn?.setAttribute('title',markdownEnabled?'Markdown formatting on':'Markdown formatting off');if(preview)renderMarkdownView();requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('markdown')}
+function setMarkdownEnabled(on){markdownEnabled=!!on;markdownEditing=false;try{localStorage.setItem('scratch-markdown',markdownEnabled?'1':'0')}catch(_){}updateMarkdownMode()}
+function setHistoryOpen(on){document.body.classList.toggle('history-open',!!on);$('#historyRailToggle')?.setAttribute('aria-expanded',on?'true':'false');if(on)renderHistory();try{localStorage.setItem('scratch-history-open',on?'1':'0')}catch(_){}requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('layout')}
+function setMediaCollapsed(on){on=!!on;if(on&&mediaWidth>90)mediaExpandedWidth=mediaWidth;document.body.classList.toggle('media-collapsed',on);mediaWidth=on?54:mediaExpandedWidth;document.querySelector('main')?.style.setProperty('--media-w',mediaWidth+'px');$('#mediaToggle')?.setAttribute('aria-expanded',on?'false':'true');$('#mediaToggle')?.setAttribute('aria-label',on?'Expand files and media':'Collapse files and media');$('#mediaToggle')?.setAttribute('title',on?'Expand files and media':'Collapse files and media');try{localStorage.setItem('scratch-media-collapsed',on?'1':'0')}catch(_){}updateCollapsedMediaSummary();requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('layout')}
+function setMediaWidth(px,{persist=true}={}){const max=Math.max(300,Math.min(760,window.innerWidth*.68)),w=Math.max(54,Math.min(Number(px)||420,max));mediaWidth=w;if(w>90)mediaExpandedWidth=w;document.querySelector('main')?.style.setProperty('--media-w',(document.body.classList.contains('media-collapsed')?54:w)+'px');if(persist&&w>90)try{localStorage.setItem('scratch-media-width',String(Math.round(w)))}catch(_){}scheduleAgentStateRefresh('layout')}
+function mediaSummaryIcon(kind,count,label){const paths={mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',camera:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',screen:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h5"/>'};return `<div class="mediaCollapsedIcon ${count?'on':''}" title="${escapeHtml(label)}: ${count}"><svg viewBox="0 0 24 24" aria-hidden="true">${paths[kind]}</svg>${count?`<b>${count>99?'99+':count}</b>`:''}</div>`}
+function updateCollapsedMediaSummary(){const box=$('#mediaCollapsedStack');if(!box)return;const kinds={mic:0,camera:0,screen:0};for(const k of localMedia.keys())if(kinds[k]!=null)kinds[k]++;for(const m of remoteMedia.values())if(kinds[m.kind]!=null)kinds[m.kind]++;const files=[...assets.values()].filter(m=>!m.deleted).length;box.innerHTML=mediaSummaryIcon('mic',kinds.mic,'Microphones')+mediaSummaryIcon('camera',kinds.camera,'Cameras')+mediaSummaryIcon('screen',kinds.screen,'Screens')+'<div class="mediaCollapsedSep"></div>'+mediaSummaryIcon('file',files,'Files')}
+function initWorkspaceLayout(){try{markdownEnabled=localStorage.getItem('scratch-markdown')==='1';setMediaWidth(Number(localStorage.getItem('scratch-media-width'))||420,{persist:false});setHistoryOpen(localStorage.getItem('scratch-history-open')==='1');setMediaCollapsed(localStorage.getItem('scratch-media-collapsed')==='1')}catch(_){setMediaWidth(420,{persist:false})}updateMarkdownMode();updateCollapsedMediaSummary()}
+
 function renderEditor(sel=null){
   const s=$('#scratch'),text=ytext.toString();
   renderingEditor=true;
   try{if(s.value!==text)s.value=text;editorShadow=text}
   finally{renderingEditor=false}
+  if(markdownEnabled)renderMarkdownView();
   if(sel){const a=resolveRelative(sel.anchor),h=resolveRelative(sel.head);if(a!=null&&h!=null){const start=Math.min(a,h),end=Math.max(a,h),dir=a>h?'backward':'forward';try{s.setSelectionRange(start,end,dir)}catch(_){}}}
   updateDocMeta();requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('render');
 }
@@ -411,8 +480,8 @@ function formatHistoryDesc(h){
   const parts=[];if(h.inserted)parts.push('+'+h.inserted);if(h.deleted)parts.push('−'+h.deleted);let sample=h.insertSample||h.deleteSample||'';sample=sample.replace(/\s+/g,' ').trim();return (parts.join(' / ')||'edit')+(sample?' · “'+sample.slice(0,90)+(sample.length>90?'…':'')+'”':'');
 }
 function renderHistory(){
-  const box=$('#historyList');if(!box||!yhistory)return;const rows=yhistory.toArray().slice(-120).reverse();if(!rows.length){box.innerHTML='<div class="historyempty">No synchronized edits yet.</div>';return}
-  box.innerHTML=rows.map(h=>`<div class="historyrow"><span class="historydot" style="--user:${escapeHtml(h.color||'#9099a2')}"></span><div><div class="historywho">${escapeHtml(h.name||'Peer')}</div><div class="historydesc">${escapeHtml(formatHistoryDesc(h))}</div></div><div class="historytime">${new Date(Number(h.ended||h.started||Date.now())).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');
+  if(!yhistory)return;const rows=yhistory.toArray().slice(-120).reverse(),html=!rows.length?'<div class="historyempty">No synchronized edits yet.</div>':rows.map(h=>`<div class="historyrow"><span class="historydot" style="--user:${escapeHtml(h.color||'#9099a2')}"></span><div><div class="historywho">${escapeHtml(h.name||'Peer')}</div><div class="historydesc">${escapeHtml(formatHistoryDesc(h))}</div></div><div class="historytime">${new Date(Number(h.ended||h.started||Date.now())).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');
+  for(const box of [$('#historyRailList'),$('#historyList')])if(box)box.innerHTML=html;const meta=$('#historyRailMeta');if(meta)meta.textContent=rows.length+' EDITS';
 }
 function currentPresence(){
   const s=$('#scratch'),len=ytext?.length||0,start=Math.min(s.selectionStart||0,len),end=Math.min(s.selectionEnd||0,len),dir=s.selectionDirection||'none';const anchor=dir==='backward'?end:start,head=dir==='backward'?start:end;
@@ -688,7 +757,7 @@ async function syncMediaToActor(remoteActor){
 }
 async function syncMediaAll(){await Promise.allSettled([...actorRoutes.keys()].map(syncMediaToActor))}
 function mediaIcon(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11"/></svg>'}
-function updateLiveMeta(){const n=localMedia.size+remoteMedia.size;$('#liveMeta').textContent=n+' LIVE';const empty=$('#liveEmpty');if(empty)empty.style.display=n?'none':'';scheduleAgentStateRefresh('media')}
+function updateLiveMeta(){const n=localMedia.size+remoteMedia.size;$('#liveMeta').textContent=n+' LIVE';const empty=$('#liveEmpty');if(empty)empty.style.display=n?'none':'';updateCollapsedMediaSummary();scheduleAgentStateRefresh('media')}
 function stopWaveform(key){const w=waveformLoops.get(key);if(!w)return;cancelAnimationFrame(w.raf);try{w.source.disconnect()}catch(_){}try{w.ctx.close()}catch(_){}waveformLoops.delete(key)}
 function startWaveform(canvas,stream,key){
   stopWaveform(key);const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -873,7 +942,7 @@ async function agentFilesState(){const out=[];for(const m of [...assets.values()
 async function getAgentState(){
   const peers=[...actorRoutes.keys()].map(id=>{const p=remotePresence.get(id)||{};return{actor:id,name:p.name||aliasFromActor(id),color:p.color||colorFromActor(id),focused:!!p.focus,lastSeen:p.ts||null,routes:actorRoutes.get(id)?.size||0}});
   const local=[...localMedia.keys()],remote=[...remoteMedia.values()].map(x=>({actor:x.actor,kind:x.kind,id:x.id}));
-  return{version:'1.0',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},users:peers,files:await agentFilesState(),media:{local,remote},timestamp:new Date().toISOString()}
+  return{version:'1.0',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},users:peers,files:await agentFilesState(),media:{local,remote},ui:{markdown:markdownEnabled,historyOpen:document.body.classList.contains('history-open'),mediaCollapsed:document.body.classList.contains('media-collapsed'),mediaWidth,mediaExpandedWidth},timestamp:new Date().toISOString()}
 }
 function scheduleAgentStateRefresh(reason='change',delay=90){
   clearTimeout(agentStateTimer);agentStateTimer=setTimeout(async()=>{agentStateTimer=null;let state;try{state=await getAgentState()}catch(e){return}const box=$('#agentState');if(box&&agentIsOpen()){box.textContent=JSON.stringify(state,null,2);$('#agentStateTime').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}for(const fn of [...agentSubscribers])try{fn(state,reason)}catch(e){console.warn('agent subscriber failed',e)}document.dispatchEvent(new CustomEvent('scratchpad:state',{detail:{reason,state}}))},delay)
@@ -896,10 +965,10 @@ async function agentGetFileText(id){const f=await agentGetFile(id);return f.text
 async function agentSetState(patch={}){if(!patch||typeof patch!=='object')throw new TypeError('state patch must be an object');if(Object.prototype.hasOwnProperty.call(patch,'text'))mutateAgentText('set',patch.text);if(patch.appendText!=null)mutateAgentText('append',patch.appendText);if(patch.prependText!=null)mutateAgentText('prepend',patch.prependText);for(const f of patch.files||[])await agentAddFile(f,{quiet:true});for(const id of patch.removeFiles||[])await removeAsset(String(id));return getAgentState()}
 async function runAgentCommand(cmd){
   if(typeof cmd==='string')cmd=JSON.parse(cmd);if(!cmd||typeof cmd!=='object')throw new Error('command must be an object');const a=String(cmd.action||'getState');
-  if(a==='getState')return getAgentState();if(a==='setState')return agentSetState(cmd.state||cmd.patch||{});if(a==='setText')return mutateAgentText('set',cmd.text);if(a==='appendText')return mutateAgentText('append',cmd.text);if(a==='prependText')return mutateAgentText('prepend',cmd.text);if(a==='insertText')return mutateAgentText('insert',cmd.text,cmd.index);if(a==='replaceRange')return mutateAgentText('range',cmd.text,cmd.start,cmd.end);if(a==='clearText')return mutateAgentText('clear');if(a==='addFileBase64')return agentAddFile({base64:cmd.base64,name:cmd.name,type:cmd.type});if(a==='addFileText')return agentCreateFile(cmd.name,cmd.text,cmd.type);if(a==='getFileText')return agentGetFileText(cmd.id);if(a==='removeFile'){await removeAsset(String(cmd.id));return{removed:true,id:String(cmd.id)}}if(a==='startMedia'){await startLocalMedia(String(cmd.kind));return{started:true,kind:String(cmd.kind)}}if(a==='stopMedia'){stopLocalMedia(String(cmd.kind));return{stopped:true,kind:String(cmd.kind)}}throw new Error('unsupported action: '+a)
+  if(a==='getState')return getAgentState();if(a==='setState')return agentSetState(cmd.state||cmd.patch||{});if(a==='setText')return mutateAgentText('set',cmd.text);if(a==='appendText')return mutateAgentText('append',cmd.text);if(a==='prependText')return mutateAgentText('prepend',cmd.text);if(a==='insertText')return mutateAgentText('insert',cmd.text,cmd.index);if(a==='replaceRange')return mutateAgentText('range',cmd.text,cmd.start,cmd.end);if(a==='clearText')return mutateAgentText('clear');if(a==='addFileBase64')return agentAddFile({base64:cmd.base64,name:cmd.name,type:cmd.type});if(a==='addFileText')return agentCreateFile(cmd.name,cmd.text,cmd.type);if(a==='getFileText')return agentGetFileText(cmd.id);if(a==='removeFile'){await removeAsset(String(cmd.id));return{removed:true,id:String(cmd.id)}}if(a==='setView'){if(cmd.markdown!=null)setMarkdownEnabled(!!cmd.markdown);if(cmd.historyOpen!=null)setHistoryOpen(!!cmd.historyOpen);if(cmd.mediaCollapsed!=null)setMediaCollapsed(!!cmd.mediaCollapsed);if(cmd.mediaWidth!=null)setMediaWidth(cmd.mediaWidth);return getAgentState()}if(a==='startMedia'){await startLocalMedia(String(cmd.kind));return{started:true,kind:String(cmd.kind)}}if(a==='stopMedia'){stopLocalMedia(String(cmd.kind));return{stopped:true,kind:String(cmd.kind)}}throw new Error('unsupported action: '+a)
 }
 window.ScratchpadAgent=Object.freeze({
-  version:'1.0',ready:agentReady,getState:getAgentState,setState:agentSetState,setText:text=>mutateAgentText('set',text),appendText:text=>mutateAgentText('append',text),prependText:text=>mutateAgentText('prepend',text),insertText:(index,text)=>mutateAgentText('insert',text,index),replaceRange:(start,end,text)=>mutateAgentText('range',text,start,end),clearText:()=>mutateAgentText('clear'),addFile:agentAddFile,addFiles:async list=>{const out=[];for(const f of list||[])out.push(await agentAddFile(f));return out},getFile:agentGetFile,getFileText:agentGetFileText,createFile:agentCreateFile,listFiles:agentFilesState,removeFile:async id=>{await removeAsset(String(id));scheduleAgentStateRefresh('file');return true},startMedia:startLocalMedia,stopMedia:kind=>stopLocalMedia(kind),open:()=>setAgentOpen(true),close:()=>setAgentOpen(false),run:runAgentCommand,subscribe:fn=>{if(typeof fn!=='function')throw new TypeError('subscriber must be a function');agentSubscribers.add(fn);return()=>agentSubscribers.delete(fn)}});
+  version:'1.0',ready:agentReady,getState:getAgentState,setState:agentSetState,setText:text=>mutateAgentText('set',text),appendText:text=>mutateAgentText('append',text),prependText:text=>mutateAgentText('prepend',text),insertText:(index,text)=>mutateAgentText('insert',text,index),replaceRange:(start,end,text)=>mutateAgentText('range',text,start,end),clearText:()=>mutateAgentText('clear'),addFile:agentAddFile,addFiles:async list=>{const out=[];for(const f of list||[])out.push(await agentAddFile(f));return out},getFile:agentGetFile,getFileText:agentGetFileText,createFile:agentCreateFile,listFiles:agentFilesState,removeFile:async id=>{await removeAsset(String(id));scheduleAgentStateRefresh('file');return true},startMedia:startLocalMedia,stopMedia:kind=>stopLocalMedia(kind),setView:opts=>runAgentCommand({action:'setView',...(opts||{})}),open:()=>setAgentOpen(true),close:()=>setAgentOpen(false),run:runAgentCommand,subscribe:fn=>{if(typeof fn!=='function')throw new TypeError('subscriber must be a function');agentSubscribers.add(fn);return()=>agentSubscribers.delete(fn)}});
 document.addEventListener('scratchpad:agent-command',async e=>{const id=e.detail?.id||crypto.randomUUID();try{const result=await runAgentCommand(e.detail?.command||e.detail);document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:true,result}}))}catch(error){document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:false,error:error.message}}))}});
 
 async function loadQrModule(){
@@ -945,7 +1014,7 @@ async function openAsset(id){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function renderAssets(){
   const token=++renderToken;const box=$('#assetList');for(const u of previewUrls.values())URL.revokeObjectURL(u);previewUrls.clear();box.innerHTML='';
-  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);$('#assetMeta').textContent=visible.length+' ITEM'+(visible.length===1?'':'S');
+  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);$('#assetMeta').textContent=visible.length+' ITEM'+(visible.length===1?'':'S');updateCollapsedMediaSummary();
   if(!visible.length){box.innerHTML='<div class="empty">No shared files yet.<br>Drop files above or paste an image from the clipboard.</div>';return}
   for(const m of visible){
     if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;card.dataset.agentFileId=m.id;card.setAttribute('data-agent-role','shared-file');
@@ -973,10 +1042,16 @@ function updatePresence(){
 $('#scratch').addEventListener('compositionstart',()=>{isComposing=true});
 $('#scratch').addEventListener('compositionend',()=>{isComposing=false;localDocChanged();if(incomingY.length&&!remoteFlushTimer)remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),40)});
 $('#scratch').addEventListener('input',()=>{if(!isComposing&&!renderingEditor)localDocChanged()});
-for(const ev of ['select','click','keyup','focus'])$('#scratch').addEventListener(ev,()=>queuePresence());
-$('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true)});
+for(const ev of ['select','click','keyup'])$('#scratch').addEventListener(ev,()=>queuePresence());
+$('#scratch').addEventListener('focus',()=>{markdownEditing=true;updateMarkdownMode();queuePresence()});
+$('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true);markdownEditing=false;setTimeout(updateMarkdownMode,0)});
 $('#scratch').addEventListener('scroll',()=>requestAnimationFrame(renderRemoteCursors));
-window.addEventListener('resize',()=>requestAnimationFrame(renderRemoteCursors));
+window.addEventListener('resize',()=>{if(innerWidth>820)setMediaWidth(mediaWidth,{persist:false});requestAnimationFrame(renderRemoteCursors)});
+$('#markdownBtn').onclick=()=>setMarkdownEnabled(!markdownEnabled);
+$('#markdownView').addEventListener('click',e=>{if(e.target.closest('a'))return;markdownEditing=true;updateMarkdownMode();const s=$('#scratch');s.focus({preventScroll:true});try{s.setSelectionRange(s.selectionStart,s.selectionEnd)}catch(_){}});
+$('#historyRailToggle').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#historyRailClose').onclick=()=>setHistoryOpen(false);
+$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));
+const mediaSplitter=$('#mediaSplitter');mediaSplitter.addEventListener('pointerdown',e=>{if(innerWidth<=820)return;e.preventDefault();mediaResizeStart={x:e.clientX,w:$('#mediaPanel').getBoundingClientRect().width};mediaSplitter.setPointerCapture?.(e.pointerId);mediaSplitter.classList.add('dragging')});mediaSplitter.addEventListener('pointermove',e=>{if(!mediaResizeStart)return;const w=mediaResizeStart.w-(e.clientX-mediaResizeStart.x);if(w<96){setMediaCollapsed(true)}else{if(document.body.classList.contains('media-collapsed'))setMediaCollapsed(false);setMediaWidth(w,{persist:false})}});const endMediaResize=e=>{if(!mediaResizeStart)return;mediaResizeStart=null;mediaSplitter.classList.remove('dragging');if(!document.body.classList.contains('media-collapsed'))setMediaWidth(mediaWidth,{persist:true});try{mediaSplitter.releasePointerCapture?.(e.pointerId)}catch(_){}};mediaSplitter.addEventListener('pointerup',endMediaResize);mediaSplitter.addEventListener('pointercancel',endMediaResize);mediaSplitter.addEventListener('keydown',e=>{if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;e.preventDefault();if(document.body.classList.contains('media-collapsed'))setMediaCollapsed(false);setMediaWidth(mediaWidth+(e.key==='ArrowLeft'?24:-24))});
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
 $('#copyBtn').onclick=async()=>{const u=roomLink();try{await navigator.clipboard.writeText(u);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',u)}};
 $('#qrBtn').onclick=showRoomQr;
@@ -984,7 +1059,7 @@ $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
 $('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
 const drop=$('#dropZone');for(const ev of ['dragenter','dragover'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')});for(const ev of ['dragleave','drop'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')});drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();addFiles(files)}});
-$('#historyBtn').onclick=()=>{renderHistory();$('#historyModal').classList.add('show')};$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
+$('#historyBtn').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
 $('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
 $('#closeQr').onclick=()=>$('#qrModal').classList.remove('show');$('#qrModal').onclick=e=>{if(e.target===$('#qrModal'))$('#qrModal').classList.remove('show')};
 $('#agentBtn').onclick=()=>setAgentOpen(!agentIsOpen());
@@ -1001,7 +1076,7 @@ window.addEventListener('hashchange',()=>location.reload());window.addEventListe
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await importYjs();setupYDoc();await loadLocal();updatePresence();$('#agentLink').value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);$('#agentReadyMeta').textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();$('#agentReadyMeta').textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
+    await initSecret();await importYjs();setupYDoc();await loadLocal();initWorkspaceLayout();updatePresence();$('#agentLink').value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);$('#agentReadyMeta').textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();$('#agentReadyMeta').textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
