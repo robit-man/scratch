@@ -553,10 +553,49 @@ function removeFsEntry(id){const m=fsEntry(id);if(!m)return false;const ids=[id,
 function downloadDocument(id){const m=fsEntry(id);if(!m||m.type!=='doc')return;const text=docTextFor(m).toString(),blob=new Blob([text],{type:'text/markdown;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=/\.[a-z0-9]{1,8}$/i.test(m.name)?m.name:m.name+'.md';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000)}
 function breadcrumbHtml(){const path=activeDocPath();if(!path.length)return 'ROOT';return ['<strong>ROOT</strong>',...path.map((x,i)=>`<span class="crumbSep">›</span><span class="${i===path.length-1?'crumbFile':''}">${escapeHtml(x.name)}</span>`)].join('')}
 function docRowHtml(m,depth){const folder=m.type==='folder',open=expandedFolders.has(m.id),active=m.id===activeDocId;const icon=folder?`<svg viewBox="0 0 24 24" class="chev"><path d="m9 6 6 6-6 6"/></svg>`:`<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h5"/></svg>`;return `<div class="docRow ${folder?'folder':''} ${open?'open':''} ${active?'active':''}" data-doc-id="${escapeHtml(m.id)}" data-doc-type="${m.type}" style="--indent:${4+depth*15}px"><button class="docTypeBtn" type="button" aria-label="${folder?(open?'Collapse':'Expand'):'Document'}">${icon}</button><button class="docNameBtn" type="button" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</button><button class="docItemMenu" type="button" aria-label="Actions for ${escapeHtml(m.name)}">···</button><div class="docRowActions">${folder?'<button class="mini" data-fs-act="newdoc">+ DOC</button><button class="mini" data-fs-act="newfolder">+ FOLDER</button>':'<button class="mini" data-fs-act="download">DOWNLOAD</button>'}<button class="mini" data-fs-act="rename">RENAME</button><button class="mini danger" data-fs-act="delete">DELETE</button></div></div>`}
+function openTreeDocument(id,{focus=true,closeMobile=true}={}){
+  const opened=selectDocument(String(id),{focus});
+  if(opened&&closeMobile&&innerWidth<=820)setDocsOpen(false);
+  return opened;
+}
+function toggleTreeFolder(id){
+  id=String(id);const m=fsEntry(id);if(!m||m.type!=='folder')return false;
+  expandedFolders.has(id)?expandedFolders.delete(id):expandedFolders.add(id);
+  activeFolderId=id;renderDocNavigator();return true;
+}
+function bindDocTreeInteractions(tree){
+  if(!tree||tree.dataset.treeBound==='1')return;tree.dataset.treeBound='1';
+  let holdTimer=null,holdId=null,longFiredId=null;
+  const cancelHold=()=>{clearTimeout(holdTimer);holdTimer=null;holdId=null};
+  tree.addEventListener('pointerdown',e=>{
+    const name=e.target.closest?.('.docNameBtn'),row=name?.closest('.docRow');
+    if(!name||!row||!tree.contains(row))return;
+    cancelHold();holdId=row.dataset.docId;longFiredId=null;
+    holdTimer=setTimeout(()=>{const id=holdId;holdTimer=null;holdId=null;if(id&&fsEntry(id)){longFiredId=id;renameFsEntry(id)}},650);
+  });
+  for(const ev of ['pointerup','pointercancel','pointerleave'])tree.addEventListener(ev,cancelHold,true);
+  tree.addEventListener('click',e=>{
+    const row=e.target.closest?.('.docRow');if(!row||!tree.contains(row))return;
+    const id=row.dataset.docId,type=row.dataset.docType,target=e.target;
+    const action=target.closest?.('[data-fs-act]');
+    if(action){e.preventDefault();e.stopPropagation();const a=action.dataset.fsAct;if(a==='rename')renameFsEntry(id);else if(a==='delete')removeFsEntry(id);else if(a==='download')downloadDocument(id);else if(a==='newdoc')createDocument(id);else if(a==='newfolder')createFolder(id);return}
+    const menu=target.closest?.('.docItemMenu');
+    if(menu){e.preventDefault();e.stopPropagation();for(const other of tree.querySelectorAll('.docRow.actions-open'))if(other!==row)other.classList.remove('actions-open');row.classList.toggle('actions-open');return}
+    if(longFiredId===id){longFiredId=null;e.preventDefault();e.stopPropagation();return}
+    const typeButton=target.closest?.('.docTypeBtn');
+    if(type==='folder'){e.preventDefault();e.stopPropagation();toggleTreeFolder(id);return}
+    // Documents open from the icon, name, whitespace, or any other non-action
+    // part of the row. This is deliberately independent of tree depth.
+    if(type==='doc'){e.preventDefault();e.stopPropagation();openTreeDocument(id,{focus:true,closeMobile:true})}
+  });
+  tree.addEventListener('keydown',e=>{
+    if(e.key!=='Enter'&&e.key!==' ')return;const row=e.target.closest?.('.docRow');if(!row||!tree.contains(row)||e.target.closest?.('[data-fs-act],.docItemMenu'))return;
+    if(row.dataset.docType==='folder'){e.preventDefault();toggleTreeFolder(row.dataset.docId)}else if(row.dataset.docType==='doc'){e.preventDefault();openTreeDocument(row.dataset.docId,{focus:true,closeMobile:true})}
+  });
+}
 function renderDocNavigator(){
-  const crumb=$('#docBreadcrumbPath');if(crumb)crumb.innerHTML=breadcrumbHtml();const tree=$('#docTree');if(!tree||!yfs)return;const all=fsEntries(),docs=all.filter(x=>x.type==='doc');$('#docBrowserMeta').textContent=`${docs.length} FILE${docs.length===1?'':'S'} · ${all.filter(x=>x.type==='folder').length} FOLDER${all.filter(x=>x.type==='folder').length===1?'':'S'}`;
+  const crumb=$('#docBreadcrumbPath');if(crumb)crumb.innerHTML=breadcrumbHtml();const tree=$('#docTree');if(!tree||!yfs)return;bindDocTreeInteractions(tree);const all=fsEntries(),docs=all.filter(x=>x.type==='doc');$('#docBrowserMeta').textContent=`${docs.length} FILE${docs.length===1?'':'S'} · ${all.filter(x=>x.type==='folder').length} FOLDER${all.filter(x=>x.type==='folder').length===1?'':'S'}`;
   let html='';const walk=(parent,depth)=>{for(const m of fsChildren(parent)){html+=docRowHtml(m,depth);if(m.type==='folder'&&expandedFolders.has(m.id))walk(m.id,depth+1)}};walk(null,0);tree.innerHTML=html||'<div class="docTreeEmpty">No documents yet.</div>';
-  for(const row of tree.querySelectorAll('.docRow')){const id=row.dataset.docId,type=row.dataset.docType,name=row.querySelector('.docNameBtn'),typeBtn=row.querySelector('.docTypeBtn'),menu=row.querySelector('.docItemMenu');let hold=null,longFired=false;const begin=()=>{longFired=false;clearTimeout(hold);hold=setTimeout(()=>{longFired=true;renameFsEntry(id)},650)},cancel=()=>{clearTimeout(hold);hold=null};name.addEventListener('pointerdown',begin);for(const ev of ['pointerup','pointercancel','pointerleave'])name.addEventListener(ev,cancel);name.addEventListener('click',()=>{if(longFired){longFired=false;return}if(type==='folder'){expandedFolders.has(id)?expandedFolders.delete(id):expandedFolders.add(id);activeFolderId=id;renderDocNavigator()}else{selectDocument(id,{focus:true});if(innerWidth<=820)setDocsOpen(false)}});typeBtn.onclick=()=>{if(type==='folder'){expandedFolders.has(id)?expandedFolders.delete(id):expandedFolders.add(id);activeFolderId=id;renderDocNavigator()}else selectDocument(id,{focus:true})};menu.onclick=e=>{e.stopPropagation();for(const other of tree.querySelectorAll('.docRow.actions-open'))if(other!==row)other.classList.remove('actions-open');row.classList.toggle('actions-open')};for(const b of row.querySelectorAll('[data-fs-act]'))b.onclick=e=>{e.stopPropagation();const a=b.dataset.fsAct;if(a==='rename')renameFsEntry(id);else if(a==='delete')removeFsEntry(id);else if(a==='download')downloadDocument(id);else if(a==='newdoc')createDocument(id);else if(a==='newfolder')createFolder(id);};}
 }
 
 function queueYBroadcast(update){
