@@ -2,7 +2,38 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<script>
+(()=>{
+  const LOCK='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
+  const meta=document.querySelector('meta[name="viewport"]');
+  let resetting=false, timer=0;
+  const reassert=()=>{
+    if(!meta||resetting)return;
+    resetting=true;
+    // Reassigning the viewport forces WebKit to discard a retained visual-viewport scale.
+    meta.setAttribute('content','width=device-width,initial-scale=1.00001,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+    requestAnimationFrame(()=>{
+      meta.setAttribute('content',LOCK);
+      requestAnimationFrame(()=>{
+        try{window.scrollTo(0,0)}catch(_){}
+        resetting=false;
+      });
+    });
+  };
+  const check=()=>{
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      const vv=window.visualViewport;
+      if(vv && Math.abs((vv.scale||1)-1)>.015) reassert();
+    },24);
+  };
+  meta?.setAttribute('content',LOCK);
+  addEventListener('pageshow',()=>{reassert();setTimeout(check,80)},{passive:true});
+  addEventListener('orientationchange',()=>setTimeout(reassert,80),{passive:true});
+  window.visualViewport?.addEventListener('resize',check,{passive:true});
+})();
+</script>
 <meta name="color-scheme" content="dark">
 <title>Scratch // P2P</title>
 <style>
@@ -12,12 +43,12 @@
   --warn:#e9aa50;--bad:#e36a6a;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
   --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-*{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
-body{overflow:hidden} button,input,textarea{font:inherit} button{cursor:pointer} ::selection{background:var(--accent);color:#111}
+*{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{overflow:hidden;touch-action:pan-x pan-y} button,input,textarea,select{font:inherit} button{cursor:pointer} ::selection{background:var(--accent);color:#111}
 #app{height:100dvh;display:flex;flex-direction:column;min-height:0}
 header{flex:0 0 auto;min-height:0;border-bottom:1px solid var(--line);background:rgba(8,9,10,.96);backdrop-filter:blur(14px);display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"brand actions" "status status";align-items:center;gap:8px 12px;padding:9px 14px 8px;z-index:10}
 .brand{grid-area:brand;font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap;min-width:0}.brand b{color:var(--accent)}.brandCompact{display:none;color:var(--accent);font-size:17px;letter-spacing:-.08em}
-.status{grid-area:status;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:7px;min-width:0;width:100%;overflow:visible}.status .pill{min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}.status #roomPill{text-align:left}
+.status{grid-area:status;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:7px;min-width:0;width:100%;overflow:visible}.status .pill{min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}.status #roomPill{text-align:left}.roomPillBtn{appearance:none;-webkit-appearance:none;width:100%;display:flex;align-items:center;gap:6px;min-width:0;cursor:default}.roomPillLabel{flex:0 0 auto}.roomPillCode{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.roomCopyIcon{display:none;margin-left:auto;flex:0 0 18px;width:18px;height:18px;align-items:center;justify-content:center;color:var(--dim)}.roomCopyIcon svg{width:13px;height:13px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
 .actions{grid-area:actions;display:flex;gap:6px;min-width:0;justify-content:flex-end;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}.actions::-webkit-scrollbar{display:none}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;position:relative}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.active{color:var(--good);border-color:#315740;background:#0d1712}.iconbtn.active::after{content:'';position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px rgba(103,211,145,.55)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 main{position:relative;--history-w:0px;--media-w:420px;--splitter-w:1px;--agent-w:clamp(340px,28vw,420px);flex:1;min-height:0;display:grid;grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w);overflow:hidden}
@@ -134,7 +165,7 @@ body.resizing-media .assets{pointer-events:none}
   .brand{align-self:center;margin:0}.brandLong{display:none}.brandCompact{display:inline}
   .actions{margin:0;gap:4px;padding-bottom:1px;flex-wrap:nowrap}.actions .iconbtn{width:32px;height:32px;flex:0 0 32px}
   .status{grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
-  .status .pill{width:auto;min-width:0;padding:5px 7px;text-align:center;font-size:8px;overflow:hidden;text-overflow:ellipsis}.status #roomPill{text-align:left}
+  .status .pill{width:auto;min-width:0;padding:5px 7px;text-align:center;font-size:8px;overflow:hidden;text-overflow:ellipsis}.status #roomPill{text-align:left}.status .roomPillBtn{cursor:pointer;padding-right:5px;touch-action:manipulation}.status .roomPillBtn:active{background:#12161a;border-color:#4c5661}.status .roomCopyIcon{display:inline-flex}
 
   #app{height:100dvh;min-height:0;overflow:hidden}
   body{overflow:hidden}
@@ -192,7 +223,11 @@ body.resizing-media .assets{pointer-events:none}
   <header>
     <div class="brand"><span class="brandLong">SCRATCH<b>//</b>P2P</span><span class="brandCompact" aria-hidden="true">//</span></div>
     <div class="status">
-      <span class="pill" id="roomPill" data-agent-id="room-status">ROOM …</span>
+      <button class="pill roomPillBtn" id="roomPill" data-agent-id="room-status" type="button" aria-label="Copy full page URL" title="Copy full page URL">
+        <span class="roomPillLabel">ROOM</span>
+        <span class="roomPillCode" id="roomPillCode">…</span>
+        <span class="roomCopyIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="10" height="10" rx="2"/><path d="M15 9V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/></svg></span>
+      </button>
       <span class="pill" id="peerPill" data-agent-id="peer-status">PEERS 0</span>
       <span class="pill warn" id="netPill" data-agent-id="network-status">MESH STARTING</span>
     </div>
@@ -209,8 +244,8 @@ body.resizing-media .assets{pointer-events:none}
       <button class="iconbtn" id="markdownBtn" type="button" aria-label="Toggle Markdown formatting" title="Toggle Markdown formatting" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v10M4 7l4 6 4-6v10M15 7v10M15 13l3 4 3-4"/></svg>
       </button>
-      <button class="iconbtn" id="qrBtn" data-agent-action="share-room-link" type="button" aria-label="Share room link and QR code" title="Share room link / QR code">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="3" y="15" width="6" height="6"/><path d="M15 15h2v2h-2zM19 15h2v4h-2M15 19h2v2h-2M19 21h2"/></svg>
+      <button class="iconbtn" id="qrBtn" data-agent-action="share-room-link" type="button" aria-label="Share room" title="Share room">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
       </button>
       <button class="iconbtn primary" id="newBtn" data-agent-action="new-room" type="button" aria-label="Create new room" title="Create new room">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -463,7 +498,7 @@ async function initSecret(){
   aesKey=await crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode('robit-scratchpad-v1|'+roomHash),iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
   const macRaw=await crypto.subtle.digest('SHA-256',enc.encode('robit-scratchpad-mac|'+secret));
   macKey=await crypto.subtle.importKey('raw',macRaw,{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
-  $('#roomPill').textContent='ROOM '+roomHash.slice(0,10).toUpperCase();
+  const roomCodeEl=$('#roomPillCode');if(roomCodeEl)roomCodeEl.textContent=roomHash.slice(0,10).toUpperCase();
 }
 async function encryptBytes(input,aad=''){
   const bytes=input instanceof Uint8Array?input:new Uint8Array(input);
@@ -1206,6 +1241,7 @@ function localDocChanged(){
   noteHistory(change);updateDocMeta();queuePresence();
 }
 function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0,name=currentDocMeta()?.name||'Scratch pad';$('#docMeta').textContent=name.toUpperCase()+' · '+chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'}` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+async function copyCurrentPageUrl(){const u=location.href;try{await navigator.clipboard.writeText(u);toast('<b>Page link copied.</b>','good')}catch(_){prompt('Copy this page URL:',u)}}
 function roomLink(){const u=new URL(location.href);u.searchParams.delete('agent');return u.href}
 function agentLink(){const u=new URL(location.href);u.searchParams.set('agent','1');return u.href}
 function setAgentOpen(on){on=!!on;document.body.classList.toggle('agent-mode',on);const raw=$('#agentInstructions');if(raw)raw.hidden=!on;if(on){const link=$('#agentLink');if(link)link.value=agentLink();scheduleAgentStateRefresh('open',0)}requestAnimationFrame(renderRemoteCursors)}
@@ -1323,8 +1359,10 @@ $('#markdownBtn').onclick=()=>setMarkdownEnabled(!markdownEnabled);
 $('#markdownView').addEventListener('click',e=>{if(e.target.closest('a'))return;markdownEditing=true;updateMarkdownMode();const s=$('#scratch');s.focus({preventScroll:true});try{s.setSelectionRange(s.selectionStart,s.selectionEnd)}catch(_){}});
 $('#historyRailToggle').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#historyRailClose').onclick=()=>setHistoryOpen(false);
 $('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));$('#mobileMediaToggle').onclick=()=>setMediaCollapsed(false);
-for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
-document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+const blockZoomGesture=e=>{if(e.cancelable)e.preventDefault()};
+for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,blockZoomGesture,{passive:false,capture:true});
+for(const ev of ['touchstart','touchmove'])document.addEventListener(ev,e=>{if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault()},{passive:false,capture:true});
+document.addEventListener('dblclick',blockZoomGesture,{passive:false,capture:true});
 const mediaSplitter=$('#mediaSplitter');
 function finishMediaResize(pointerId){
   if(!mediaResizeStart||pointerId!==mediaResizeStart.pointerId)return;
@@ -1373,6 +1411,7 @@ mediaSplitter.addEventListener('keydown',e=>{
 });
 $('#docNavToggle').onclick=()=>setDocsOpen(!document.body.classList.contains('docs-open'));$('#docBrowserClose').onclick=()=>setDocsOpen(false);$('#newFolderBtn').onclick=()=>createFolder(activeFolderId);$('#newDocBtn').onclick=()=>createDocument(activeFolderId);$('#docQuickNew').onclick=()=>createDocument(activeFolderId);
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
+const roomPill=$('#roomPill');if(roomPill)roomPill.onclick=copyCurrentPageUrl;
 $('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
 $('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
