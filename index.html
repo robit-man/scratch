@@ -19,7 +19,7 @@ header{height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);background:
 .brand{font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap}.brand b{color:var(--accent)}
 .status{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:auto;scrollbar-width:none}.status::-webkit-scrollbar{display:none}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
-.actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;position:relative}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.active{color:var(--good);border-color:#315740;background:#0d1712}.iconbtn.active::after{content:'';position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px rgba(103,211,145,.55)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr)}
 .pad{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
 .panelhead{height:42px;flex:0 0 42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#0a0c0e}
@@ -41,6 +41,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 .syncbar{flex:0 0 31px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
 .assets{min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e}
+.liveSection{border-bottom:1px solid var(--line);background:#090b0d;flex:0 0 auto}.liveHead{height:32px;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid var(--line);color:var(--dim);font:800 8px var(--mono);letter-spacing:.1em;text-transform:uppercase}.liveHead span:last-child{margin-left:auto;font-weight:500;letter-spacing:.03em}.liveGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;max-height:280px;overflow:auto}.liveEmpty{grid-column:1/-1;border:1px dashed var(--line);padding:12px;text-align:center;color:var(--dim);font:9px/1.5 var(--mono)}
+.mediaTile{position:relative;min-width:0;border:1px solid var(--line);background:#070809;overflow:hidden}.mediaTile.screen{grid-column:1/-1}.mediaTile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#050607}.mediaTile.screen video{object-fit:contain;max-height:220px}.mediaLabel{position:absolute;left:7px;bottom:7px;z-index:2;max-width:calc(100% - 14px);display:flex;align-items:center;gap:5px;padding:3px 6px;background:rgba(5,6,7,.76);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(6px);font:800 8px var(--mono);color:#eef1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mediaLabel i{width:6px;height:6px;border-radius:50%;background:var(--user,#fff);flex:0 0 auto}.mediaKind{color:var(--muted);font-weight:500}.audioTile{height:82px;padding:9px 9px 8px;display:flex;flex-direction:column;gap:7px}.audioTop{display:flex;align-items:center;gap:7px;min-width:0;font:800 8px var(--mono)}.audioTop .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.audioTop .kind{margin-left:auto;color:var(--dim);font-weight:500}.wave{display:block;width:100%;height:43px;background:#080a0c;border-top:1px solid #171b1f}.mediaMute{position:absolute;right:6px;top:6px;z-index:3;width:28px;height:28px;border:1px solid rgba(255,255,255,.14);background:rgba(5,6,7,.72);color:var(--muted);display:flex;align-items:center;justify-content:center}.mediaMute:hover{color:var(--text)}.mediaMute svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mediaTile.local{border-color:#33413a}.mediaTile.local::after{content:'YOU';position:absolute;right:6px;bottom:6px;padding:2px 4px;background:#111;color:var(--good);border:1px solid #294737;font:800 7px var(--mono)}
 .drop{margin:12px;border:1px dashed #3a424b;background:#0b0d0f;min-height:112px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;transition:.14s}.drop.drag{border-color:var(--accent);background:#151207}.drop strong{display:block;font:800 11px var(--mono);letter-spacing:.06em}.drop span{display:block;margin-top:6px;font:10px/1.5 var(--mono);color:var(--dim)}
 .assetlist{flex:1;min-height:0;overflow:auto;padding:0 12px 12px}.empty{border:1px dashed var(--line);padding:16px;text-align:center;color:var(--dim);font:9px/1.6 var(--mono)}
 .card{border:1px solid var(--line);background:#0d0f11;margin-top:8px;overflow:hidden}.cardtop{padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}.fname{font:800 10px/1.4 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fmeta{font:9px/1.45 var(--mono);color:var(--dim);margin-top:4px}.cardactions{display:flex;gap:5px}.mini{border:1px solid var(--line);background:#0a0c0e;color:var(--muted);padding:5px 6px;font:800 8px var(--mono);text-transform:uppercase}.mini:hover{color:var(--text);border-color:var(--line2)}.mini.danger:hover{color:var(--bad);border-color:#653737}
@@ -49,7 +51,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 .toastbox{position:fixed;right:14px;top:70px;width:min(360px,calc(100vw - 28px));z-index:100;display:flex;flex-direction:column;gap:7px;pointer-events:none}.toast{border:1px solid var(--line2);background:#111419;box-shadow:0 14px 40px rgba(0,0,0,.42);padding:10px 11px;font:9px/1.5 var(--mono);color:var(--muted);pointer-events:auto}.toast b{color:var(--text)}.toast.good{border-color:#315740}.toast.bad{border-color:#653737;color:#d99595}
 .modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}.qrwrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 2px}.qrframe{background:#fff;padding:10px;line-height:0;border:1px solid #343a40}.qrframe canvas{width:min(320px,72vw);height:auto;image-rendering:pixelated}.qrurl{width:100%;padding:9px 10px;border:1px solid var(--line);background:#090b0d;color:var(--dim);font:9px/1.5 var(--mono);word-break:break-all;user-select:all}.qrnote{font:9px/1.55 var(--mono);color:var(--muted);text-align:center;max-width:460px}
 @media(max-width:820px){body{overflow:auto}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
-@media(max-width:500px){.brand{font-size:11px}.actions{gap:4px}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}}
+@media(max-width:500px){.brand{font-size:11px}.actions{gap:4px;flex-wrap:wrap;justify-content:flex-end}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}.liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -62,6 +64,15 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
       <span class="pill warn" id="netPill">MESH STARTING</span>
     </div>
     <div class="actions">
+      <button class="iconbtn" id="micBtn" type="button" aria-label="Share microphone" title="Share microphone">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>
+      </button>
+      <button class="iconbtn" id="cameraBtn" type="button" aria-label="Share camera" title="Share camera">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg>
+      </button>
+      <button class="iconbtn" id="screenBtn" type="button" aria-label="Share screen and request system audio" title="Share screen + system audio">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l4-3 4 3M12 7v7"/></svg>
+      </button>
       <button class="iconbtn" id="historyBtn" type="button" aria-label="Edit history" title="Edit history">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>
       </button>
@@ -90,6 +101,10 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
     </section>
     <section class="assets">
       <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span></div>
+      <div class="liveSection" id="liveSection">
+        <div class="liveHead"><span>Live peer media</span><span id="liveMeta">0 LIVE</span></div>
+        <div class="liveGrid" id="liveGrid"><div class="liveEmpty" id="liveEmpty">MIC / CAMERA / SCREEN streams appear here</div></div>
+      </div>
       <div class="drop" id="dropZone">
         <div><strong>DROP / PASTE / UPLOAD</strong><span>Images, video, audio, PDFs, archives, code — encrypted before transfer · max 128 MB each</span><button class="btn small" id="chooseBtn" style="margin-top:10px">CHOOSE FILES</button><input id="fileInput" type="file" multiple hidden></div>
       </div>
@@ -106,7 +121,8 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
       <strong>The URL fragment is the key.</strong> The value after <code>#</code> is never included in HTTP requests. This page hashes it to create a rendezvous room name and separately derives an AES-256-GCM application key from the original fragment.<br><br>
       Network payloads are therefore protected by WebRTC transport encryption <em>and</em> application-layer encryption. File names, CRDT document updates, cursor presence, edit history, asset metadata and file bytes are encrypted; signaling sees only a hash-derived room identifier and transport metadata.<br><br>
       <strong>Anyone with the complete link can read and modify the room.</strong> Use the generated high-entropy room URLs rather than short human passwords. This is capability-based access, not an account system.<br><br>
-      <strong>No central archive exists.</strong> Each browser keeps an encrypted local cache. A new browser can recover the current state only while at least one peer that already has that state is online. Large files are transferred peer-to-peer and are not uploaded to this host.
+      <strong>No central archive exists.</strong> Each browser keeps an encrypted local cache. A new browser can recover the current state only while at least one peer that already has that state is online. Large files are transferred peer-to-peer and are not uploaded to this host.<br><br>
+      <strong>Live media is ephemeral.</strong> Microphone, camera, and screen-share tracks travel directly over WebRTC/SRTP and are not stored in the scratchpad cache. Screen sharing asks the browser/OS chooser to offer system audio when supported; the browser and operating system decide whether that source is actually available.
     </div>
     <div class="modalfoot"><button class="btn" id="closeInfo">CLOSE</button></div>
   </div>
@@ -153,7 +169,7 @@ let actor=crypto.randomUUID();
 let secret='', roomHash='', aesKey=null, macKey=null, db=null, clock=0;
 let Y=null, ydoc=null, ytext=null, yhistory=null;
 let profile={name:'',color:'#67d391'};
-const LOCAL_ORIGIN={kind:'local'}, HISTORY_ORIGIN={kind:'history'}, LOAD_ORIGIN={kind:'load'}, REMOTE_ORIGIN={kind:'remote'};
+const LOCAL_ORIGIN={kind:'local'}, HISTORY_ORIGIN={kind:'history'}, REPAIR_ORIGIN={kind:'repair'}, LOAD_ORIGIN={kind:'load'}, REMOTE_ORIGIN={kind:'remote'};
 const assets=new Map();
 const wrappers=new Map();
 const actorRoutes=new Map();
@@ -163,6 +179,11 @@ const transferProgress=new Map();
 const pendingBins=new Map();
 const previewUrls=new Map();
 const remotePresence=new Map();
+const localMedia=new Map();
+const remoteMedia=new Map();
+const mediaSentRoutes=new Map();
+const waveformLoops=new Map();
+const seenYUpdates=new Map();
 const assetAliases=new Map();
 const aliasMeta=new Map();
 const assetRequests=new Map();
@@ -170,9 +191,9 @@ const assetSendsInFlight=new Set();
 const assetSentRecently=new Map();
 const assetReceivesInFlight=new Set();
 const incomingY=[];
-const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessions:new Map(),status:'off'};
+const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessions:new Map(),mediaSessions:new Map(),status:'off'};
 let renderToken=0, networkReady=false, qrModule=null, remoteFlushTimer=null, ySaveTimer=null, ySendTimer=null, presenceTimer=null, presenceSweepTimer=null, historyTimer=null, pendingHistory=null;
-let outgoingY=[], isComposing=false;
+let outgoingY=[], isComposing=false, renderingEditor=false, editorShadow='', remoteStateRepairPending=false;
 
 function toast(html,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.innerHTML=html; $('#toastBox').append(el);
@@ -245,7 +266,7 @@ function setupYDoc(){
   ydoc=new Y.Doc();ytext=ydoc.getText('scratch');yhistory=ydoc.getArray('history');
   ydoc.on('update',(update,origin)=>{
     scheduleYSave();
-    if(origin===LOCAL_ORIGIN||origin===HISTORY_ORIGIN)queueYBroadcast(update);
+    if(origin===LOCAL_ORIGIN||origin===HISTORY_ORIGIN||origin===REPAIR_ORIGIN)queueYBroadcast(update);
   });
   yhistory.observe(()=>renderHistory());
 }
@@ -271,17 +292,29 @@ function resolveRelative(bytes){
   try{const abs=Y.createAbsolutePositionFromRelativePosition(Y.decodeRelativePosition(bytes),ydoc);return abs&&abs.type===ytext?abs.index:null}catch(_){return null}
 }
 function renderEditor(sel=null){
-  const s=$('#scratch'),text=ytext.toString();if(s.value!==text)s.value=text;
+  const s=$('#scratch'),text=ytext.toString();
+  renderingEditor=true;
+  try{if(s.value!==text)s.value=text;editorShadow=text}
+  finally{renderingEditor=false}
   if(sel){const a=resolveRelative(sel.anchor),h=resolveRelative(sel.head);if(a!=null&&h!=null){const start=Math.min(a,h),end=Math.max(a,h),dir=a>h?'backward':'forward';try{s.setSelectionRange(start,end,dir)}catch(_){}}}
   updateDocMeta();requestAnimationFrame(renderRemoteCursors);
 }
-function queueRemoteYUpdate(b64){
-  if(!b64)return;try{incomingY.push(b64ToBytes(b64))}catch(_){return}
+function queueRemoteYUpdate(b64,isState=false){
+  if(!b64||seenYUpdates.has(b64))return;if(isState)remoteStateRepairPending=true;seenYUpdates.set(b64,Date.now());
+  if(seenYUpdates.size>1200){const cut=Date.now()-5*60*1000;for(const [k,t] of seenYUpdates)if(t<cut)seenYUpdates.delete(k)}
+  try{incomingY.push(b64ToBytes(b64))}catch(_){return}
   if(remoteFlushTimer)return;remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),135);
 }
 function flushRemoteYUpdates(){
-  remoteFlushTimer=null;if(!incomingY.length)return;if(isComposing){remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),80);return}const sel=selectionRelative();
-  try{const merged=Y.mergeUpdates(incomingY.splice(0));Y.applyUpdate(ydoc,merged,REMOTE_ORIGIN);renderEditor(sel)}catch(e){console.warn('CRDT update rejected',e)}
+  remoteFlushTimer=null;if(!incomingY.length)return;if(isComposing){remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),80);return}const sel=selectionRelative(),before=ytext.toString(),repair=remoteStateRepairPending;remoteStateRepairPending=false;
+  try{
+    const merged=Y.mergeUpdates(incomingY.splice(0));Y.applyUpdate(ydoc,merged,REMOTE_ORIGIN);
+    const after=ytext.toString();
+    // Repair the legacy migration failure mode where two peers independently seeded
+    // the same pre-CRDT document and a state merge produces an exact A+A document.
+    if(repair&&before.length>=8&&after.length===before.length*2&&after===before+before){ydoc.transact(()=>ytext.delete(before.length,before.length),REPAIR_ORIGIN);console.warn('repaired duplicated legacy CRDT seed')}
+    renderEditor(sel)
+  }catch(e){console.warn('CRDT update rejected',e)}
 }
 function diffText(before,after){let p=0;const max=Math.min(before.length,after.length);while(p<max&&before.charCodeAt(p)===after.charCodeAt(p))p++;let bs=before.length,as=after.length;while(bs>p&&as>p&&before.charCodeAt(bs-1)===after.charCodeAt(as-1)){bs--;as--}return{index:p,deleted:before.slice(p,bs),inserted:after.slice(p,as)}}
 function noteHistory(change){
@@ -369,10 +402,13 @@ function trackActorRoute(remoteActor,w,peerId){
   if(!remoteActor||remoteActor===actor)return;
   routeActors.set(routeKey(w,peerId),remoteActor);
   let map=actorRoutes.get(remoteActor);if(!map){map=new Map();actorRoutes.set(remoteActor,map)}map.set(w.key,peerId);updatePresence();
+  queueMicrotask(()=>syncMediaToActor(remoteActor).catch(()=>{}));
 }
 function untrackRoute(w,peerId){
   const k=routeKey(w,peerId),remote=routeActors.get(k);routeActors.delete(k);
-  if(remote){const map=actorRoutes.get(remote);map?.delete(w.key);if(!map?.size){actorRoutes.delete(remote);remotePresence.delete(remote);renderPresence();requestAnimationFrame(renderRemoteCursors)}}updatePresence();
+  if(remote){const map=actorRoutes.get(remote);map?.delete(w.key);
+    for(const kind of ['mic','camera','screen']){const k=remote+'|'+kind,r=mediaSentRoutes.get(k),entry=localMedia.get(kind);if(r&&r.wKey===w.key&&r.peerId===peerId){if(entry)clearSentMediaRoute(remote,kind,entry,false);else mediaSentRoutes.delete(k);queueMicrotask(()=>syncMediaToActor(remote).catch(()=>{}))}}
+    if(!map?.size){actorRoutes.delete(remote);remotePresence.delete(remote);removeRemoteMediaActor(remote);renderPresence();requestAnimationFrame(renderRemoteCursors)}}updatePresence();
 }
 function chooseRoute(remoteActor){
   const map=actorRoutes.get(remoteActor);if(!map)return null;
@@ -399,6 +435,7 @@ async function joinStrategy(strategy){
       sendCtlVia(w,newMessage('hello',{profile}),peerId);sendCtlVia(w,newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}),peerId);sendCtlVia(w,newMessage('presence',{presence:currentPresence()}),peerId);
     };
     room.onPeerLeave=peerId=>{w.peers.delete(peerId);untrackRoute(w,peerId);updatePresence()};
+    room.onPeerStream=(stream,peerId,metadata)=>handlePeerStream(stream,peerId,metadata,w);
     w.ctl.onMessage=(packet,meta)=>handleControl(packet,meta,w);
     w.bin.onMessage=(packet,meta)=>handleBinary(packet,meta,w);
     w.bin.onReceiveProgress=(p,{metadata})=>{if(metadata?.id){transferProgress.set(metadata.id,p);updateCardProgress(metadata.id,p)}};
@@ -437,8 +474,10 @@ async function sendNatsSignal(remote,type,payload,session){
   const body={v:1,type,from:actor,to:remote,session,ts:Date.now(),nonce:crypto.randomUUID(),payload};await publishNats(natsSubjects(remote).signal,await signedEnvelope(body));
 }
 function closeNatsSession(remote){
-  const x=nats.sessions.get(remote);if(!x)return;x.closed=true;try{x.ctrl?.close()}catch(_){}try{x.bin?.close()}catch(_){}try{x.pc?.close()}catch(_){}
-  if(x.wrapper){wrappers.delete(x.wrapper.key);untrackRoute(x.wrapper,'nats:'+remote)}nats.sessions.delete(remote);updatePresence();
+  const x=nats.sessions.get(remote);if(x){x.closed=true;try{x.ctrl?.close()}catch(_){}try{x.bin?.close()}catch(_){}try{x.pc?.close()}catch(_){}
+    if(x.wrapper){wrappers.delete(x.wrapper.key);untrackRoute(x.wrapper,'nats:'+remote)}nats.sessions.delete(remote)}
+  for(const [k,m] of [...nats.mediaSessions])if(m.remote===remote){try{m.pc?.close()}catch(_){}nats.mediaSessions.delete(k)}
+  updatePresence();
 }
 function setupNatsChannels(remote,session,pc,ctrl,bin){
   let x=nats.sessions.get(remote);if(!x){x={remote,session,pc,ctrl:null,bin:null,closed:false,wrapper:null,rx:null,sendLock:Promise.resolve()};nats.sessions.set(remote,x)}
@@ -481,6 +520,45 @@ async function acceptNatsOffer(msg){
   pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState))closeNatsSession(remote)};
   try{await pc.setRemoteDescription({type:'offer',sdp:String(msg.payload?.sdp||'')});await pc.setLocalDescription(await pc.createAnswer());await waitIce(pc);await sendNatsSignal(remote,'answer',{sdp:pc.localDescription.sdp},msg.session)}catch(e){closeNatsSession(remote);console.warn('NATS answer failed',e)}
 }
+
+function natsMediaKey(dir,remote,kind){return dir+'|'+remote+'|'+kind}
+function closeNatsMedia(dir,remote,kind,notify=false){
+  const key=natsMediaKey(dir,remote,kind),m=nats.mediaSessions.get(key);if(!m)return;
+  try{m.pc?.close()}catch(_){}nats.mediaSessions.delete(key);
+  if(dir==='in'){const rm=remoteMedia.get(mediaTileKey(remote,kind));if(rm?.transport==='nats'){remoteMedia.delete(mediaTileKey(remote,kind));removeMediaTile(remote,kind)}}
+  if(notify&&dir==='out')sendNatsSignal(remote,'media-stop',{kind,id:m.id},m.session).catch(()=>{});
+}
+async function startNatsMedia(remote,kind,entry){
+  if(!nats.nc)return false;const key=natsMediaKey('out',remote,kind),old=nats.mediaSessions.get(key);
+  if(old?.id===entry.id&&old.pc?.connectionState!=='closed')return true;
+  if(old)closeNatsMedia('out',remote,kind,true);
+  const session=crypto.randomUUID(),pc=new RTCPeerConnection(rtcConfig());
+  for(const track of entry.stream.getTracks())pc.addTrack(track,entry.stream);
+  const m={dir:'out',remote,kind,id:entry.id,session,pc,stream:entry.stream};nats.mediaSessions.set(key,m);
+  pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState)&&nats.mediaSessions.get(key)===m)nats.mediaSessions.delete(key)};
+  try{
+    await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);
+    await sendNatsSignal(remote,'media-offer',{sdp:pc.localDescription.sdp,kind,id:entry.id,name:profile.name,color:profile.color},session);return true;
+  }catch(e){closeNatsMedia('out',remote,kind);console.warn('NATS media offer failed',e);return false}
+}
+async function acceptNatsMediaOffer(msg){
+  const remote=msg.from,kind=String(msg.payload?.kind||'');if(!['mic','camera','screen'].includes(kind))return;
+  closeNatsMedia('in',remote,kind);const id=String(msg.payload?.id||msg.session),key=natsMediaKey('in',remote,kind),pc=new RTCPeerConnection(rtcConfig());
+  const m={dir:'in',remote,kind,id,session:msg.session,pc};nats.mediaSessions.set(key,m);
+  pc.ontrack=e=>{
+    const stream=e.streams?.[0]||new MediaStream([e.track]);
+    const rmKey=mediaTileKey(remote,kind),old=remoteMedia.get(rmKey);if(old&&old.id===id&&old.stream===stream)return;
+    remoteMedia.set(rmKey,{actor:remote,kind,id,stream,transport:'nats'});
+    const p=remotePresence.get(remote)||{};renderMediaTile(remote,kind,stream,{local:false,name:msg.payload?.name||p.name||aliasFromActor(remote),color:msg.payload?.color||p.color||colorFromActor(remote)});
+    e.track.addEventListener('ended',()=>{const cur=remoteMedia.get(rmKey);if(cur?.id===id&&cur.stream.getTracks().every(t=>t.readyState==='ended')){remoteMedia.delete(rmKey);removeMediaTile(remote,kind)}},{once:true});
+  };
+  pc.onconnectionstatechange=()=>{if(['failed','closed'].includes(pc.connectionState)&&nats.mediaSessions.get(key)===m)closeNatsMedia('in',remote,kind)};
+  try{await pc.setRemoteDescription({type:'offer',sdp:String(msg.payload?.sdp||'')});await pc.setLocalDescription(await pc.createAnswer());await waitIce(pc);await sendNatsSignal(remote,'media-answer',{sdp:pc.localDescription.sdp,kind,id},msg.session)}catch(e){closeNatsMedia('in',remote,kind);console.warn('NATS media answer failed',e)}
+}
+async function acceptNatsMediaAnswer(msg){
+  for(const m of nats.mediaSessions.values())if(m.dir==='out'&&m.remote===msg.from&&m.session===msg.session){try{await m.pc.setRemoteDescription({type:'answer',sdp:String(msg.payload?.sdp||'')})}catch(e){closeNatsMedia('out',m.remote,m.kind)}break}
+}
+
 async function handleNatsPresence(raw){
   let env;try{env=JSON.parse(dec.decode(raw))}catch(_){return}if(!await verifyHmacEnvelope(env)||env.v!==1||env.actor===actor||env.expires<Date.now())return;
   // Lexicographically lower actor initiates; this prevents offer glare.
@@ -488,10 +566,109 @@ async function handleNatsPresence(raw){
 }
 async function handleNatsSignal(raw){
   let msg;try{msg=JSON.parse(dec.decode(raw))}catch(_){return}if(!await verifyHmacEnvelope(msg)||msg.v!==1||msg.to!==actor||msg.from===actor||Math.abs(Date.now()-msg.ts)>90000)return;
-  if(msg.type==='offer')await acceptNatsOffer(msg);else if(msg.type==='answer'){const x=nats.sessions.get(msg.from);if(x&&x.session===msg.session)try{await x.pc.setRemoteDescription({type:'answer',sdp:String(msg.payload?.sdp||'')})}catch(e){closeNatsSession(msg.from)}}
+  if(msg.type==='offer')await acceptNatsOffer(msg);
+  else if(msg.type==='answer'){const x=nats.sessions.get(msg.from);if(x&&x.session===msg.session)try{await x.pc.setRemoteDescription({type:'answer',sdp:String(msg.payload?.sdp||'')})}catch(e){closeNatsSession(msg.from)}}
+  else if(msg.type==='media-offer')await acceptNatsMediaOffer(msg);
+  else if(msg.type==='media-answer')await acceptNatsMediaAnswer(msg);
+  else if(msg.type==='media-stop'){const kind=String(msg.payload?.kind||'');if(['mic','camera','screen'].includes(kind))closeNatsMedia('in',msg.from,kind)}
 }
 async function startNats(){
   setTransport('nats','loading');try{const mod=await importNats();nats.nc=await mod.wsconnect({servers:'wss://demo.nats.io:8443',reconnect:true,maxReconnectAttempts:-1,reconnectTimeWait:1500,timeout:5000});nats.presenceSub=nats.nc.subscribe(natsSubjects().presence);nats.signalSub=nats.nc.subscribe(natsSubjects().signal);consumeNats(nats.presenceSub,handleNatsPresence);consumeNats(nats.signalSub,handleNatsSignal);nats.status='on';setTransport('nats','on');await publishNatsPresence();nats.timer=setInterval(()=>publishNatsPresence().catch(()=>{}),8000);return true}catch(e){console.warn('NATS unavailable',e);nats.status='err';setTransport('nats','err');return false}
+}
+
+
+function preferredMediaRoute(remoteActor){
+  const map=actorRoutes.get(remoteActor);if(!map)return null;
+  const trystero=[...map.entries()].map(([wk,peerId])=>({w:wrappers.get(wk),peerId}))
+    .filter(x=>x.w?.peers.has(x.peerId)&&x.w.strategy!=='nats'&&typeof x.w.room?.addStream==='function')
+    .sort((a,b)=>STRATEGIES[a.w.strategy].priority-STRATEGIES[b.w.strategy].priority)[0];
+  if(trystero)return{type:'trystero',...trystero};
+  const natsRoute=[...map.entries()].map(([wk,peerId])=>({w:wrappers.get(wk),peerId})).find(x=>x.w?.strategy==='nats'&&x.w.peers.has(x.peerId));
+  return natsRoute?{type:'nats',...natsRoute}:null;
+}
+function clearSentMediaRoute(remoteActor,kind,entry,notify=true){
+  const key=remoteActor+'|'+kind,r=mediaSentRoutes.get(key);if(!r)return;
+  if(r.type==='nats')closeNatsMedia('out',remoteActor,kind,notify);
+  else{const w=wrappers.get(r.wKey);try{w?.room?.removeStream?.(entry.stream,{target:r.peerId})}catch(_){}}
+  mediaSentRoutes.delete(key);
+}
+async function syncMediaToActor(remoteActor){
+  if(!remoteActor||remoteActor===actor)return;const route=preferredMediaRoute(remoteActor);if(!route)return;
+  for(const [kind,entry] of localMedia){
+    const key=remoteActor+'|'+kind,old=mediaSentRoutes.get(key);
+    if(old&&old.type===route.type&&old.wKey===route.w.key&&old.peerId===route.peerId&&old.streamId===entry.id)continue;
+    if(old)clearSentMediaRoute(remoteActor,kind,entry,true);
+    try{
+      if(route.type==='nats'){
+        if(await startNatsMedia(remoteActor,kind,entry))mediaSentRoutes.set(key,{type:'nats',wKey:route.w.key,peerId:route.peerId,streamId:entry.id});
+      }else{
+        route.w.room.addStream(entry.stream,{target:route.peerId,metadata:{v:1,actor,kind,id:entry.id,name:profile.name,color:profile.color}});mediaSentRoutes.set(key,{type:'trystero',wKey:route.w.key,peerId:route.peerId,streamId:entry.id});
+      }
+    }catch(e){console.warn('media route failed',kind,remoteActor,e)}
+  }
+}
+async function syncMediaAll(){await Promise.allSettled([...actorRoutes.keys()].map(syncMediaToActor))}
+function mediaIcon(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11"/></svg>'}
+function updateLiveMeta(){const n=localMedia.size+remoteMedia.size;$('#liveMeta').textContent=n+' LIVE';const empty=$('#liveEmpty');if(empty)empty.style.display=n?'none':''}
+function stopWaveform(key){const w=waveformLoops.get(key);if(!w)return;cancelAnimationFrame(w.raf);try{w.source.disconnect()}catch(_){}try{w.ctx.close()}catch(_){}waveformLoops.delete(key)}
+function startWaveform(canvas,stream,key){
+  stopWaveform(key);const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  try{
+    const ctx=new AudioCtx(),source=ctx.createMediaStreamSource(stream),analyser=ctx.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=.78;source.connect(analyser);const data=new Uint8Array(analyser.fftSize),c=canvas.getContext('2d');
+    const draw=()=>{const dpr=Math.min(2,devicePixelRatio||1),w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight);if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr)}c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);analyser.getByteTimeDomainData(data);c.beginPath();for(let i=0;i<data.length;i++){const x=i/(data.length-1)*w,y=(data[i]/255)*h;i?c.lineTo(x,y):c.moveTo(x,y)}c.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--good').trim()||'#67d391';c.lineWidth=1.25;c.stroke();const x=waveformLoops.get(key);if(x)x.raf=requestAnimationFrame(draw)};
+    waveformLoops.set(key,{ctx,source,analyser,raf:requestAnimationFrame(draw)});
+    const resume=()=>ctx.state==='suspended'&&ctx.resume().catch(()=>{});canvas.addEventListener('click',resume,{passive:true});document.addEventListener('pointerdown',resume,{once:true,passive:true});
+  }catch(e){console.warn('waveform unavailable',e)}
+}
+function mediaTileKey(owner,kind){return owner+'|'+kind}
+function removeMediaTile(owner,kind){const key=mediaTileKey(owner,kind);stopWaveform(key);document.querySelector(`[data-media-key="${CSS.escape(key)}"]`)?.remove();updateLiveMeta()}
+function removeRemoteMediaActor(remoteActor){for(const [key,entry] of [...remoteMedia])if(entry.actor===remoteActor){remoteMedia.delete(key);removeMediaTile(remoteActor,entry.kind)}}
+function renderMediaTile(owner,kind,stream,{local=false,name='Peer',color='#9099a2'}={}){
+  const key=mediaTileKey(owner,kind),grid=$('#liveGrid');removeMediaTile(owner,kind);
+  const tile=document.createElement('div');tile.dataset.mediaKey=key;tile.className='mediaTile '+(kind==='screen'?'screen ':'')+(kind==='mic'?'audioTile ':'')+(local?'local':'');tile.style.setProperty('--user',color);
+  if(kind==='mic'){
+    tile.innerHTML=`<div class="audioTop"><i style="width:7px;height:7px;border-radius:50%;background:${escapeHtml(color)};flex:0 0 auto"></i><span class="who">${escapeHtml(name)}</span><span class="kind">MIC</span></div><canvas class="wave" aria-label="Live audio waveform"></canvas>`;
+    const audio=document.createElement('audio');audio.autoplay=true;audio.playsInline=true;audio.srcObject=stream;audio.muted=local;tile.append(audio);startWaveform(tile.querySelector('canvas'),stream,key);
+    if(!local){audio.play().catch(()=>{tile.title='Click to enable audio';tile.addEventListener('click',()=>audio.play().catch(()=>{}),{once:true})})}
+  }else{
+    const video=document.createElement('video');video.autoplay=true;video.playsInline=true;video.muted=local;video.srcObject=stream;tile.append(video);
+    const label=document.createElement('div');label.className='mediaLabel';label.innerHTML=`<i></i><span>${escapeHtml(name)}</span><span class="mediaKind">${kind==='screen'?'SCREEN':'CAMERA'}</span>`;tile.append(label);
+    if(!local&&stream.getAudioTracks().length){const b=document.createElement('button');b.type='button';b.className='mediaMute';b.title='Mute / unmute';b.setAttribute('aria-label','Mute or unmute stream');b.innerHTML=mediaIcon();b.onclick=()=>{video.muted=!video.muted;b.style.opacity=video.muted?'.55':'1';if(!video.muted)video.play().catch(()=>{})};tile.append(b);video.play().catch(()=>{video.muted=true;b.style.opacity='.55';video.play().catch(()=>{})})}
+  }
+  grid.append(tile);updateLiveMeta();
+}
+function handlePeerStream(stream,peerId,metadata,w){
+  const remoteActor=String(metadata?.actor||routeActors.get(routeKey(w,peerId))||'');if(!remoteActor||remoteActor===actor)return;
+  const kind=['mic','camera','screen'].includes(metadata?.kind)?metadata.kind:(stream.getVideoTracks().length?'camera':'mic');const key=mediaTileKey(remoteActor,kind),id=String(metadata?.id||stream.id||'');
+  const old=remoteMedia.get(key);if(old&&old.id===id&&old.wKey===w.key&&old.peerId===peerId)return;
+  remoteMedia.set(key,{actor:remoteActor,kind,id,stream,wKey:w.key,peerId});
+  const p=remotePresence.get(remoteActor)||{};renderMediaTile(remoteActor,kind,stream,{local:false,name:metadata?.name||p.name||aliasFromActor(remoteActor),color:metadata?.color||p.color||colorFromActor(remoteActor)});
+  for(const t of stream.getTracks())t.addEventListener('ended',()=>{if(stream.getTracks().every(x=>x.readyState==='ended')){const cur=remoteMedia.get(key);if(cur?.stream===stream){remoteMedia.delete(key);removeMediaTile(remoteActor,kind)}}},{once:true});
+}
+function setMediaButton(kind,on){const el=$(kind==='mic'?'#micBtn':kind==='camera'?'#cameraBtn':'#screenBtn');el?.classList.toggle('active',!!on);if(el)el.setAttribute('aria-pressed',on?'true':'false')}
+async function startLocalMedia(kind){
+  if(localMedia.has(kind))return stopLocalMedia(kind);
+  if(!isSecureContext)throw new Error('media capture requires HTTPS or localhost');if(!navigator.mediaDevices)throw new Error('media capture is unavailable in this browser');
+  let stream;
+  if(kind==='mic')stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true},video:false});
+  else if(kind==='camera')stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1280},height:{ideal:720},frameRate:{ideal:24,max:30},facingMode:'user'}});
+  else{
+    const rich={video:{frameRate:{ideal:20,max:30}},audio:true,systemAudio:'include',windowAudio:'system',surfaceSwitching:'include',selfBrowserSurface:'exclude'};
+    try{stream=await navigator.mediaDevices.getDisplayMedia(rich)}catch(e){if(e?.name==='TypeError')stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});else throw e}
+  }
+  const id=crypto.randomUUID(),entry={id,kind,stream,started:Date.now()};localMedia.set(kind,entry);setMediaButton(kind,true);renderMediaTile(actor,kind,stream,{local:true,name:profile.name,color:profile.color});
+  for(const track of stream.getTracks())track.addEventListener('ended',()=>{if(localMedia.get(kind)?.id===id)stopLocalMedia(kind,true)},{once:true});
+  await syncMediaAll();
+  if(kind==='screen'){const hasAudio=stream.getAudioTracks().length>0;toast(`<b>Screen sharing live.</b> ${hasAudio?'Audio track included by the browser/OS.':'No system-audio track was provided by this browser/OS.'}`,'good')}else toast(`<b>${kind==='mic'?'Microphone':'Camera'} live.</b> Streaming directly to connected peers.`,'good');
+}
+function stopLocalMedia(kind,tracksAlreadyEnded=false){
+  const entry=localMedia.get(kind);if(!entry)return;localMedia.delete(kind);setMediaButton(kind,false);
+  for(const key of [...mediaSentRoutes.keys()])if(key.endsWith('|'+kind)){const remote=key.slice(0,-('|'+kind).length);clearSentMediaRoute(remote,kind,entry,true)}
+  if(!tracksAlreadyEnded)for(const t of entry.stream.getTracks())try{t.stop()}catch(_){}
+  removeMediaTile(actor,kind);updateLiveMeta();
+}
+async function toggleMedia(kind){
+  try{if(localMedia.has(kind))stopLocalMedia(kind);else await startLocalMedia(kind)}catch(e){console.warn(kind,'capture failed',e);const denied=e?.name==='NotAllowedError'?'permission was denied or dismissed':e?.message||'capture failed';toast(`<b>${kind==='screen'?'Screen share':kind==='camera'?'Camera':'Microphone'} unavailable.</b> ${escapeHtml(denied)}`,'bad')}
 }
 
 
@@ -551,7 +728,7 @@ async function handleControl(packet,{peerId},w){
       break;
     }
     case 'state':
-      if(msg.yUpdate)queueRemoteYUpdate(msg.yUpdate);await mergeManifest(msg.manifest||[],msg.actor);break;
+      if(msg.yUpdate)queueRemoteYUpdate(msg.yUpdate,true);await mergeManifest(msg.manifest||[],msg.actor);break;
     case 'y-update':queueRemoteYUpdate(msg.u);break;
     case 'presence':mergePresence(msg.actor,msg.presence);break;
     case 'doc':{
@@ -598,8 +775,14 @@ async function sendAssetToActor(requestedId,remoteActor){
 async function sendAssetToAll(id){await Promise.allSettled([...actorRoutes.keys()].map(a=>sendAssetToActor(id,a)))}
 
 function localDocChanged(){
-  const s=$('#scratch'),before=ytext.toString(),after=s.value;if(before===after)return;const change=diffText(before,after);
+  if(renderingEditor||!ytext)return;
+  const s=$('#scratch'),after=s.value,before=editorShadow;
+  if(before===after)return;
+  const live=ytext.toString();
+  if(live!==before){const sel=selectionRelative();renderEditor(sel);return}
+  const change=diffText(before,after);
   ydoc.transact(()=>{if(change.deleted.length)ytext.delete(change.index,change.deleted.length);if(change.inserted.length)ytext.insert(change.index,change.inserted)},LOCAL_ORIGIN);
+  editorShadow=after;
   noteHistory(change);updateDocMeta();queuePresence();
 }
 function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0;$('#docMeta').textContent=chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'} · buffered display` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
@@ -670,11 +853,12 @@ function updatePresence(){
 
 $('#scratch').addEventListener('compositionstart',()=>{isComposing=true});
 $('#scratch').addEventListener('compositionend',()=>{isComposing=false;localDocChanged();if(incomingY.length&&!remoteFlushTimer)remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),40)});
-$('#scratch').addEventListener('input',()=>{if(!isComposing)localDocChanged()});
+$('#scratch').addEventListener('input',()=>{if(!isComposing&&!renderingEditor)localDocChanged()});
 for(const ev of ['select','click','keyup','focus'])$('#scratch').addEventListener(ev,()=>queuePresence());
 $('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true)});
 $('#scratch').addEventListener('scroll',()=>requestAnimationFrame(renderRemoteCursors));
 window.addEventListener('resize',()=>requestAnimationFrame(renderRemoteCursors));
+$('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
 $('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',location.href)}};
 $('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
@@ -684,7 +868,7 @@ window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])
 $('#historyBtn').onclick=()=>{renderHistory();$('#historyModal').classList.add('show')};$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
 $('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
 $('#closeQr').onclick=()=>$('#qrModal').classList.remove('show');$('#qrModal').onclick=e=>{if(e.target===$('#qrModal'))$('#qrModal').classList.remove('show')};
-window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();clearInterval(nats.timer);clearInterval(presenceSweepTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
+window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();for(const kind of [...localMedia.keys()])stopLocalMedia(kind);for(const m of nats.mediaSessions.values())try{m.pc?.close()}catch(_){}nats.mediaSessions.clear();clearInterval(nats.timer);clearInterval(presenceSweepTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
 
 (async()=>{
   try{
