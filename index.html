@@ -23,7 +23,7 @@ header{flex:0 0 auto;min-height:0;border-bottom:1px solid var(--line);background
 main{position:relative;--history-w:0px;--media-w:420px;--splitter-w:1px;--agent-w:clamp(340px,28vw,420px);flex:1;min-height:0;display:grid;grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w);overflow:hidden}
 body.history-open main{--history-w:280px}
 body.media-collapsed main{--media-w:54px}
-body.agent-open main{grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w) var(--agent-w)}
+body.agent-open main{grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w)}
 .pad{grid-column:2;min-width:0;min-height:0;display:flex;flex-direction:column}
 .historyRail{grid-column:1;display:none;min-width:0;min-height:0;flex-direction:column;background:#090b0d;border-right:1px solid var(--line);overflow:hidden}
 body.history-open .historyRail{display:flex}
@@ -55,6 +55,7 @@ body.history-open .historyRail{display:flex}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
 .assets{grid-column:4;min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e;overflow:hidden}
 .mediaCollapsed{display:none;flex:1;min-height:0;align-items:center;flex-direction:column;gap:9px;padding:10px 5px;overflow:auto}#mediaCollapsedStack{display:flex;flex-direction:column;align-items:center;gap:9px}.mediaCollapsedIcon{position:relative;width:34px;height:34px;border:1px solid var(--line);background:#0d1013;color:var(--dim);display:flex;align-items:center;justify-content:center}.mediaCollapsedIcon.on{color:var(--good);border-color:#315740}.mediaCollapsedIcon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mediaCollapsedIcon b{position:absolute;right:-4px;top:-5px;min-width:15px;height:15px;padding:0 3px;border:1px solid #333b43;background:#111419;color:var(--text);font:700 7px/13px var(--mono);text-align:center;border-radius:8px}.mediaCollapsedSep{width:24px;border-top:1px solid var(--line);margin:1px 0}
+.mobileMediaDock,.mobileMediaPopover{display:none}
 body.media-collapsed .assets>.panelhead{padding:0 4px;justify-content:center}body.media-collapsed .assets>.panelhead .paneltitle,body.media-collapsed .assets>.panelhead .panelmeta{display:none}body.media-collapsed .assets>.liveSection,body.media-collapsed .assets>.drop,body.media-collapsed .assets>.assetlist,body.media-collapsed .assets>.transport{display:none}body.media-collapsed .assets>.mediaCollapsed{display:flex}body.media-collapsed #mediaToggle svg{transform:rotate(180deg)}
 .liveSection{border-bottom:1px solid var(--line);background:#090b0d;flex:0 0 auto}.liveHead{height:32px;display:flex;align-items:center;padding:0 12px;gap:8px;border-bottom:1px solid var(--line);color:var(--dim);font:800 8px var(--mono);letter-spacing:.1em;text-transform:uppercase}.liveHead span:last-child{margin-left:auto;font-weight:500;letter-spacing:.03em}.liveGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:8px;max-height:280px;overflow:auto}.liveEmpty{grid-column:1/-1;border:1px dashed var(--line);padding:12px;text-align:center;color:var(--dim);font:9px/1.5 var(--mono)}
 .mediaTile{position:relative;min-width:0;border:1px solid var(--line);background:#070809;overflow:hidden}.mediaTile.screen{grid-column:1/-1}.mediaTile video{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#050607}.mediaTile.screen video{object-fit:contain;max-height:220px}.mediaLabel{position:absolute;left:7px;bottom:7px;z-index:2;max-width:calc(100% - 14px);display:flex;align-items:center;gap:5px;padding:3px 6px;background:rgba(5,6,7,.76);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(6px);font:800 8px var(--mono);color:#eef1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mediaLabel i{width:6px;height:6px;border-radius:50%;background:var(--user,#fff);flex:0 0 auto}.mediaKind{color:var(--muted);font-weight:500}.audioTile{height:82px;padding:9px 9px 8px;display:flex;flex-direction:column;gap:7px}.audioTop{display:flex;align-items:center;gap:7px;min-width:0;font:800 8px var(--mono)}.audioTop .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.audioTop .kind{margin-left:auto;color:var(--dim);font-weight:500}.wave{display:block;width:100%;height:43px;background:#080a0c;border-top:1px solid #171b1f}.mediaMute{position:absolute;right:6px;top:6px;z-index:3;width:28px;height:28px;border:1px solid rgba(255,255,255,.14);background:rgba(5,6,7,.72);color:var(--muted);display:flex;align-items:center;justify-content:center}.mediaMute:hover{color:var(--text)}.mediaMute svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mediaTile.local{border-color:#33413a}.mediaTile.local::after{content:'YOU';position:absolute;right:6px;bottom:6px;padding:2px 4px;background:#111;color:var(--good);border:1px solid #294737;font:800 7px var(--mono)}
@@ -65,6 +66,12 @@ body.media-collapsed .assets>.panelhead{padding:0 4px;justify-content:center}bod
 .transport{border-top:1px solid var(--line);padding:8px 12px;display:flex;align-items:center;gap:6px;overflow:auto}.transport .tag{border:1px solid var(--line);padding:4px 6px;font:8px var(--mono);color:var(--dim);white-space:nowrap}.transport .tag.on{color:var(--good);border-color:#2c503b}.transport .tag.err{color:var(--bad);border-color:#5d3232}
 .toastbox{position:fixed;right:14px;top:70px;width:min(360px,calc(100vw - 28px));z-index:100;display:flex;flex-direction:column;gap:7px;pointer-events:none}.toast{border:1px solid var(--line2);background:#111419;box-shadow:0 14px 40px rgba(0,0,0,.42);padding:10px 11px;font:9px/1.5 var(--mono);color:var(--muted);pointer-events:auto}.toast b{color:var(--text)}.toast.good{border-color:#315740}.toast.bad{border-color:#653737;color:#d99595}
 .modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}.qrwrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 2px}.qrframe{background:#fff;padding:10px;line-height:0;border:1px solid #343a40}.qrframe canvas{width:min(320px,72vw);height:auto;image-rendering:pixelated}.qrurl{width:100%;padding:9px 10px;border:1px solid var(--line);background:#090b0d;color:var(--dim);font:9px/1.5 var(--mono);word-break:break-all;user-select:all}.qrnote{font:9px/1.55 var(--mono);color:var(--muted);text-align:center;max-width:460px}
+
+
+/* Agent mode is raw machine-readable guidance, not a human control panel. */
+.agentInstructions{display:none;flex:0 0 auto;margin:0;max-height:150px;overflow:auto;border:0;border-bottom:1px solid var(--line);background:#07090b;color:#aeb7bf;padding:10px 14px;white-space:pre-wrap;word-break:break-word;font:9px/1.55 var(--mono)}
+body.agent-mode .agentInstructions{display:block}
+.agentSurface{display:none!important}
 
 /* Agent-operable surface -------------------------------------------------- */
 .agentSurface{grid-column:5;display:none;min-width:0;min-height:0;border-left:1px solid var(--line);background:#0b0d0f;flex-direction:column}
@@ -84,6 +91,26 @@ body.agent-open .agentSurface{display:flex}
 .agentCommandGrid{display:grid;grid-template-columns:1fr;gap:6px}.agentResult.good{border-color:#315740}.agentResult.bad{border-color:#653737;color:#d99595}
 [data-agent-id]{scroll-margin:70px}
 .actions{gap:4px;flex-wrap:wrap;justify-content:flex-end}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}.liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}
+
+
+/* Room documents --------------------------------------------------------- */
+.pad{position:relative}
+.docBrowser{display:none;flex:0 1 320px;min-height:120px;max-height:min(46%,390px);border-top:1px solid var(--line);background:#090b0d;overflow:hidden;flex-direction:column}
+body.docs-open .docBrowser{display:flex}
+.docBrowserHead{flex:0 0 36px;display:flex;align-items:center;gap:7px;padding:0 8px 0 10px;border-bottom:1px solid var(--line);color:var(--dim);font:800 8px var(--mono);letter-spacing:.09em;text-transform:uppercase}
+.docBrowserHead .docHeadActions{margin-left:auto;display:flex;align-items:center;gap:4px}.docBrowserHead .iconbtn{width:28px;height:28px}.docBrowserHead .iconbtn svg{width:14px;height:14px}
+.docTree{flex:1;min-height:0;overflow:auto;padding:5px 6px 9px;overscroll-behavior:contain}
+.docTreeEmpty{padding:18px 8px;text-align:center;color:var(--dim);font:9px/1.55 var(--mono)}
+.docRow{min-height:34px;display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:5px;border:1px solid transparent;padding:2px 4px 2px var(--indent,4px);color:var(--muted);position:relative}
+.docRow:hover{background:#0d1013;border-color:#181d22}.docRow.active{background:#111419;border-color:#2b333b;color:var(--text)}.docRow.folder{color:#b7bec5}
+.docTypeBtn{width:24px;height:28px;border:0;background:transparent;color:inherit;display:flex;align-items:center;justify-content:center;padding:0}.docTypeBtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.docRow.folder.open .docTypeBtn svg.chev{transform:rotate(90deg)}
+.docNameBtn{min-width:0;height:30px;border:0;background:transparent;color:inherit;text-align:left;padding:0 4px;font:800 9px/1.2 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.docRow.active .docNameBtn{color:var(--text)}
+.docItemMenu{width:29px;height:29px;border:0;background:transparent;color:var(--dim);display:flex;align-items:center;justify-content:center;font:900 14px/1 var(--mono)}.docItemMenu:hover{background:#171b20;color:var(--text)}
+.docRowActions{grid-column:2/4;display:none;align-items:center;justify-content:flex-end;gap:5px;padding:3px 0 4px}.docRow.actions-open .docRowActions{display:flex}.docRowActions .mini{min-height:27px}
+.docBar{flex:0 0 28px;min-height:28px;border-top:1px solid var(--line);background:#080a0c;display:flex;align-items:center;gap:4px;padding:0 5px 0 8px;min-width:0}
+.docBreadcrumb{flex:1;min-width:0;height:26px;border:0;background:transparent;color:var(--dim);display:flex;align-items:center;text-align:left;padding:0 3px;font:8px/1 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.docBreadcrumb:hover{color:var(--text)}.docBreadcrumb strong{color:var(--muted);font-weight:800}.docBreadcrumb .crumbSep{padding:0 4px;color:#454c54}.docBreadcrumb .crumbFile{color:var(--text)}
+.docQuickNew{width:26px;height:26px;flex:0 0 26px;border:0;background:transparent;color:var(--dim);display:flex;align-items:center;justify-content:center}.docQuickNew:hover{color:var(--text);background:#111419}.docQuickNew svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.docs-open #docNavToggle svg{transform:rotate(180deg)}
 
 /* Stable pane geometry ---------------------------------------------------- */
 /* Numeric tracks are deliberate: hidden rails must never trigger grid auto-placement. */
@@ -109,43 +136,53 @@ body.resizing-media .assets{pointer-events:none}
   .status{grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
   .status .pill{width:auto;min-width:0;padding:5px 7px;text-align:center;font-size:8px;overflow:hidden;text-overflow:ellipsis}.status #roomPill{text-align:left}
 
-  main,body.agent-open main{display:flex;flex-direction:column;overflow:visible;min-height:0;--media-w:100%!important;--history-w:100%!important;--splitter-w:0px!important}
-  .historyRail{order:1;position:static;width:100%;min-height:0;max-height:min(34dvh,300px);border-right:0;border-bottom:1px solid var(--line);box-shadow:none;background:#090b0d}
+  #app{height:100dvh;min-height:0;overflow:hidden}
+  body{overflow:hidden}
+  main,body.agent-open main{position:relative;display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;--media-w:100%!important;--history-w:100%!important;--splitter-w:0px!important}
+  .historyRail{order:1;position:static;width:100%;min-height:0;max-height:min(34dvh,300px);flex:0 1 auto;border-right:0;border-bottom:1px solid var(--line);box-shadow:none;background:#090b0d}
   body.history-open .historyRail{display:flex}.historyRailBody{min-height:0;max-height:calc(min(34dvh,300px) - 42px);padding:8px 10px 12px}
 
-  .pad{order:2;height:64dvh;min-height:420px;max-height:760px;border-bottom:1px solid var(--line)}
+  .pad{order:2;flex:1 1 auto;height:auto;min-height:0;max-height:none;border-bottom:0}
   .pad>.panelhead{height:48px;min-height:48px;display:flex;align-items:center;gap:8px;padding:0 8px}
-  #historyRailToggle{margin:0;flex:0 0 auto}.pad>.panelhead .paneltitle{display:none}.pad>.panelhead .presencebar{margin-left:auto;min-width:0;max-width:calc(100% - 42px);height:32px;min-height:32px;padding:4px 3px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;justify-content:flex-end}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
+  #historyRailToggle{margin:0;flex:0 0 auto}.pad>.panelhead .paneltitle{display:none}.pad>.panelhead .presencebar{margin-left:auto;min-width:0;max-width:calc(100% - 42px);height:32px;min-height:32px;padding:4px 3px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;justify-content:flex-end}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
   #historyRailToggle svg{transform:rotate(90deg)}body.history-open #historyRailToggle svg{transform:rotate(-90deg)}
   #historyRailClose svg{transform:rotate(-90deg)}
 
   .mediaSplitter{display:none!important}
-  .assets{order:3;width:100%;min-height:0;height:min(48dvh,520px);border-left:0;border-top:1px solid var(--line)}
-  .assets>.panelhead{flex:0 0 42px;padding:0 10px;justify-content:flex-start}.assets>.panelhead .panelmeta{display:inline;margin-left:auto}
-  .liveGrid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:190px}.drop{min-height:86px;margin:8px}.assetlist{max-height:none;padding-inline:8px}.transport{padding-inline:8px}
-  body.media-collapsed .assets{height:auto;min-height:0;max-height:none}
-  body.media-collapsed .assets>.panelhead{padding:0 10px;justify-content:flex-start}
-  body.media-collapsed .assets>.panelhead .paneltitle,body.media-collapsed .assets>.panelhead .panelmeta{display:inline}
-  body.media-collapsed .assets>.liveSection,body.media-collapsed .assets>.drop,body.media-collapsed .assets>.assetlist,body.media-collapsed .assets>.transport{display:none}
-  body.media-collapsed .assets>.mediaCollapsed{display:flex;flex:0 0 auto;min-height:44px;overflow-x:auto;overflow-y:hidden;flex-direction:row;justify-content:flex-start;align-items:center;padding:5px 10px;border-top:1px solid var(--line)}
-  body.media-collapsed #mediaCollapsedStack{flex-direction:row;gap:7px}body.media-collapsed .mediaCollapsedSep{height:24px;width:1px;border-top:0;border-left:1px solid var(--line);margin:0 2px}
-  body.media-collapsed #mediaToggle svg{transform:rotate(90deg)}body:not(.media-collapsed) #mediaToggle svg{transform:rotate(-90deg)}
+  .assets{order:3;position:absolute;inset:0;z-index:40;width:100%;height:100%;min-height:0;max-height:none;border-left:0;border-top:1px solid var(--line);background:#0a0c0e}
+  .assets>.panelhead{flex:0 0 42px;padding:0 8px 0 10px;justify-content:flex-start}.assets>.panelhead .panelmeta{display:inline;margin-left:auto}.assets>.panelhead #mediaToggle{margin-left:4px}
+  .liveGrid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:min(32dvh,260px)}
+  .drop{flex:0 0 40px;height:40px;min-height:40px;max-height:40px;margin:6px 8px;padding:4px 7px;text-align:left;display:block;overflow:hidden}.drop>div{height:100%;display:flex;align-items:center;gap:7px;min-width:0}.drop strong{font-size:8px;white-space:nowrap}.drop span{display:none}.drop .btn{margin:0 0 0 auto!important;padding:5px 7px;white-space:nowrap;flex:0 0 auto}
+  .assetlist{max-height:none;padding:0 8px 10px;flex:1;min-height:0}.transport{padding-inline:8px;flex:0 0 auto}
+  .mobileMediaDock{display:none}.mobileMediaPopover{display:none}
+  body.media-collapsed .assets{position:relative;inset:auto;z-index:20;flex:0 0 42px;height:42px;min-height:42px;max-height:42px;overflow:visible;border-top:1px solid var(--line)}
+  body.media-collapsed .assets>.panelhead,body.media-collapsed .assets>.mediaCollapsed,body.media-collapsed .assets>.liveSection,body.media-collapsed .assets>.drop,body.media-collapsed .assets>.assetlist,body.media-collapsed .assets>.transport{display:none!important}
+  body.media-collapsed .mobileMediaDock{display:grid;grid-template-columns:auto minmax(0,1fr) 34px;align-items:center;gap:5px;width:100%;height:41px;padding:4px 6px;background:#0a0c0e;overflow:visible}
+  .mobileMediaDockTitle{color:var(--dim);font:800 7px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+  .mobileMediaDockIcons{display:flex;align-items:center;gap:5px;min-width:0;height:34px;overflow-x:auto;overflow-y:visible;overscroll-behavior-x:contain;scrollbar-width:none;padding:0 2px}.mobileMediaDockIcons::-webkit-scrollbar{display:none}
+  .mobileDockIcon{position:relative;width:32px;height:32px;flex:0 0 32px;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;padding:0}.mobileDockIcon.live{color:var(--good);border-color:#315740}.mobileDockIcon.file.ready{color:#c5ccd2}.mobileDockIcon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mobileDockIcon .ext{max-width:26px;padding:0 2px;overflow:hidden;text-overflow:ellipsis;color:inherit;font:800 6.5px/1 var(--mono);letter-spacing:-.02em;text-transform:uppercase;white-space:nowrap}.mobileDockIcon .liveDot{position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good)}
+  #mobileMediaToggle{width:32px;height:32px;justify-self:end}.mobileMediaDock #mobileMediaToggle svg{transform:rotate(-90deg)}
+  body:not(.media-collapsed) #mediaToggle svg{transform:rotate(90deg)}
+  .mobileMediaPopover{position:absolute;left:8px;right:8px;bottom:48px;z-index:70;border:1px solid var(--line2);background:#111419;box-shadow:0 -10px 34px rgba(0,0,0,.48);padding:9px 10px;min-width:0}
+  .mobileMediaPopover.show{display:block}.mobilePopTop{display:flex;align-items:flex-start;gap:8px;min-width:0}.mobilePopIcon{width:30px;height:30px;flex:0 0 30px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted)}.mobilePopIcon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.mobilePopText{min-width:0;flex:1}.mobilePopName{font:800 9px/1.4 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobilePopMeta{margin-top:3px;color:var(--dim);font:8px/1.45 var(--mono);overflow-wrap:anywhere}.mobilePopActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.mobilePopActions .mini{min-height:28px}.mobilePopClose{margin-left:auto;width:26px;height:26px;flex:0 0 26px;border:0;background:transparent;color:var(--dim);font:18px/1 var(--mono)}
 
+  .docBar{flex:0 0 27px;min-height:27px;padding-inline:7px;background:#090b0d}.docBreadcrumb{font-size:7.5px}.docQuickNew{width:25px;height:25px;flex-basis:25px}
+  .docBrowser{flex:0 1 min(64%,480px);max-height:64%;min-height:150px;background:#090b0d}.docBrowserHead{height:35px;flex-basis:35px}.docTree{padding-bottom:8px}
+  .docRow{min-height:38px}.docNameBtn{height:34px;font-size:10px}.docItemMenu{width:34px;height:34px}.docTypeBtn{height:34px}
   #scratch,.markdownView{padding:16px;font-size:16px;line-height:1.55}
-  input,textarea,select,.agentInput,.agentTextarea,.agentSelect,.agentFileInput{font-size:16px!important}
+  input,textarea,select,.agentInput,.agentTextarea,.agentSelect,.agentFileInput{font-size:16px!important}.agentInstructions{max-height:118px;padding:8px 10px;font-size:8px}
   .syncbar{min-width:0}.syncbar #syncText{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.syncbar #actorText{white-space:nowrap}
   body.agent-open .agentSurface{position:fixed;inset:0;width:100vw;z-index:60;box-shadow:none}
 }
 @media(max-width:520px){
   .status{grid-template-columns:minmax(0,1fr) auto auto}.status #roomPill{grid-column:auto;text-align:left}.status #peerPill,.status #netPill{text-align:center}
-  .pad{height:62dvh;min-height:380px}
   .liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}
   .panelhead{padding-left:8px;padding-right:8px}.paneltitle{letter-spacing:.08em}.panelmeta{font-size:8px}
 }
 @media(max-width:380px){
   header{padding-inline:7px}.actions{gap:3px}.actions .iconbtn{width:30px;height:30px;flex-basis:30px}
   .status .pill{font-size:7.5px;padding-inline:5px}
-  .pad{min-height:350px}.pad>.panelhead{gap:6px}.avatar{width:20px;height:20px}
+  .pad>.panelhead{gap:6px}.avatar{width:20px;height:20px}
 }
 
 </style>
@@ -169,22 +206,10 @@ body.resizing-media .assets{pointer-events:none}
       <button class="iconbtn" id="screenBtn" data-agent-action="toggle-screen" type="button" aria-label="Share screen and request system audio" title="Share screen + system audio">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l4-3 4 3M12 7v7"/></svg>
       </button>
-      <button class="iconbtn" id="agentBtn" type="button" aria-label="Agent interface" title="Agent interface" data-agent-action="toggle-agent-surface">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M9 10h.01M15 10h.01M8 15h8M12 6V3M9 3h6"/></svg>
-      </button>
       <button class="iconbtn" id="markdownBtn" type="button" aria-label="Toggle Markdown formatting" title="Toggle Markdown formatting" aria-pressed="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v10M4 7l4 6 4-6v10M15 7v10M15 13l3 4 3-4"/></svg>
       </button>
-      <button class="iconbtn" id="historyBtn" type="button" aria-label="Edit history" title="Edit history">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>
-      </button>
-      <button class="iconbtn" id="infoBtn" type="button" aria-label="Security information" title="Security information">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.7-2.9 8.1-7 10-4.1-1.9-7-5.3-7-10V6l7-3Z"/><path d="m9.5 12 1.7 1.7 3.5-4"/></svg>
-      </button>
-      <button class="iconbtn" id="copyBtn" data-agent-action="copy-room-link" type="button" aria-label="Copy room link" title="Copy room link">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>
-      </button>
-      <button class="iconbtn" id="qrBtn" data-agent-action="show-room-qr" type="button" aria-label="Show room QR code" title="Show room QR code">
+      <button class="iconbtn" id="qrBtn" data-agent-action="share-room-link" type="button" aria-label="Share room link and QR code" title="Share room link / QR code">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="3" y="15" width="6" height="6"/><path d="M15 15h2v2h-2zM19 15h2v4h-2M15 19h2v2h-2M19 21h2"/></svg>
       </button>
       <button class="iconbtn primary" id="newBtn" data-agent-action="new-room" type="button" aria-label="Create new room" title="Create new room">
@@ -192,6 +217,37 @@ body.resizing-media .assets{pointer-events:none}
       </button>
     </div>
   </header>
+  <pre id="agentInstructions" class="agentInstructions" data-agent-id="agent-instructions" aria-label="Scratchpad agent instructions">SCRATCHPAD AGENT API v1
+
+This room exposes deterministic DOM selectors and window.ScratchpadAgent.
+Do not operate the human file picker unless necessary. Prefer the API.
+
+await ScratchpadAgent.ready
+await ScratchpadAgent.getState()
+await ScratchpadAgent.setText(text)
+await ScratchpadAgent.appendText(text)
+await ScratchpadAgent.createDocument(name, parentFolderId, text)
+await ScratchpadAgent.createFolder(name, parentFolderId)
+await ScratchpadAgent.openDocument(documentId)
+await ScratchpadAgent.renameEntry(id, name)
+await ScratchpadAgent.removeEntry(id)
+await ScratchpadAgent.addFile(fileOrBlob)
+await ScratchpadAgent.createFile(name, content, mimeType)
+await ScratchpadAgent.getFile(id)
+await ScratchpadAgent.getFileText(id)
+await ScratchpadAgent.removeFile(id)
+
+Useful selectors:
+[data-agent-id="shared-text"]
+[data-agent-id="documents-browser"]
+[data-agent-id="documents-tree"]
+[data-agent-id="files"]
+[data-agent-id="live-media"]
+[data-agent-id="presence"]
+
+Dispatch scratchpad:agent-command for a DOM-event command bridge.
+Listen for scratchpad:agent-result and scratchpad:state.
+The URL #fragment is the room capability and must be preserved exactly.</pre>
   <main>
     <aside class="historyRail" id="historyRail" aria-label="Synchronized edit history">
       <div class="panelhead"><span class="paneltitle">Edit history</span><span class="panelmeta" id="historyRailMeta">SYNCED</span><button class="railArrow" id="historyRailClose" type="button" aria-label="Close edit history" title="Close edit history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button></div>
@@ -205,10 +261,24 @@ body.resizing-media .assets{pointer-events:none}
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
       <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
+      <div class="docBrowser" id="docBrowser" aria-label="Room documents and folders" data-agent-id="documents-browser">
+        <div class="docBrowserHead"><span>Room documents</span><span id="docBrowserMeta">1 FILE</span><div class="docHeadActions">
+          <button class="iconbtn" id="newFolderBtn" type="button" aria-label="New folder" title="New folder"><svg viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3zM15 11v6M12 14h6"/></svg></button>
+          <button class="iconbtn" id="newDocBtn" type="button" aria-label="New document" title="New document"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h5M12 11v6M9 14h6"/></svg></button>
+          <button class="iconbtn" id="docBrowserClose" type="button" aria-label="Close document browser" title="Close document browser"><svg viewBox="0 0 24 24"><path d="m5 9 7 7 7-7"/></svg></button>
+        </div></div>
+        <div class="docTree" id="docTree" data-agent-id="documents-tree"></div>
+      </div>
+      <div class="docBar" id="docBar">
+        <button class="docBreadcrumb" id="docNavToggle" type="button" aria-label="Open room documents" aria-expanded="false"><span id="docBreadcrumbPath">ROOT <span class="crumbSep">›</span> <span class="crumbFile">Scratch pad</span></span></button>
+        <button class="docQuickNew" id="docQuickNew" type="button" aria-label="New document in current folder" title="New document"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
     </section>
     <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
     <section class="assets" id="mediaPanel">
       <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse files and media" title="Collapse files and media" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <div class="mobileMediaDock" id="mobileMediaDock" aria-label="Files and media dock"><span class="mobileMediaDockTitle">Files + media</span><div class="mobileMediaDockIcons" id="mobileMediaDockIcons" aria-label="Shared media and files"></div><button class="railArrow" id="mobileMediaToggle" type="button" aria-label="Expand files and media" title="Expand files and media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <div class="mobileMediaPopover" id="mobileMediaPopover" role="dialog" aria-live="polite"></div>
       <div class="mediaCollapsed" id="mediaCollapsed" aria-label="Collapsed media summary"><div id="mediaCollapsedStack"></div></div>
       <div class="liveSection" id="liveSection">
         <div class="liveHead"><span>Live peer media</span><span id="liveMeta">0 LIVE</span></div>
@@ -264,6 +334,9 @@ body.resizing-media .assets{pointer-events:none}
           <div class="agentLabel"><span>Programmatic contract</span><span>window.ScratchpadAgent</span></div>
           <pre class="agentPre" data-agent-id="api-contract">await ScratchpadAgent.ready
 await ScratchpadAgent.getState()
+await ScratchpadAgent.listDocuments()
+await ScratchpadAgent.createDocument(name,parent,text)
+await ScratchpadAgent.openDocument(id)
 await ScratchpadAgent.setState({text, files})
 await ScratchpadAgent.setText(text)
 await ScratchpadAgent.appendText(text)
@@ -302,7 +375,7 @@ await ScratchpadAgent.setView({markdown:true, historyOpen:true, mediaWidth:420})
         <div class="qrnote">The QR contains the complete room URL, including the fragment secret. Anyone who scans it receives full read/write access to this room.</div>
       </div>
     </div>
-    <div class="modalfoot"><button class="btn" id="closeQr">CLOSE</button></div>
+    <div class="modalfoot"><button class="btn" id="copyQrLink">COPY LINK</button><button class="btn" id="closeQr">CLOSE</button></div>
   </div>
 </div>
 <div class="modalback" id="historyModal">
@@ -332,7 +405,8 @@ const STRATEGIES={
 const TRYSTERO_STRATEGIES=['nostr','mqtt','torrent','ipfs'];
 let actor=crypto.randomUUID();
 let secret='', roomHash='', aesKey=null, macKey=null, db=null, clock=0;
-let Y=null, ydoc=null, ytext=null, yhistory=null;
+let Y=null, ydoc=null, ytext=null, yhistory=null, yfs=null;
+let activeDocId='doc-main', activeFolderId=null;const expandedFolders=new Set();
 let profile={name:'',color:'#67d391'};
 const LOCAL_ORIGIN={kind:'local'}, HISTORY_ORIGIN={kind:'history'}, REPAIR_ORIGIN={kind:'repair'}, LOAD_ORIGIN={kind:'load'}, REMOTE_ORIGIN={kind:'remote'};
 const assets=new Map();
@@ -431,13 +505,60 @@ async function importYjs(){
   throw last||new Error('Yjs unavailable');
 }
 function setupYDoc(){
-  ydoc=new Y.Doc();ytext=ydoc.getText('scratch');yhistory=ydoc.getArray('history');
+  ydoc=new Y.Doc();ytext=ydoc.getText('scratch');yhistory=ydoc.getArray('history');yfs=ydoc.getMap('fs');
   ydoc.on('update',(update,origin)=>{
     scheduleYSave();
     if(origin===LOCAL_ORIGIN||origin===HISTORY_ORIGIN||origin===REPAIR_ORIGIN)queueYBroadcast(update);
   });
   yhistory.observe(()=>renderHistory());
+  yfs.observe(()=>requestAnimationFrame(()=>{ensureActiveDocument();renderDocNavigator();scheduleAgentStateRefresh('documents')}));
 }
+
+function fsEntries(){return yfs?[...yfs.entries()].map(([id,v])=>({id,...(v||{})})).filter(x=>!x.deleted):[]}
+function fsEntry(id){const v=yfs?.get(String(id));return v&&!v.deleted?{id:String(id),...v}:null}
+function fsChildren(parent=null){return fsEntries().filter(x=>(x.parent||null)===(parent||null)).sort((a,b)=>a.type===b.type?String(a.name||'').localeCompare(String(b.name||'')):a.type==='folder'?-1:1)}
+function docTextFor(meta){if(!meta||meta.type!=='doc')return null;return ydoc.getText(meta.textKey||('doc:'+meta.id))}
+function currentDocMeta(){return fsEntry(activeDocId)}
+function folderPath(folderId){const out=[],seen=new Set();let id=folderId||null;while(id&&!seen.has(id)){seen.add(id);const m=fsEntry(id);if(!m||m.type!=='folder')break;out.unshift(m);id=m.parent||null}return out}
+function activeDocPath(){const m=currentDocMeta();return m?[...folderPath(m.parent),m]:[]}
+function setFsEntry(id,patch){const old=yfs.get(id)||{};yfs.set(id,{...old,...patch,id:undefined,updated:Date.now()})}
+function ensureFilesystem(){
+  const docs=fsEntries().filter(x=>x.type==='doc');
+  if(!docs.length){ydoc.transact(()=>yfs.set('doc-main',{type:'doc',parent:null,name:'Scratch pad',textKey:'scratch',created:Date.now(),updated:Date.now(),deleted:false}),LOCAL_ORIGIN)}
+  const preferred=(()=>{try{return localStorage.getItem('scratch-active-doc')}catch(_){return null}})();
+  const pick=(preferred&&fsEntry(preferred)?.type==='doc'?preferred:null)||(fsEntry(activeDocId)?.type==='doc'?activeDocId:null)||fsEntries().find(x=>x.type==='doc')?.id;
+  if(pick)selectDocument(pick,{persist:false,focus:false,quiet:true});
+  renderDocNavigator();
+}
+function ensureActiveDocument(){
+  if(fsEntry(activeDocId)?.type==='doc')return true;
+  const fallback=fsEntries().find(x=>x.type==='doc');
+  if(fallback){selectDocument(fallback.id,{persist:true,focus:false,quiet:true});return true}
+  if(yfs&&ydoc){const id='doc-'+crypto.randomUUID();ydoc.transact(()=>yfs.set(id,{type:'doc',parent:null,name:'Untitled',textKey:'doc:'+id,created:Date.now(),updated:Date.now(),deleted:false}),LOCAL_ORIGIN);selectDocument(id,{persist:true,focus:false,quiet:true});return true}
+  return false;
+}
+function selectDocument(id,{persist=true,focus=false,quiet=false}={}){
+  const meta=fsEntry(id);if(!meta||meta.type!=='doc')return false;if(activeDocId===id&&ytext===docTextFor(meta)){renderDocNavigator();return true}
+  commitHistory();activeDocId=id;activeFolderId=meta.parent||null;ytext=docTextFor(meta);editorShadow=ytext.toString();
+  if(persist)try{localStorage.setItem('scratch-active-doc',id)}catch(_){}
+  renderEditor();renderDocNavigator();queuePresence(true);if(focus){requestAnimationFrame(()=>$('#scratch')?.focus())}if(!quiet)toast('<b>Opened</b> '+escapeHtml(meta.name),'good');scheduleAgentStateRefresh('document');return true;
+}
+function setDocsOpen(on){document.body.classList.toggle('docs-open',!!on);$('#docNavToggle')?.setAttribute('aria-expanded',on?'true':'false');if(on)renderDocNavigator();scheduleAgentStateRefresh('documents')}
+function uniqueEntryName(parent,type,base){const names=new Set(fsChildren(parent).map(x=>String(x.name||'').toLowerCase()));let n=base,i=2;while(names.has(n.toLowerCase()))n=base+' '+i++;return n}
+function createFolder(parent=activeFolderId,name=null){parent=fsEntry(parent)?.type==='folder'?parent:null;const id='folder-'+crypto.randomUUID(),nm=safeName(name||uniqueEntryName(parent,'folder','New folder'));ydoc.transact(()=>yfs.set(id,{type:'folder',parent,name:nm,created:Date.now(),updated:Date.now(),deleted:false}),LOCAL_ORIGIN);expandedFolders.add(id);activeFolderId=id;renderDocNavigator();return id}
+function createDocument(parent=activeFolderId,name=null,content=''){parent=fsEntry(parent)?.type==='folder'?parent:null;const id='doc-'+crypto.randomUUID(),nm=safeName(name||uniqueEntryName(parent,'doc','Untitled'));ydoc.transact(()=>{yfs.set(id,{type:'doc',parent,name:nm,textKey:'doc:'+id,created:Date.now(),updated:Date.now(),deleted:false});if(content)ydoc.getText('doc:'+id).insert(0,String(content))},LOCAL_ORIGIN);selectDocument(id,{focus:true});return id}
+function renameFsEntry(id,newName=null){const m=fsEntry(id);if(!m)return false;const value=newName==null?prompt('Rename '+(m.type==='folder'?'folder':'document')+':',m.name):newName;if(value==null)return false;const clean=safeName(value.trim());if(!clean)return false;ydoc.transact(()=>setFsEntry(id,{name:clean}),LOCAL_ORIGIN);renderDocNavigator();return true}
+function descendantIds(folderId){const out=[];for(const c of fsChildren(folderId)){out.push(c.id);if(c.type==='folder')out.push(...descendantIds(c.id))}return out}
+function removeFsEntry(id){const m=fsEntry(id);if(!m)return false;const ids=[id,...(m.type==='folder'?descendantIds(id):[])];if(!confirm(`Delete ${m.type==='folder'?'folder and its contents':'document'} “${m.name}”?`))return false;commitHistory();ydoc.transact(()=>{for(const x of ids)setFsEntry(x,{deleted:true})},LOCAL_ORIGIN);if(ids.includes(activeDocId))ensureActiveDocument();renderDocNavigator();return true}
+function downloadDocument(id){const m=fsEntry(id);if(!m||m.type!=='doc')return;const text=docTextFor(m).toString(),blob=new Blob([text],{type:'text/markdown;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=/\.[a-z0-9]{1,8}$/i.test(m.name)?m.name:m.name+'.md';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000)}
+function breadcrumbHtml(){const path=activeDocPath();if(!path.length)return 'ROOT';return ['<strong>ROOT</strong>',...path.map((x,i)=>`<span class="crumbSep">›</span><span class="${i===path.length-1?'crumbFile':''}">${escapeHtml(x.name)}</span>`)].join('')}
+function docRowHtml(m,depth){const folder=m.type==='folder',open=expandedFolders.has(m.id),active=m.id===activeDocId;const icon=folder?`<svg viewBox="0 0 24 24" class="chev"><path d="m9 6 6 6-6 6"/></svg>`:`<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h5"/></svg>`;return `<div class="docRow ${folder?'folder':''} ${open?'open':''} ${active?'active':''}" data-doc-id="${escapeHtml(m.id)}" data-doc-type="${m.type}" style="--indent:${4+depth*15}px"><button class="docTypeBtn" type="button" aria-label="${folder?(open?'Collapse':'Expand'):'Document'}">${icon}</button><button class="docNameBtn" type="button" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</button><button class="docItemMenu" type="button" aria-label="Actions for ${escapeHtml(m.name)}">···</button><div class="docRowActions">${folder?'<button class="mini" data-fs-act="newdoc">+ DOC</button><button class="mini" data-fs-act="newfolder">+ FOLDER</button>':'<button class="mini" data-fs-act="download">DOWNLOAD</button>'}<button class="mini" data-fs-act="rename">RENAME</button><button class="mini danger" data-fs-act="delete">DELETE</button></div></div>`}
+function renderDocNavigator(){
+  const crumb=$('#docBreadcrumbPath');if(crumb)crumb.innerHTML=breadcrumbHtml();const tree=$('#docTree');if(!tree||!yfs)return;const all=fsEntries(),docs=all.filter(x=>x.type==='doc');$('#docBrowserMeta').textContent=`${docs.length} FILE${docs.length===1?'':'S'} · ${all.filter(x=>x.type==='folder').length} FOLDER${all.filter(x=>x.type==='folder').length===1?'':'S'}`;
+  let html='';const walk=(parent,depth)=>{for(const m of fsChildren(parent)){html+=docRowHtml(m,depth);if(m.type==='folder'&&expandedFolders.has(m.id))walk(m.id,depth+1)}};walk(null,0);tree.innerHTML=html||'<div class="docTreeEmpty">No documents yet.</div>';
+  for(const row of tree.querySelectorAll('.docRow')){const id=row.dataset.docId,type=row.dataset.docType,name=row.querySelector('.docNameBtn'),typeBtn=row.querySelector('.docTypeBtn'),menu=row.querySelector('.docItemMenu');let hold=null,longFired=false;const begin=()=>{longFired=false;clearTimeout(hold);hold=setTimeout(()=>{longFired=true;renameFsEntry(id)},650)},cancel=()=>{clearTimeout(hold);hold=null};name.addEventListener('pointerdown',begin);for(const ev of ['pointerup','pointercancel','pointerleave'])name.addEventListener(ev,cancel);name.addEventListener('click',()=>{if(longFired){longFired=false;return}if(type==='folder'){expandedFolders.has(id)?expandedFolders.delete(id):expandedFolders.add(id);activeFolderId=id;renderDocNavigator()}else{selectDocument(id,{focus:true});if(innerWidth<=820)setDocsOpen(false)}});typeBtn.onclick=()=>{if(type==='folder'){expandedFolders.has(id)?expandedFolders.delete(id):expandedFolders.add(id);activeFolderId=id;renderDocNavigator()}else selectDocument(id,{focus:true})};menu.onclick=e=>{e.stopPropagation();for(const other of tree.querySelectorAll('.docRow.actions-open'))if(other!==row)other.classList.remove('actions-open');row.classList.toggle('actions-open')};for(const b of row.querySelectorAll('[data-fs-act]'))b.onclick=e=>{e.stopPropagation();const a=b.dataset.fsAct;if(a==='rename')renameFsEntry(id);else if(a==='delete')removeFsEntry(id);else if(a==='download')downloadDocument(id);else if(a==='newdoc')createDocument(id);else if(a==='newfolder')createFolder(id);};}
+}
+
 function queueYBroadcast(update){
   outgoingY.push(update);if(ySendTimer)return;
   ySendTimer=setTimeout(async()=>{
@@ -506,8 +627,8 @@ function mediaLayoutMetrics(){
 function clampExpandedMediaWidth(px){const {max}=mediaLayoutMetrics();return Math.max(MEDIA_MIN_W,Math.min(Number(px)||MEDIA_DEFAULT_W,max))}
 function syncMediaSplitterAria(){const sp=$('#mediaSplitter');if(!sp)return;const {max}=mediaLayoutMetrics();sp.setAttribute('aria-valuemin',String(MEDIA_COLLAPSED_W));sp.setAttribute('aria-valuemax',String(Math.round(max)));sp.setAttribute('aria-valuenow',String(Math.round(document.body.classList.contains('media-collapsed')?MEDIA_COLLAPSED_W:mediaWidth)))}
 function applyMediaTrackWidth(px){document.querySelector('main')?.style.setProperty('--media-w',Math.max(MEDIA_COLLAPSED_W,Number(px)||MEDIA_COLLAPSED_W)+'px');syncMediaSplitterAria()}
-function updateMediaToggleUi(on){$('#mediaToggle')?.setAttribute('aria-expanded',on?'false':'true');$('#mediaToggle')?.setAttribute('aria-label',on?'Expand files and media':'Collapse files and media');$('#mediaToggle')?.setAttribute('title',on?'Expand files and media':'Collapse files and media')}
-function setMediaCollapsed(on,{persist=true}={}){
+function updateMediaToggleUi(on){const a=on?'Expand files and media':'Collapse files and media';const exp=on?'false':'true';for(const id of ['#mediaToggle','#mobileMediaToggle']){const el=$(id);if(!el)continue;el.setAttribute('aria-expanded',exp);el.setAttribute('aria-label',a);el.setAttribute('title',a)}}
+function setMediaCollapsed(on,{persist=true}={}){closeMobileMediaPopover();
   on=!!on;
   if(on){if(!document.body.classList.contains('media-collapsed')&&mediaWidth>=MEDIA_MIN_W)mediaExpandedWidth=mediaWidth;document.body.classList.add('media-collapsed');mediaWidth=MEDIA_COLLAPSED_W;applyMediaTrackWidth(MEDIA_COLLAPSED_W)}
   else{document.body.classList.remove('media-collapsed');mediaExpandedWidth=clampExpandedMediaWidth(mediaExpandedWidth);mediaWidth=mediaExpandedWidth;applyMediaTrackWidth(mediaWidth)}
@@ -520,8 +641,22 @@ function setMediaWidth(px,{persist=true,open=false}={}){
   if(persist)try{localStorage.setItem('scratch-media-width',String(Math.round(w)))}catch(_){}scheduleAgentStateRefresh('layout')
 }
 function mediaSummaryIcon(kind,count,label){const paths={mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',camera:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',screen:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h5"/>'};return `<div class="mediaCollapsedIcon ${count?'on':''}" title="${escapeHtml(label)}: ${count}"><svg viewBox="0 0 24 24" aria-hidden="true">${paths[kind]}</svg>${count?`<b>${count>99?'99+':count}</b>`:''}</div>`}
-function updateCollapsedMediaSummary(){const box=$('#mediaCollapsedStack');if(!box)return;const kinds={mic:0,camera:0,screen:0};for(const k of localMedia.keys())if(kinds[k]!=null)kinds[k]++;for(const m of remoteMedia.values())if(kinds[m.kind]!=null)kinds[m.kind]++;const files=[...assets.values()].filter(m=>!m.deleted).length;box.innerHTML=mediaSummaryIcon('mic',kinds.mic,'Microphones')+mediaSummaryIcon('camera',kinds.camera,'Cameras')+mediaSummaryIcon('screen',kinds.screen,'Screens')+'<div class="mediaCollapsedSep"></div>'+mediaSummaryIcon('file',files,'Files')}
-function initWorkspaceLayout(){try{markdownEnabled=localStorage.getItem('scratch-markdown')==='1';setMediaWidth(Number(localStorage.getItem('scratch-media-width'))||MEDIA_DEFAULT_W,{persist:false});setHistoryOpen(localStorage.getItem('scratch-history-open')==='1');setMediaCollapsed(localStorage.getItem('scratch-media-collapsed')==='1')}catch(_){setMediaWidth(MEDIA_DEFAULT_W,{persist:false})}updateMarkdownMode();updateCollapsedMediaSummary()}
+function dockSvg(kind){const p={mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',camera:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/>',screen:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h5"/>'};return `<svg viewBox="0 0 24 24" aria-hidden="true">${p[kind]||p.file}</svg>`}
+function closeMobileMediaPopover(){const pop=$('#mobileMediaPopover');if(pop){pop.classList.remove('show');pop.innerHTML=''}}
+function focusMediaTile(owner,kind){setMediaCollapsed(false);requestAnimationFrame(()=>{const tile=document.querySelector(`[data-media-key="${CSS.escape(mediaTileKey(owner,kind))}"]`);tile?.scrollIntoView({block:'center',behavior:'smooth'})})}
+function showMobileMediaPopover(item){
+  const pop=$('#mobileMediaPopover');if(!pop)return;const kind=item.kind||'file';let name='',meta='',actions='';
+  if(item.type==='file'){const m=item.meta;name=m.name||'Shared file';meta=`${m.type||'application/octet-stream'} · ${fmtBytes(m.size||0)}`;actions=`<button class="mini" data-act="open">OPEN</button><button class="mini" data-act="save">SAVE</button><button class="mini danger" data-act="delete">DELETE</button>`}
+  else{name=item.name||'Peer';meta=`LIVE ${kind.toUpperCase()} · ${item.local?'YOU':'PEER'}`;actions=`<button class="mini" data-act="view">VIEW</button>${item.local?'<button class="mini danger" data-act="stop">STOP</button>':'<button class="mini" data-act="mute">MUTE / UNMUTE</button>'}`}
+  pop.innerHTML=`<div class="mobilePopTop"><div class="mobilePopIcon">${dockSvg(kind)}</div><div class="mobilePopText"><div class="mobilePopName">${escapeHtml(name)}</div><div class="mobilePopMeta">${escapeHtml(meta)}</div></div><button class="mobilePopClose" type="button" aria-label="Close details">×</button></div><div class="mobilePopActions">${actions}</div>`;pop.classList.add('show');pop.querySelector('.mobilePopClose').onclick=closeMobileMediaPopover;
+  if(item.type==='file'){pop.querySelector('[data-act="open"]').onclick=()=>openAsset(item.meta.id);pop.querySelector('[data-act="save"]').onclick=()=>downloadAsset(item.meta.id);pop.querySelector('[data-act="delete"]').onclick=async()=>{closeMobileMediaPopover();await removeAsset(item.meta.id)}}
+  else{pop.querySelector('[data-act="view"]').onclick=()=>{closeMobileMediaPopover();focusMediaTile(item.owner,kind)};if(item.local)pop.querySelector('[data-act="stop"]').onclick=()=>{closeMobileMediaPopover();stopLocalMedia(kind)};else pop.querySelector('[data-act="mute"]').onclick=()=>{const tile=document.querySelector(`[data-media-key="${CSS.escape(mediaTileKey(item.owner,kind))}"]`),el=tile?.querySelector('audio,video');if(el){el.muted=!el.muted;toast(`<b>${el.muted?'Muted':'Unmuted'}.</b> ${escapeHtml(item.name||'Peer')} ${escapeHtml(kind)}.`,'good')}}}
+}
+function updateMobileMediaDock(){const box=$('#mobileMediaDockIcons');if(!box)return;box.innerHTML='';const items=[];for(const [kind] of localMedia)items.push({type:'media',owner:actor,kind,local:true,name:profile.name});for(const m of remoteMedia.values()){const pr=remotePresence.get(m.actor)||{};items.push({type:'media',owner:m.actor,kind:m.kind,local:false,name:pr.name||aliasFromActor(m.actor)})}for(const m of [...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created))items.push({type:'file',kind:'file',meta:m});
+  for(const item of items){const b=document.createElement('button');b.type='button';b.className='mobileDockIcon '+(item.type==='media'?'live':('file '+(item.meta?'ready':'')));if(item.type==='file'){const ext=(String(item.meta.name||'').split('.').pop()||'FILE').slice(0,5);b.innerHTML=`${dockSvg('file')}<span class="ext">${escapeHtml(ext)}</span>`;b.title=item.meta.name||'Shared file';b.setAttribute('aria-label','File '+(item.meta.name||''))}else{b.innerHTML=dockSvg(item.kind)+'<i class="liveDot"></i>';b.title=`${item.name} · ${item.kind}`;b.setAttribute('aria-label',`${item.name} ${item.kind}`)}b.onclick=()=>showMobileMediaPopover(item);box.append(b)}
+}
+function updateCollapsedMediaSummary(){const box=$('#mediaCollapsedStack');if(box){const kinds={mic:0,camera:0,screen:0};for(const k of localMedia.keys())if(kinds[k]!=null)kinds[k]++;for(const m of remoteMedia.values())if(kinds[m.kind]!=null)kinds[m.kind]++;const files=[...assets.values()].filter(m=>!m.deleted).length;box.innerHTML=mediaSummaryIcon('mic',kinds.mic,'Microphones')+mediaSummaryIcon('camera',kinds.camera,'Cameras')+mediaSummaryIcon('screen',kinds.screen,'Screens')+'<div class="mediaCollapsedSep"></div>'+mediaSummaryIcon('file',files,'Files')}updateMobileMediaDock()}
+function initWorkspaceLayout(){try{markdownEnabled=localStorage.getItem('scratch-markdown')==='1';setMediaWidth(Number(localStorage.getItem('scratch-media-width'))||MEDIA_DEFAULT_W,{persist:false});setHistoryOpen(localStorage.getItem('scratch-history-open')==='1');setMediaCollapsed(innerWidth<=820?true:localStorage.getItem('scratch-media-collapsed')==='1',{persist:false})}catch(_){setMediaWidth(MEDIA_DEFAULT_W,{persist:false});if(innerWidth<=820)setMediaCollapsed(true,{persist:false})}updateMarkdownMode();updateCollapsedMediaSummary()}
 
 function renderEditor(sel=null){
   const s=$('#scratch'),text=ytext.toString();
@@ -541,7 +676,7 @@ function queueRemoteYUpdate(b64,isState=false){
 function flushRemoteYUpdates(){
   remoteFlushTimer=null;if(!incomingY.length)return;if(isComposing){remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),80);return}const sel=selectionRelative(),before=ytext.toString(),repair=remoteStateRepairPending;remoteStateRepairPending=false;
   try{
-    const merged=Y.mergeUpdates(incomingY.splice(0));Y.applyUpdate(ydoc,merged,REMOTE_ORIGIN);
+    const merged=Y.mergeUpdates(incomingY.splice(0));Y.applyUpdate(ydoc,merged,REMOTE_ORIGIN);ensureActiveDocument();
     const after=ytext.toString();
     // Repair the legacy migration failure mode where two peers independently seeded
     // the same pre-CRDT document and a state merge produces an exact A+A document.
@@ -551,7 +686,7 @@ function flushRemoteYUpdates(){
 }
 function diffText(before,after){let p=0;const max=Math.min(before.length,after.length);while(p<max&&before.charCodeAt(p)===after.charCodeAt(p))p++;let bs=before.length,as=after.length;while(bs>p&&as>p&&before.charCodeAt(bs-1)===after.charCodeAt(as-1)){bs--;as--}return{index:p,deleted:before.slice(p,bs),inserted:after.slice(p,as)}}
 function noteHistory(change,who=profile.name,color=profile.color,source='user'){
-  const now=Date.now();if(!pendingHistory){pendingHistory={id:crypto.randomUUID(),actor,name:who,color,source,started:now,ended:now,inserted:0,deleted:0,insertSample:'',deleteSample:''}}
+  const now=Date.now();if(!pendingHistory){pendingHistory={id:crypto.randomUUID(),actor,name:who,color,source,docId:activeDocId,docName:currentDocMeta()?.name||'Scratch pad',started:now,ended:now,inserted:0,deleted:0,insertSample:'',deleteSample:''}}
   pendingHistory.ended=now;pendingHistory.inserted+=change.inserted.length;pendingHistory.deleted+=change.deleted.length;
   if(pendingHistory.insertSample.length<400)pendingHistory.insertSample=(pendingHistory.insertSample+change.inserted).slice(0,400);
   if(pendingHistory.deleteSample.length<400)pendingHistory.deleteSample=(pendingHistory.deleteSample+change.deleted).slice(0,400);
@@ -559,10 +694,10 @@ function noteHistory(change,who=profile.name,color=profile.color,source='user'){
 }
 function commitHistory(){
   clearTimeout(historyTimer);historyTimer=null;if(!pendingHistory||!yhistory)return;const h=pendingHistory;pendingHistory=null;
-  ydoc.transact(()=>{yhistory.push([h]);if(yhistory.length>360)yhistory.delete(0,yhistory.length-360)},HISTORY_ORIGIN);renderHistory();
+  ydoc.transact(()=>{yhistory.push([h]);if(yhistory.length>360)yhistory.delete(0,yhistory.length-360);const m=fsEntry(h.docId);if(m)yfs.set(h.docId,{...yfs.get(h.docId),updated:Date.now()})},HISTORY_ORIGIN);renderHistory();renderDocNavigator();
 }
 function formatHistoryDesc(h){
-  const parts=[];if(h.inserted)parts.push('+'+h.inserted);if(h.deleted)parts.push('−'+h.deleted);let sample=h.insertSample||h.deleteSample||'';sample=sample.replace(/\s+/g,' ').trim();return (parts.join(' / ')||'edit')+(sample?' · “'+sample.slice(0,90)+(sample.length>90?'…':'')+'”':'');
+  const parts=[];if(h.inserted)parts.push('+'+h.inserted);if(h.deleted)parts.push('−'+h.deleted);let sample=h.insertSample||h.deleteSample||'';sample=sample.replace(/\s+/g,' ').trim();return (h.docName?String(h.docName)+' · ':'')+(parts.join(' / ')||'edit')+(sample?' · “'+sample.slice(0,90)+(sample.length>90?'…':'')+'”':'');
 }
 function renderHistory(){
   if(!yhistory)return;const rows=yhistory.toArray().slice(-120).reverse(),html=!rows.length?'<div class="historyempty">No synchronized edits yet.</div>':rows.map(h=>`<div class="historyrow"><span class="historydot" style="--user:${escapeHtml(h.color||'#9099a2')}"></span><div><div class="historywho">${escapeHtml(h.name||'Peer')}</div><div class="historydesc">${escapeHtml(formatHistoryDesc(h))}</div></div><div class="historytime">${new Date(Number(h.ended||h.started||Date.now())).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');
@@ -570,7 +705,7 @@ function renderHistory(){
 }
 function currentPresence(){
   const s=$('#scratch'),len=ytext?.length||0,start=Math.min(s.selectionStart||0,len),end=Math.min(s.selectionEnd||0,len),dir=s.selectionDirection||'none';const anchor=dir==='backward'?end:start,head=dir==='backward'?start:end;
-  return {name:profile.name,color:profile.color,focus:document.activeElement===s,anchor:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,anchor))),head:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,head))),ts:Date.now()};
+  return {name:profile.name,color:profile.color,docId:activeDocId,focus:document.activeElement===s,anchor:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,anchor))),head:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,head))),ts:Date.now()};
 }
 function queuePresence(immediate=false){
   if(!ydoc)return;clearTimeout(presenceTimer);presenceTimer=setTimeout(()=>broadcastCtl(newMessage('presence',{presence:currentPresence()})).catch(()=>{}),immediate?0:70);
@@ -596,7 +731,7 @@ function selectionRects(el,start,end){
 function renderRemoteCursors(){
   if(remoteFlushTimer)return;const layer=$('#cursorLayer'),s=$('#scratch');if(!layer||!ydoc)return;layer.innerHTML='';const now=Date.now();
   for(const [id,p] of remotePresence){
-    if(!actorRoutes.has(id)||!p.focus||now-Number(p.ts||0)>35000)continue;let anchor=null,head=null;try{anchor=resolveRelative(b64ToBytes(p.anchor));head=resolveRelative(b64ToBytes(p.head))}catch(_){}if(head==null)continue;
+    if(!actorRoutes.has(id)||!p.focus||(p.docId&&p.docId!==activeDocId)||now-Number(p.ts||0)>35000)continue;let anchor=null,head=null;try{anchor=resolveRelative(b64ToBytes(p.anchor));head=resolveRelative(b64ToBytes(p.head))}catch(_){}if(head==null)continue;
     if(anchor!=null&&anchor!==head){for(const r of selectionRects(s,Math.min(anchor,head),Math.max(anchor,head))){const h=document.createElement('div');h.className='remoteSelection';h.style.setProperty('--cursor',p.color||'#fff');h.style.left=r.left+'px';h.style.top=r.top+'px';h.style.width=Math.max(1,r.width)+'px';h.style.height=Math.max(2,r.height)+'px';layer.append(h)}}
     const xy=caretXY(s,Math.min(head,s.value.length));if(xy.y+xy.h<0||xy.y>s.clientHeight||xy.x<0||xy.x>s.clientWidth)continue;const c=document.createElement('div');c.className='remoteCursor';c.style.setProperty('--cursor',p.color||'#fff');c.style.left=xy.x+'px';c.style.top=xy.y+'px';c.style.height=Math.max(16,xy.h)+'px';c.innerHTML=`<span class="cursorflag">${escapeHtml(p.name||'Peer')}</span>`;layer.append(c)
   }
@@ -619,8 +754,8 @@ async function loadLocal(){
   let loaded=false;try{const packet=await idbGet('kv','yjs-state');if(packet){const raw=new Uint8Array(await decryptBytes(packet,'local:yjs-state'));Y.applyUpdate(ydoc,raw,LOAD_ORIGIN);loaded=true}}catch(e){console.warn('Yjs cache load failed',e)}
   if(!loaded){const legacy=await getKV('doc',{text:'',v:{c:0,a:''}});absorbV(legacy.v);if(legacy.text)ydoc.transact(()=>ytext.insert(0,String(legacy.text)),LOAD_ORIGIN)}
   const list=await getKV('assets',[]);for(const m of list||[]){assets.set(m.id,m);absorbV(m.v)}
-  await migrateAssetCache();
-  renderEditor();renderPresence();renderHistory();renderAssets();scheduleYSave();
+  await migrateAssetCache();ensureFilesystem();
+  renderEditor();renderPresence();renderHistory();renderAssets();renderDocNavigator();scheduleYSave();
 }
 async function saveAssets(){await putKV('assets',[...assets.values()])}
 
@@ -1018,16 +1153,16 @@ function localDocChanged(){
   editorShadow=after;
   noteHistory(change);updateDocMeta();queuePresence();
 }
-function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0;$('#docMeta').textContent=chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'} · buffered display` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0,name=currentDocMeta()?.name||'Scratch pad';$('#docMeta').textContent=name.toUpperCase()+' · '+chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'}` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
 function roomLink(){const u=new URL(location.href);u.searchParams.delete('agent');return u.href}
 function agentLink(){const u=new URL(location.href);u.searchParams.set('agent','1');return u.href}
-function setAgentOpen(on){document.body.classList.toggle('agent-open',!!on);$('#agentBtn')?.classList.toggle('active',!!on);$('#agentBtn')?.setAttribute('aria-pressed',on?'true':'false');if(on){$('#agentLink').value=agentLink();scheduleAgentStateRefresh('open',0)}requestAnimationFrame(()=>{renderRemoteCursors()})}
-function agentIsOpen(){return document.body.classList.contains('agent-open')}
+function setAgentOpen(on){on=!!on;document.body.classList.toggle('agent-mode',on);const raw=$('#agentInstructions');if(raw)raw.hidden=!on;if(on){const link=$('#agentLink');if(link)link.value=agentLink();scheduleAgentStateRefresh('open',0)}requestAnimationFrame(renderRemoteCursors)}
+function agentIsOpen(){return document.body.classList.contains('agent-mode')}
 async function agentFilesState(){const out=[];for(const m of [...assets.values()].filter(x=>!x.deleted).sort((a,b)=>a.created-b.created)){out.push({id:m.id,name:m.name,type:m.type,size:m.size,sha:m.sha,created:m.created,owner:m.owner,local:!!(await idbGet('files',m.id))})}return out}
 async function getAgentState(){
   const peers=[...actorRoutes.keys()].map(id=>{const p=remotePresence.get(id)||{};return{actor:id,name:p.name||aliasFromActor(id),color:p.color||colorFromActor(id),focused:!!p.focus,lastSeen:p.ts||null,routes:actorRoutes.get(id)?.size||0}});
   const local=[...localMedia.keys()],remote=[...remoteMedia.values()].map(x=>({actor:x.actor,kind:x.kind,id:x.id}));
-  return{version:'1.0',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},users:peers,files:await agentFilesState(),media:{local,remote},ui:{markdown:markdownEnabled,historyOpen:document.body.classList.contains('history-open'),mediaCollapsed:document.body.classList.contains('media-collapsed'),mediaWidth,mediaExpandedWidth},timestamp:new Date().toISOString()}
+  return{version:'1.2',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{id:activeDocId,name:currentDocMeta()?.name||'Scratch pad',path:activeDocPath().map(x=>({id:x.id,name:x.name,type:x.type})),text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},documents:fsEntries().map(x=>({id:x.id,type:x.type,parent:x.parent||null,name:x.name,created:x.created,updated:x.updated,active:x.id===activeDocId})),users:peers,files:await agentFilesState(),media:{local,remote},ui:{markdown:markdownEnabled,historyOpen:document.body.classList.contains('history-open'),documentsOpen:document.body.classList.contains('docs-open'),mediaCollapsed:document.body.classList.contains('media-collapsed'),mediaWidth,mediaExpandedWidth},timestamp:new Date().toISOString()}
 }
 function scheduleAgentStateRefresh(reason='change',delay=90){
   clearTimeout(agentStateTimer);agentStateTimer=setTimeout(async()=>{agentStateTimer=null;let state;try{state=await getAgentState()}catch(e){return}const box=$('#agentState');if(box&&agentIsOpen()){box.textContent=JSON.stringify(state,null,2);$('#agentStateTime').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}for(const fn of [...agentSubscribers])try{fn(state,reason)}catch(e){console.warn('agent subscriber failed',e)}document.dispatchEvent(new CustomEvent('scratchpad:state',{detail:{reason,state}}))},delay)
@@ -1050,10 +1185,10 @@ async function agentGetFileText(id){const f=await agentGetFile(id);return f.text
 async function agentSetState(patch={}){if(!patch||typeof patch!=='object')throw new TypeError('state patch must be an object');if(Object.prototype.hasOwnProperty.call(patch,'text'))mutateAgentText('set',patch.text);if(patch.appendText!=null)mutateAgentText('append',patch.appendText);if(patch.prependText!=null)mutateAgentText('prepend',patch.prependText);for(const f of patch.files||[])await agentAddFile(f,{quiet:true});for(const id of patch.removeFiles||[])await removeAsset(String(id));return getAgentState()}
 async function runAgentCommand(cmd){
   if(typeof cmd==='string')cmd=JSON.parse(cmd);if(!cmd||typeof cmd!=='object')throw new Error('command must be an object');const a=String(cmd.action||'getState');
-  if(a==='getState')return getAgentState();if(a==='setState')return agentSetState(cmd.state||cmd.patch||{});if(a==='setText')return mutateAgentText('set',cmd.text);if(a==='appendText')return mutateAgentText('append',cmd.text);if(a==='prependText')return mutateAgentText('prepend',cmd.text);if(a==='insertText')return mutateAgentText('insert',cmd.text,cmd.index);if(a==='replaceRange')return mutateAgentText('range',cmd.text,cmd.start,cmd.end);if(a==='clearText')return mutateAgentText('clear');if(a==='addFileBase64')return agentAddFile({base64:cmd.base64,name:cmd.name,type:cmd.type});if(a==='addFileText')return agentCreateFile(cmd.name,cmd.text,cmd.type);if(a==='getFileText')return agentGetFileText(cmd.id);if(a==='removeFile'){await removeAsset(String(cmd.id));return{removed:true,id:String(cmd.id)}}if(a==='setView'){if(cmd.markdown!=null)setMarkdownEnabled(!!cmd.markdown);if(cmd.historyOpen!=null)setHistoryOpen(!!cmd.historyOpen);if(cmd.mediaCollapsed!=null)setMediaCollapsed(!!cmd.mediaCollapsed);if(cmd.mediaWidth!=null)setMediaWidth(cmd.mediaWidth);return getAgentState()}if(a==='startMedia'){await startLocalMedia(String(cmd.kind));return{started:true,kind:String(cmd.kind)}}if(a==='stopMedia'){stopLocalMedia(String(cmd.kind));return{stopped:true,kind:String(cmd.kind)}}throw new Error('unsupported action: '+a)
+  if(a==='getState')return getAgentState();if(a==='listDocuments')return fsEntries();if(a==='openDocument')return{opened:selectDocument(String(cmd.id),{focus:false})};if(a==='createDocument')return{id:createDocument(cmd.parent||null,cmd.name||null,cmd.text||'')};if(a==='createFolder')return{id:createFolder(cmd.parent||null,cmd.name||null)};if(a==='renameEntry')return{renamed:renameFsEntry(String(cmd.id),String(cmd.name||''))};if(a==='removeEntry')return{removed:removeFsEntry(String(cmd.id))};if(a==='downloadDocument'){downloadDocument(String(cmd.id));return{downloaded:true,id:String(cmd.id)}};if(a==='setState')return agentSetState(cmd.state||cmd.patch||{});if(a==='setText')return mutateAgentText('set',cmd.text);if(a==='appendText')return mutateAgentText('append',cmd.text);if(a==='prependText')return mutateAgentText('prepend',cmd.text);if(a==='insertText')return mutateAgentText('insert',cmd.text,cmd.index);if(a==='replaceRange')return mutateAgentText('range',cmd.text,cmd.start,cmd.end);if(a==='clearText')return mutateAgentText('clear');if(a==='addFileBase64')return agentAddFile({base64:cmd.base64,name:cmd.name,type:cmd.type});if(a==='addFileText')return agentCreateFile(cmd.name,cmd.text,cmd.type);if(a==='getFileText')return agentGetFileText(cmd.id);if(a==='removeFile'){await removeAsset(String(cmd.id));return{removed:true,id:String(cmd.id)}}if(a==='setView'){if(cmd.markdown!=null)setMarkdownEnabled(!!cmd.markdown);if(cmd.historyOpen!=null)setHistoryOpen(!!cmd.historyOpen);if(cmd.mediaCollapsed!=null)setMediaCollapsed(!!cmd.mediaCollapsed);if(cmd.mediaWidth!=null)setMediaWidth(cmd.mediaWidth);return getAgentState()}if(a==='startMedia'){await startLocalMedia(String(cmd.kind));return{started:true,kind:String(cmd.kind)}}if(a==='stopMedia'){stopLocalMedia(String(cmd.kind));return{stopped:true,kind:String(cmd.kind)}}throw new Error('unsupported action: '+a)
 }
 window.ScratchpadAgent=Object.freeze({
-  version:'1.0',ready:agentReady,getState:getAgentState,setState:agentSetState,setText:text=>mutateAgentText('set',text),appendText:text=>mutateAgentText('append',text),prependText:text=>mutateAgentText('prepend',text),insertText:(index,text)=>mutateAgentText('insert',text,index),replaceRange:(start,end,text)=>mutateAgentText('range',text,start,end),clearText:()=>mutateAgentText('clear'),addFile:agentAddFile,addFiles:async list=>{const out=[];for(const f of list||[])out.push(await agentAddFile(f));return out},getFile:agentGetFile,getFileText:agentGetFileText,createFile:agentCreateFile,listFiles:agentFilesState,removeFile:async id=>{await removeAsset(String(id));scheduleAgentStateRefresh('file');return true},startMedia:startLocalMedia,stopMedia:kind=>stopLocalMedia(kind),setView:opts=>runAgentCommand({action:'setView',...(opts||{})}),open:()=>setAgentOpen(true),close:()=>setAgentOpen(false),run:runAgentCommand,subscribe:fn=>{if(typeof fn!=='function')throw new TypeError('subscriber must be a function');agentSubscribers.add(fn);return()=>agentSubscribers.delete(fn)}});
+  version:'1.2',instructions:()=>$('#agentInstructions')?.textContent||'',ready:agentReady,getState:getAgentState,listDocuments:async()=>fsEntries(),openDocument:id=>selectDocument(String(id),{focus:false}),createDocument:(name,parent=null,text='')=>createDocument(parent,name,text),createFolder:(name,parent=null)=>createFolder(parent,name),renameEntry:(id,name)=>renameFsEntry(String(id),name),removeEntry:id=>removeFsEntry(String(id)),getDocumentText:id=>{const m=fsEntry(String(id));if(!m||m.type!=='doc')throw new Error('document not found');return docTextFor(m).toString()},setState:agentSetState,setText:text=>mutateAgentText('set',text),appendText:text=>mutateAgentText('append',text),prependText:text=>mutateAgentText('prepend',text),insertText:(index,text)=>mutateAgentText('insert',text,index),replaceRange:(start,end,text)=>mutateAgentText('range',text,start,end),clearText:()=>mutateAgentText('clear'),addFile:agentAddFile,addFiles:async list=>{const out=[];for(const f of list||[])out.push(await agentAddFile(f));return out},getFile:agentGetFile,getFileText:agentGetFileText,createFile:agentCreateFile,listFiles:agentFilesState,removeFile:async id=>{await removeAsset(String(id));scheduleAgentStateRefresh('file');return true},startMedia:startLocalMedia,stopMedia:kind=>stopLocalMedia(kind),setView:opts=>runAgentCommand({action:'setView',...(opts||{})}),open:()=>setAgentOpen(true),close:()=>setAgentOpen(false),run:runAgentCommand,subscribe:fn=>{if(typeof fn!=='function')throw new TypeError('subscriber must be a function');agentSubscribers.add(fn);return()=>agentSubscribers.delete(fn)}});
 document.addEventListener('scratchpad:agent-command',async e=>{const id=e.detail?.id||crypto.randomUUID();try{const result=await runAgentCommand(e.detail?.command||e.detail);document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:true,result}}))}catch(error){document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:false,error:error.message}}))}});
 
 async function loadQrModule(){
@@ -1135,7 +1270,7 @@ window.addEventListener('resize',()=>{if(innerWidth>820){if(document.body.classL
 $('#markdownBtn').onclick=()=>setMarkdownEnabled(!markdownEnabled);
 $('#markdownView').addEventListener('click',e=>{if(e.target.closest('a'))return;markdownEditing=true;updateMarkdownMode();const s=$('#scratch');s.focus({preventScroll:true});try{s.setSelectionRange(s.selectionStart,s.selectionEnd)}catch(_){}});
 $('#historyRailToggle').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#historyRailClose').onclick=()=>setHistoryOpen(false);
-$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));
+$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));$('#mobileMediaToggle').onclick=()=>setMediaCollapsed(false);
 for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
 const mediaSplitter=$('#mediaSplitter');
@@ -1184,31 +1319,32 @@ mediaSplitter.addEventListener('keydown',e=>{
   if(e.key==='Home'){setMediaCollapsed(false);return}
   const base=document.body.classList.contains('media-collapsed')?mediaExpandedWidth:mediaWidth;setMediaWidth(base+(e.key==='ArrowLeft'?24:-24),{open:true});
 });
+$('#docNavToggle').onclick=()=>setDocsOpen(!document.body.classList.contains('docs-open'));$('#docBrowserClose').onclick=()=>setDocsOpen(false);$('#newFolderBtn').onclick=()=>createFolder(activeFolderId);$('#newDocBtn').onclick=()=>createDocument(activeFolderId);$('#docQuickNew').onclick=()=>createDocument(activeFolderId);
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
-$('#copyBtn').onclick=async()=>{const u=roomLink();try{await navigator.clipboard.writeText(u);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',u)}};
 $('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
 $('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
 const drop=$('#dropZone');for(const ev of ['dragenter','dragover'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')});for(const ev of ['dragleave','drop'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')});drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();addFiles(files)}});
-$('#historyBtn').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
-$('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
+const historyTopBtn=$('#historyBtn');if(historyTopBtn)historyTopBtn.onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));const closeHistory=$('#closeHistory');if(closeHistory)closeHistory.onclick=()=>$('#historyModal').classList.remove('show');const historyModal=$('#historyModal');if(historyModal)historyModal.onclick=e=>{if(e.target===historyModal)historyModal.classList.remove('show')};
+const infoBtn=$('#infoBtn');if(infoBtn)infoBtn.onclick=()=>$('#infoModal').classList.add('show');const closeInfo=$('#closeInfo');if(closeInfo)closeInfo.onclick=()=>$('#infoModal').classList.remove('show');const infoModal=$('#infoModal');if(infoModal)infoModal.onclick=e=>{if(e.target===infoModal)infoModal.classList.remove('show')};
 $('#closeQr').onclick=()=>$('#qrModal').classList.remove('show');$('#qrModal').onclick=e=>{if(e.target===$('#qrModal'))$('#qrModal').classList.remove('show')};
-$('#agentBtn').onclick=()=>setAgentOpen(!agentIsOpen());
-$('#copyAgentLink').onclick=async()=>{const u=agentLink();try{await navigator.clipboard.writeText(u);toast('<b>Agent link copied.</b>','good')}catch(_){prompt('Copy this agent link:',u)}};
-$('#refreshAgentState').onclick=()=>scheduleAgentStateRefresh('manual',0);
-$('#agentReplace').onclick=()=>{try{mutateAgentText('set',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
-$('#agentAppend').onclick=()=>{try{mutateAgentText('append',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
-$('#agentPrepend').onclick=()=>{try{mutateAgentText('prepend',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
-$('#agentClear').onclick=()=>{try{mutateAgentText('clear')}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
-$('#agentUploadFiles').onclick=async()=>{const files=$('#agentFileInput').files;if(!files?.length){toast('<b>No files selected.</b>','bad');return}const r=await addFiles(files,{source:'agent'});$('#agentFileInput').value='';$('#agentResult').textContent=JSON.stringify(r,null,2);scheduleAgentStateRefresh('file',0)};
-$('#agentRun').onclick=async()=>{const out=$('#agentResult');out.className='agentPre agentResult';try{const r=await runAgentCommand($('#agentCommand').value);out.textContent=JSON.stringify(r,null,2);out.classList.add('good')}catch(e){out.textContent=JSON.stringify({ok:false,error:e.message},null,2);out.classList.add('bad')}};
+$('#copyQrLink').onclick=async()=>{const u=roomLink();try{await navigator.clipboard.writeText(u);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',u)}};
+const copyAgentLink=$('#copyAgentLink');if(copyAgentLink)copyAgentLink.onclick=async()=>{const u=agentLink();try{await navigator.clipboard.writeText(u);toast('<b>Agent link copied.</b>','good')}catch(_){prompt('Copy this agent link:',u)}};
+const refreshAgentState=$('#refreshAgentState');if(refreshAgentState)refreshAgentState.onclick=()=>scheduleAgentStateRefresh('manual',0);
+const agentReplace=$('#agentReplace');if(agentReplace)agentReplace.onclick=()=>{try{mutateAgentText('set',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+const agentAppend=$('#agentAppend');if(agentAppend)agentAppend.onclick=()=>{try{mutateAgentText('append',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+const agentPrepend=$('#agentPrepend');if(agentPrepend)agentPrepend.onclick=()=>{try{mutateAgentText('prepend',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+const agentClear=$('#agentClear');if(agentClear)agentClear.onclick=()=>{try{mutateAgentText('clear')}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+const agentUploadFiles=$('#agentUploadFiles');if(agentUploadFiles)agentUploadFiles.onclick=async()=>{const files=$('#agentFileInput').files;if(!files?.length){toast('<b>No files selected.</b>','bad');return}const r=await addFiles(files,{source:'agent'});$('#agentFileInput').value='';$('#agentResult').textContent=JSON.stringify(r,null,2);scheduleAgentStateRefresh('file',0)};
+const agentRun=$('#agentRun');if(agentRun)agentRun.onclick=async()=>{const out=$('#agentResult');out.className='agentPre agentResult';try{const r=await runAgentCommand($('#agentCommand').value);out.textContent=JSON.stringify(r,null,2);out.classList.add('good')}catch(e){out.textContent=JSON.stringify({ok:false,error:e.message},null,2);out.classList.add('bad')}};
+document.addEventListener('pointerdown',e=>{const pop=$('#mobileMediaPopover');if(pop?.classList.contains('show')&&!pop.contains(e.target)&&!e.target.closest?.('.mobileDockIcon'))closeMobileMediaPopover();if(!e.target.closest?.('.docRow'))for(const row of document.querySelectorAll('.docRow.actions-open'))row.classList.remove('actions-open')},{passive:true});
 window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();for(const kind of [...localMedia.keys()])stopLocalMedia(kind);for(const m of nats.mediaSessions.values())try{m.pc?.close()}catch(_){}nats.mediaSessions.clear();clearInterval(nats.timer);clearInterval(presenceSweepTimer);clearInterval(agentPollTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
 
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await importYjs();setupYDoc();await loadLocal();initWorkspaceLayout();updatePresence();$('#agentLink').value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);$('#agentReadyMeta').textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();$('#agentReadyMeta').textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
+    await initSecret();await importYjs();setupYDoc();await loadLocal();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
