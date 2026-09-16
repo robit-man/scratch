@@ -50,7 +50,27 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 .transport{border-top:1px solid var(--line);padding:8px 12px;display:flex;align-items:center;gap:6px;overflow:auto}.transport .tag{border:1px solid var(--line);padding:4px 6px;font:8px var(--mono);color:var(--dim);white-space:nowrap}.transport .tag.on{color:var(--good);border-color:#2c503b}.transport .tag.err{color:var(--bad);border-color:#5d3232}
 .toastbox{position:fixed;right:14px;top:70px;width:min(360px,calc(100vw - 28px));z-index:100;display:flex;flex-direction:column;gap:7px;pointer-events:none}.toast{border:1px solid var(--line2);background:#111419;box-shadow:0 14px 40px rgba(0,0,0,.42);padding:10px 11px;font:9px/1.5 var(--mono);color:var(--muted);pointer-events:auto}.toast b{color:var(--text)}.toast.good{border-color:#315740}.toast.bad{border-color:#653737;color:#d99595}
 .modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}.qrwrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 2px}.qrframe{background:#fff;padding:10px;line-height:0;border:1px solid #343a40}.qrframe canvas{width:min(320px,72vw);height:auto;image-rendering:pixelated}.qrurl{width:100%;padding:9px 10px;border:1px solid var(--line);background:#090b0d;color:var(--dim);font:9px/1.5 var(--mono);word-break:break-all;user-select:all}.qrnote{font:9px/1.55 var(--mono);color:var(--muted);text-align:center;max-width:460px}
-@media(max-width:820px){body{overflow:auto}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
+
+/* Agent-operable surface -------------------------------------------------- */
+.agentSurface{display:none;min-width:0;min-height:0;border-left:1px solid var(--line);background:#0b0d0f;flex-direction:column}
+body.agent-open main{grid-template-columns:minmax(0,1.05fr) minmax(320px,.72fr) minmax(340px,.64fr)}
+body.agent-open .agentSurface{display:flex}
+.agentBody{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px}
+.agentBlock{border:1px solid var(--line);background:#0d1013;padding:10px}
+.agentLabel{display:flex;align-items:center;gap:7px;margin-bottom:7px;color:var(--muted);font:800 8px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase}.agentLabel span:last-child{margin-left:auto;color:var(--dim);font-weight:500;letter-spacing:0}
+.agentInput,.agentTextarea,.agentSelect,.agentPre{width:100%;border:1px solid var(--line2);background:#080a0c;color:var(--text);outline:0;font:10px/1.55 var(--mono);border-radius:0}
+.agentInput,.agentSelect{height:34px;padding:0 9px}.agentTextarea{min-height:96px;resize:vertical;padding:8px 9px}.agentPre{margin:0;min-height:118px;max-height:260px;overflow:auto;padding:9px;white-space:pre-wrap;word-break:break-word;color:#b9c1c8}
+.agentInput:focus,.agentTextarea:focus,.agentSelect:focus{border-color:#65717c}
+.agentRow{display:flex;gap:6px;align-items:center}.agentRow>*{min-width:0}.agentRow .grow{flex:1}
+.agentActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.agentActions .btn{flex:0 0 auto}
+.agentHint{margin-top:7px;color:var(--dim);font:9px/1.55 var(--mono)}
+.agentHint code{color:var(--accent)}
+.agentBadge{border:1px solid #315740;color:var(--good);padding:3px 5px;font:800 7px var(--mono)}
+.agentFileInput{display:block;width:100%;padding:7px;border:1px dashed var(--line2);background:#090b0d;color:var(--muted);font:9px var(--mono)}
+.agentCommandGrid{display:grid;grid-template-columns:1fr;gap:6px}.agentResult.good{border-color:#315740}.agentResult.bad{border-color:#653737;color:#d99595}
+[data-agent-id]{scroll-margin:70px}
+@media(max-width:1180px){body.agent-open main{grid-template-columns:minmax(0,1fr) minmax(320px,.8fr)}body.agent-open .agentSurface{position:fixed;right:0;top:58px;bottom:0;width:min(420px,100vw);z-index:45;box-shadow:-18px 0 50px rgba(0,0,0,.45)}}
+@media(max-width:820px){body{overflow:auto}body.agent-open .agentSurface{top:0;width:100vw}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
 @media(max-width:500px){.brand{font-size:11px}.actions{gap:4px;flex-wrap:wrap;justify-content:flex-end}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}.liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}}
 </style>
 </head>
@@ -59,19 +79,22 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
   <header>
     <div class="brand">SCRATCH<b>//</b>P2P</div>
     <div class="status">
-      <span class="pill" id="roomPill">ROOM …</span>
-      <span class="pill" id="peerPill">PEERS 0</span>
-      <span class="pill warn" id="netPill">MESH STARTING</span>
+      <span class="pill" id="roomPill" data-agent-id="room-status">ROOM …</span>
+      <span class="pill" id="peerPill" data-agent-id="peer-status">PEERS 0</span>
+      <span class="pill warn" id="netPill" data-agent-id="network-status">MESH STARTING</span>
     </div>
     <div class="actions">
-      <button class="iconbtn" id="micBtn" type="button" aria-label="Share microphone" title="Share microphone">
+      <button class="iconbtn" id="micBtn" data-agent-action="toggle-microphone" type="button" aria-label="Share microphone" title="Share microphone">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>
       </button>
-      <button class="iconbtn" id="cameraBtn" type="button" aria-label="Share camera" title="Share camera">
+      <button class="iconbtn" id="cameraBtn" data-agent-action="toggle-camera" type="button" aria-label="Share camera" title="Share camera">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg>
       </button>
-      <button class="iconbtn" id="screenBtn" type="button" aria-label="Share screen and request system audio" title="Share screen + system audio">
+      <button class="iconbtn" id="screenBtn" data-agent-action="toggle-screen" type="button" aria-label="Share screen and request system audio" title="Share screen + system audio">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l4-3 4 3M12 7v7"/></svg>
+      </button>
+      <button class="iconbtn" id="agentBtn" type="button" aria-label="Agent interface" title="Agent interface" data-agent-action="toggle-agent-surface">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="16" height="13" rx="2"/><path d="M9 10h.01M15 10h.01M8 15h8M12 6V3M9 3h6"/></svg>
       </button>
       <button class="iconbtn" id="historyBtn" type="button" aria-label="Edit history" title="Edit history">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>
@@ -79,22 +102,22 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
       <button class="iconbtn" id="infoBtn" type="button" aria-label="Security information" title="Security information">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.7-2.9 8.1-7 10-4.1-1.9-7-5.3-7-10V6l7-3Z"/><path d="m9.5 12 1.7 1.7 3.5-4"/></svg>
       </button>
-      <button class="iconbtn" id="copyBtn" type="button" aria-label="Copy room link" title="Copy room link">
+      <button class="iconbtn" id="copyBtn" data-agent-action="copy-room-link" type="button" aria-label="Copy room link" title="Copy room link">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>
       </button>
-      <button class="iconbtn" id="qrBtn" type="button" aria-label="Show room QR code" title="Show room QR code">
+      <button class="iconbtn" id="qrBtn" data-agent-action="show-room-qr" type="button" aria-label="Show room QR code" title="Show room QR code">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="3" y="15" width="6" height="6"/><path d="M15 15h2v2h-2zM19 15h2v4h-2M15 19h2v2h-2M19 21h2"/></svg>
       </button>
-      <button class="iconbtn primary" id="newBtn" type="button" aria-label="Create new room" title="Create new room">
+      <button class="iconbtn primary" id="newBtn" data-agent-action="new-room" type="button" aria-label="Create new room" title="Create new room">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
       </button>
     </div>
   </header>
   <main>
     <section class="pad">
-      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
       <div class="editorwrap" id="editorWrap">
-        <textarea id="scratch" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+        <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
       <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
@@ -103,14 +126,69 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
       <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span></div>
       <div class="liveSection" id="liveSection">
         <div class="liveHead"><span>Live peer media</span><span id="liveMeta">0 LIVE</span></div>
-        <div class="liveGrid" id="liveGrid"><div class="liveEmpty" id="liveEmpty">MIC / CAMERA / SCREEN streams appear here</div></div>
+        <div class="liveGrid" id="liveGrid" data-agent-id="live-media"><div class="liveEmpty" id="liveEmpty">MIC / CAMERA / SCREEN streams appear here</div></div>
       </div>
       <div class="drop" id="dropZone">
-        <div><strong>DROP / PASTE / UPLOAD</strong><span>Images, video, audio, PDFs, archives, code — encrypted before transfer · max 128 MB each</span><button class="btn small" id="chooseBtn" style="margin-top:10px">CHOOSE FILES</button><input id="fileInput" type="file" multiple hidden></div>
+        <div><strong>DROP / PASTE / UPLOAD</strong><span>Images, video, audio, PDFs, archives, code — encrypted before transfer · max 128 MB each</span><button class="btn small" id="chooseBtn" data-agent-action="choose-files" style="margin-top:10px">CHOOSE FILES</button><input id="fileInput" data-agent-id="file-input" type="file" multiple hidden></div>
       </div>
-      <div class="assetlist" id="assetList"></div>
-      <div class="transport" id="transportBar"></div>
+      <div class="assetlist" id="assetList" data-agent-id="files"></div>
+      <div class="transport" id="transportBar" data-agent-id="transports"></div>
     </section>
+    <aside class="agentSurface" id="agentSurface" aria-label="Agent control surface" data-agent-id="agent-surface">
+      <div class="panelhead"><span class="paneltitle">Agent surface</span><span class="agentBadge">API v1</span><span class="panelmeta" id="agentReadyMeta">BOOTING</span></div>
+      <div class="agentBody">
+        <section class="agentBlock">
+          <div class="agentLabel"><span>Agent room link</span><span>opens this surface</span></div>
+          <div class="agentRow"><input class="agentInput grow" id="agentLink" data-agent-id="agent-link" readonly aria-label="Agent room URL"><button class="btn small" id="copyAgentLink" type="button" data-agent-action="copy-agent-link">COPY</button></div>
+          <div class="agentHint">Pass <code>?agent=1#room-secret</code> to an agent. The fragment remains the room capability; the query only opens this control surface.</div>
+        </section>
+        <section class="agentBlock">
+          <div class="agentLabel"><span>Live state</span><span id="agentStateTime">—</span></div>
+          <pre class="agentPre" id="agentState" data-agent-id="state-json" aria-label="Current scratchpad state JSON">{
+  "ready": false
+}</pre>
+          <div class="agentActions"><button class="btn small" id="refreshAgentState" type="button" data-agent-action="refresh-state">REFRESH</button></div>
+        </section>
+        <section class="agentBlock">
+          <div class="agentLabel"><span>Direct text mutation</span><span>CRDT-safe</span></div>
+          <textarea class="agentTextarea" id="agentText" data-agent-id="agent-text-input" aria-label="Text for agent mutation" placeholder="Text an agent wants to write into the shared scratchpad"></textarea>
+          <div class="agentActions">
+            <button class="btn small" id="agentReplace" type="button" data-agent-action="replace-text">REPLACE</button>
+            <button class="btn small" id="agentAppend" type="button" data-agent-action="append-text">APPEND</button>
+            <button class="btn small" id="agentPrepend" type="button" data-agent-action="prepend-text">PREPEND</button>
+            <button class="btn small danger" id="agentClear" type="button" data-agent-action="clear-text">CLEAR</button>
+          </div>
+        </section>
+        <section class="agentBlock">
+          <div class="agentLabel"><span>File injection</span><span>same dedupe path</span></div>
+          <input class="agentFileInput" id="agentFileInput" data-agent-id="agent-file-input" type="file" multiple aria-label="Agent file upload">
+          <div class="agentActions"><button class="btn small" id="agentUploadFiles" type="button" data-agent-action="upload-selected-files">UPLOAD SELECTED</button></div>
+          <div class="agentHint">Browser-control agents can set this file input directly. Scripted agents can call <code>ScratchpadAgent.addFile(...)</code> with a File, Blob, ArrayBuffer, Uint8Array, or base64 payload.</div>
+        </section>
+        <section class="agentBlock">
+          <div class="agentLabel"><span>JSON command bridge</span><span>deterministic</span></div>
+          <div class="agentCommandGrid">
+            <textarea class="agentTextarea" id="agentCommand" data-agent-id="command-json" aria-label="Agent JSON command">{"action":"getState"}</textarea>
+            <button class="btn small" id="agentRun" type="button" data-agent-action="run-json-command">RUN COMMAND</button>
+            <pre class="agentPre agentResult" id="agentResult" data-agent-id="command-result" aria-label="Agent command result">Ready for command.</pre>
+          </div>
+          <div class="agentHint">Actions: <code>getState</code>, <code>setState</code>, <code>setText</code>, <code>appendText</code>, <code>prependText</code>, <code>insertText</code>, <code>replaceRange</code>, <code>clearText</code>, <code>addFileBase64</code>, <code>addFileText</code>, <code>getFileText</code>, <code>removeFile</code>, <code>startMedia</code>, <code>stopMedia</code>.</div>
+        </section>
+        <section class="agentBlock">
+          <div class="agentLabel"><span>Programmatic contract</span><span>window.ScratchpadAgent</span></div>
+          <pre class="agentPre" data-agent-id="api-contract">await ScratchpadAgent.ready
+await ScratchpadAgent.getState()
+await ScratchpadAgent.setState({text, files})
+await ScratchpadAgent.setText(text)
+await ScratchpadAgent.appendText(text)
+await ScratchpadAgent.replaceRange(start,end,text)
+await ScratchpadAgent.addFile(fileOrPayload)
+await ScratchpadAgent.createFile(name,text,type)
+await ScratchpadAgent.getFile(id)
+await ScratchpadAgent.removeFile(id)</pre>
+        </section>
+      </div>
+    </aside>
   </main>
 </div>
 <div class="toastbox" id="toastBox"></div>
@@ -145,7 +223,7 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
     <h2>Synchronized edit history</h2>
     <div class="modalbody">
       <div style="margin-bottom:10px;font:9px/1.55 var(--mono);color:var(--dim)">Recent edit bursts are part of the encrypted CRDT state, so peers converge on the same history even after reconnecting.</div>
-      <div class="historylist" id="historyList"></div>
+      <div class="historylist" id="historyList" data-agent-id="edit-history"></div>
     </div>
     <div class="modalfoot"><button class="btn" id="closeHistory">CLOSE</button></div>
   </div>
@@ -193,6 +271,7 @@ const assetReceivesInFlight=new Set();
 const incomingY=[];
 const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessions:new Map(),mediaSessions:new Map(),status:'off'};
 let renderToken=0, networkReady=false, qrModule=null, remoteFlushTimer=null, ySaveTimer=null, ySendTimer=null, presenceTimer=null, presenceSweepTimer=null, historyTimer=null, pendingHistory=null;
+let agentStateTimer=null,agentPollTimer=null,agentReadyResolve=null;const agentReady=new Promise(r=>agentReadyResolve=r);const agentSubscribers=new Set();
 let outgoingY=[], isComposing=false, renderingEditor=false, editorShadow='', remoteStateRepairPending=false;
 
 function toast(html,kind=''){
@@ -297,7 +376,7 @@ function renderEditor(sel=null){
   try{if(s.value!==text)s.value=text;editorShadow=text}
   finally{renderingEditor=false}
   if(sel){const a=resolveRelative(sel.anchor),h=resolveRelative(sel.head);if(a!=null&&h!=null){const start=Math.min(a,h),end=Math.max(a,h),dir=a>h?'backward':'forward';try{s.setSelectionRange(start,end,dir)}catch(_){}}}
-  updateDocMeta();requestAnimationFrame(renderRemoteCursors);
+  updateDocMeta();requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('render');
 }
 function queueRemoteYUpdate(b64,isState=false){
   if(!b64||seenYUpdates.has(b64))return;if(isState)remoteStateRepairPending=true;seenYUpdates.set(b64,Date.now());
@@ -317,8 +396,8 @@ function flushRemoteYUpdates(){
   }catch(e){console.warn('CRDT update rejected',e)}
 }
 function diffText(before,after){let p=0;const max=Math.min(before.length,after.length);while(p<max&&before.charCodeAt(p)===after.charCodeAt(p))p++;let bs=before.length,as=after.length;while(bs>p&&as>p&&before.charCodeAt(bs-1)===after.charCodeAt(as-1)){bs--;as--}return{index:p,deleted:before.slice(p,bs),inserted:after.slice(p,as)}}
-function noteHistory(change){
-  const now=Date.now();if(!pendingHistory){pendingHistory={id:crypto.randomUUID(),actor,name:profile.name,color:profile.color,started:now,ended:now,inserted:0,deleted:0,insertSample:'',deleteSample:''}}
+function noteHistory(change,who=profile.name,color=profile.color,source='user'){
+  const now=Date.now();if(!pendingHistory){pendingHistory={id:crypto.randomUUID(),actor,name:who,color,source,started:now,ended:now,inserted:0,deleted:0,insertSample:'',deleteSample:''}}
   pendingHistory.ended=now;pendingHistory.inserted+=change.inserted.length;pendingHistory.deleted+=change.deleted.length;
   if(pendingHistory.insertSample.length<400)pendingHistory.insertSample=(pendingHistory.insertSample+change.inserted).slice(0,400);
   if(pendingHistory.deleteSample.length<400)pendingHistory.deleteSample=(pendingHistory.deleteSample+change.deleted).slice(0,400);
@@ -347,7 +426,7 @@ function mergePresence(remote,p){
 }
 function renderPresence(){
   const bar=$('#presenceBar');if(!bar)return;const live=[...remotePresence.entries()].filter(([id,p])=>actorRoutes.has(id)&&Date.now()-Number(p.ts||0)<35000);
-  const all=[[actor,{...profile,local:true}],...live];bar.innerHTML=all.slice(0,8).map(([id,p])=>`<span class="avatar ${p.local?'you':''}" style="--user:${escapeHtml(p.color||'#9099a2')}" title="${escapeHtml((p.name||'Peer')+(p.local?' (you)':''))}">${escapeHtml(initials(p.name))}</span>`).join('');
+  const all=[[actor,{...profile,local:true}],...live];bar.innerHTML=all.slice(0,8).map(([id,p])=>`<span class="avatar ${p.local?'you':''}" style="--user:${escapeHtml(p.color||'#9099a2')}" title="${escapeHtml((p.name||'Peer')+(p.local?' (you)':''))}">${escapeHtml(initials(p.name))}</span>`).join('');scheduleAgentStateRefresh('presence');
 }
 let caretMirror=null;
 function prepareCaretMirror(el){
@@ -609,7 +688,7 @@ async function syncMediaToActor(remoteActor){
 }
 async function syncMediaAll(){await Promise.allSettled([...actorRoutes.keys()].map(syncMediaToActor))}
 function mediaIcon(){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM15 9a4 4 0 0 1 0 6M17.5 6.5a8 8 0 0 1 0 11"/></svg>'}
-function updateLiveMeta(){const n=localMedia.size+remoteMedia.size;$('#liveMeta').textContent=n+' LIVE';const empty=$('#liveEmpty');if(empty)empty.style.display=n?'none':''}
+function updateLiveMeta(){const n=localMedia.size+remoteMedia.size;$('#liveMeta').textContent=n+' LIVE';const empty=$('#liveEmpty');if(empty)empty.style.display=n?'none':'';scheduleAgentStateRefresh('media')}
 function stopWaveform(key){const w=waveformLoops.get(key);if(!w)return;cancelAnimationFrame(w.raf);try{w.source.disconnect()}catch(_){}try{w.ctx.close()}catch(_){}waveformLoops.delete(key)}
 function startWaveform(canvas,stream,key){
   stopWaveform(key);const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -786,6 +865,43 @@ function localDocChanged(){
   noteHistory(change);updateDocMeta();queuePresence();
 }
 function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0;$('#docMeta').textContent=chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'} · buffered display` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+function roomLink(){const u=new URL(location.href);u.searchParams.delete('agent');return u.href}
+function agentLink(){const u=new URL(location.href);u.searchParams.set('agent','1');return u.href}
+function setAgentOpen(on){document.body.classList.toggle('agent-open',!!on);$('#agentBtn')?.classList.toggle('active',!!on);$('#agentBtn')?.setAttribute('aria-pressed',on?'true':'false');if(on){$('#agentLink').value=agentLink();scheduleAgentStateRefresh('open',0)}requestAnimationFrame(()=>{renderRemoteCursors()})}
+function agentIsOpen(){return document.body.classList.contains('agent-open')}
+async function agentFilesState(){const out=[];for(const m of [...assets.values()].filter(x=>!x.deleted).sort((a,b)=>a.created-b.created)){out.push({id:m.id,name:m.name,type:m.type,size:m.size,sha:m.sha,created:m.created,owner:m.owner,local:!!(await idbGet('files',m.id))})}return out}
+async function getAgentState(){
+  const peers=[...actorRoutes.keys()].map(id=>{const p=remotePresence.get(id)||{};return{actor:id,name:p.name||aliasFromActor(id),color:p.color||colorFromActor(id),focused:!!p.focus,lastSeen:p.ts||null,routes:actorRoutes.get(id)?.size||0}});
+  const local=[...localMedia.keys()],remote=[...remoteMedia.values()].map(x=>({actor:x.actor,kind:x.kind,id:x.id}));
+  return{version:'1.0',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},users:peers,files:await agentFilesState(),media:{local,remote},timestamp:new Date().toISOString()}
+}
+function scheduleAgentStateRefresh(reason='change',delay=90){
+  clearTimeout(agentStateTimer);agentStateTimer=setTimeout(async()=>{agentStateTimer=null;let state;try{state=await getAgentState()}catch(e){return}const box=$('#agentState');if(box&&agentIsOpen()){box.textContent=JSON.stringify(state,null,2);$('#agentStateTime').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}for(const fn of [...agentSubscribers])try{fn(state,reason)}catch(e){console.warn('agent subscriber failed',e)}document.dispatchEvent(new CustomEvent('scratchpad:state',{detail:{reason,state}}))},delay)
+}
+function mutateAgentText(mode,text='',start=0,end=start){
+  if(!ydoc||!ytext)throw new Error('scratchpad is not ready');text=String(text??'');commitHistory();const before=ytext.toString();let after=before;
+  if(mode==='set')after=text;else if(mode==='append')after=before+text;else if(mode==='prepend')after=text+before;else if(mode==='insert'){start=Math.max(0,Math.min(Number(start)||0,before.length));after=before.slice(0,start)+text+before.slice(start)}else if(mode==='range'){start=Math.max(0,Math.min(Number(start)||0,before.length));end=Math.max(start,Math.min(Number(end)||0,before.length));after=before.slice(0,start)+text+before.slice(end)}else if(mode==='clear')after='';else throw new Error('unknown text mutation');
+  if(after===before)return{changed:false,chars:before.length};const sel=selectionRelative(),change=diffText(before,after);ydoc.transact(()=>{if(change.deleted.length)ytext.delete(change.index,change.deleted.length);if(change.inserted.length)ytext.insert(change.index,change.inserted)},LOCAL_ORIGIN);editorShadow=after;noteHistory(change,profile.name+' · agent',profile.color,'agent');commitHistory();renderEditor(sel);queuePresence();scheduleAgentStateRefresh('text');return{changed:true,chars:after.length,inserted:change.inserted.length,deleted:change.deleted.length}
+}
+function fileFromAgentPayload(input,opts={}){
+  if(input instanceof File)return input;if(input instanceof Blob)return new File([input],safeName(opts.name||input.name||'agent-file'),{type:opts.type||input.type||'application/octet-stream'});
+  if(input instanceof ArrayBuffer||ArrayBuffer.isView(input)){const bytes=input instanceof ArrayBuffer?new Uint8Array(input):new Uint8Array(input.buffer,input.byteOffset,input.byteLength);return new File([bytes],safeName(opts.name||'agent-file.bin'),{type:opts.type||'application/octet-stream'})}
+  if(input&&typeof input==='object'&&typeof input.base64==='string'){const raw=input.base64.includes(',')?input.base64.slice(input.base64.indexOf(',')+1):input.base64;return new File([b64ToBytes(raw)],safeName(input.name||opts.name||'agent-file.bin'),{type:input.type||opts.type||'application/octet-stream'})}
+  if(typeof input==='string'&&opts.encoding==='base64')return new File([b64ToBytes(input)],safeName(opts.name||'agent-file.bin'),{type:opts.type||'application/octet-stream'});throw new TypeError('addFile expects File, Blob, ArrayBuffer, Uint8Array, or {base64,name,type}')
+}
+async function agentAddFile(input,opts={}){const file=fileFromAgentPayload(input,opts),result=await addFiles([file],{source:'agent',quiet:!!opts.quiet});scheduleAgentStateRefresh('file');return result[0]||null}
+async function agentGetFile(id){const meta=assets.get(String(id));if(!meta||meta.deleted)throw new Error('file not found');const blob=await materializeAsset(meta.id);return new File([blob],meta.name,{type:meta.type,lastModified:meta.created||Date.now()})}
+async function agentCreateFile(name,content,type='text/plain;charset=utf-8'){const file=new File([content instanceof Blob?content:String(content??'')],safeName(name||'agent-file.txt'),{type:type||'text/plain;charset=utf-8'});return agentAddFile(file,{quiet:true})}
+async function agentGetFileText(id){const f=await agentGetFile(id);return f.text()}
+async function agentSetState(patch={}){if(!patch||typeof patch!=='object')throw new TypeError('state patch must be an object');if(Object.prototype.hasOwnProperty.call(patch,'text'))mutateAgentText('set',patch.text);if(patch.appendText!=null)mutateAgentText('append',patch.appendText);if(patch.prependText!=null)mutateAgentText('prepend',patch.prependText);for(const f of patch.files||[])await agentAddFile(f,{quiet:true});for(const id of patch.removeFiles||[])await removeAsset(String(id));return getAgentState()}
+async function runAgentCommand(cmd){
+  if(typeof cmd==='string')cmd=JSON.parse(cmd);if(!cmd||typeof cmd!=='object')throw new Error('command must be an object');const a=String(cmd.action||'getState');
+  if(a==='getState')return getAgentState();if(a==='setState')return agentSetState(cmd.state||cmd.patch||{});if(a==='setText')return mutateAgentText('set',cmd.text);if(a==='appendText')return mutateAgentText('append',cmd.text);if(a==='prependText')return mutateAgentText('prepend',cmd.text);if(a==='insertText')return mutateAgentText('insert',cmd.text,cmd.index);if(a==='replaceRange')return mutateAgentText('range',cmd.text,cmd.start,cmd.end);if(a==='clearText')return mutateAgentText('clear');if(a==='addFileBase64')return agentAddFile({base64:cmd.base64,name:cmd.name,type:cmd.type});if(a==='addFileText')return agentCreateFile(cmd.name,cmd.text,cmd.type);if(a==='getFileText')return agentGetFileText(cmd.id);if(a==='removeFile'){await removeAsset(String(cmd.id));return{removed:true,id:String(cmd.id)}}if(a==='startMedia'){await startLocalMedia(String(cmd.kind));return{started:true,kind:String(cmd.kind)}}if(a==='stopMedia'){stopLocalMedia(String(cmd.kind));return{stopped:true,kind:String(cmd.kind)}}throw new Error('unsupported action: '+a)
+}
+window.ScratchpadAgent=Object.freeze({
+  version:'1.0',ready:agentReady,getState:getAgentState,setState:agentSetState,setText:text=>mutateAgentText('set',text),appendText:text=>mutateAgentText('append',text),prependText:text=>mutateAgentText('prepend',text),insertText:(index,text)=>mutateAgentText('insert',text,index),replaceRange:(start,end,text)=>mutateAgentText('range',text,start,end),clearText:()=>mutateAgentText('clear'),addFile:agentAddFile,addFiles:async list=>{const out=[];for(const f of list||[])out.push(await agentAddFile(f));return out},getFile:agentGetFile,getFileText:agentGetFileText,createFile:agentCreateFile,listFiles:agentFilesState,removeFile:async id=>{await removeAsset(String(id));scheduleAgentStateRefresh('file');return true},startMedia:startLocalMedia,stopMedia:kind=>stopLocalMedia(kind),open:()=>setAgentOpen(true),close:()=>setAgentOpen(false),run:runAgentCommand,subscribe:fn=>{if(typeof fn!=='function')throw new TypeError('subscriber must be a function');agentSubscribers.add(fn);return()=>agentSubscribers.delete(fn)}});
+document.addEventListener('scratchpad:agent-command',async e=>{const id=e.detail?.id||crypto.randomUUID();try{const result=await runAgentCommand(e.detail?.command||e.detail);document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:true,result}}))}catch(error){document.dispatchEvent(new CustomEvent('scratchpad:agent-result',{detail:{id,ok:false,error:error.message}}))}});
+
 async function loadQrModule(){
   if(qrModule)return qrModule;let last;
   for(const u of ['https://esm.sh/qrcode@1.5.4?bundle','https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm','https://esm.run/qrcode@1.5.4']){
@@ -794,23 +910,25 @@ async function loadQrModule(){
   throw last||new Error('QR generator unavailable');
 }
 async function showRoomQr(){
-  const modal=$('#qrModal'),canvas=$('#qrCanvas');$('#qrUrl').textContent=location.href;modal.classList.add('show');
+  const modal=$('#qrModal'),canvas=$('#qrCanvas'),u=roomLink();$('#qrUrl').textContent=u;modal.classList.add('show');
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
-  try{const q=await loadQrModule();await q.toCanvas(canvas,location.href,{width:320,margin:2,errorCorrectionLevel:'M',color:{dark:'#000000',light:'#ffffff'}})}catch(e){modal.classList.remove('show');toast('<b>QR unavailable.</b> '+escapeHtml(e.message),'bad')}
+  try{const q=await loadQrModule();await q.toCanvas(canvas,u,{width:320,margin:2,errorCorrectionLevel:'M',color:{dark:'#000000',light:'#ffffff'}})}catch(e){modal.classList.remove('show');toast('<b>QR unavailable.</b> '+escapeHtml(e.message),'bad')}
 }
 
-async function addFiles(fileList){
+async function addFiles(fileList,{source='ui',quiet=false}={}){
+  const results=[];
   for(const file of [...fileList]){
-    if(file.size>MAX_FILE){toast('<b>Too large:</b> '+escapeHtml(file.name)+' · max 128 MB','bad');continue}
+    if(file.size>MAX_FILE){if(!quiet)toast('<b>Too large:</b> '+escapeHtml(file.name)+' · max 128 MB','bad');results.push({ok:false,name:file.name,error:'max 128 MB'});continue}
     try{
-      toast('<b>Hashing + encrypting</b> '+escapeHtml(file.name));const plain=await file.arrayBuffer(),bytes=new Uint8Array(plain),sha=await sha256Hex(bytes);let existing=findAssetBySha(sha),id=existing?.id||('f-'+sha);
-      if(existing&&!existing.deleted&&await idbGet('files',id)){toast('<b>Already shared</b> '+escapeHtml(existing.name),'good');continue}
+      if(!quiet)toast('<b>Hashing + encrypting</b> '+escapeHtml(file.name));const plain=await file.arrayBuffer(),bytes=new Uint8Array(plain),sha=await sha256Hex(bytes);let existing=findAssetBySha(sha),id=existing?.id||('f-'+sha);
+      if(existing&&!existing.deleted&&await idbGet('files',id)){if(!quiet)toast('<b>Already shared</b> '+escapeHtml(existing.name),'good');results.push({ok:true,id,name:existing.name,duplicate:true});continue}
       const packet=await encryptBytes(plain,'file:'+id),meta={id,name:safeName(file.name),type:file.type||'application/octet-stream',size:file.size,created:existing?.created||Date.now(),sha,deleted:false,v:nextV(),owner:existing?.owner||actor};
       assets.set(id,meta);await idbPut('files',id,packet);await saveAssets();renderAssets();
       // Metadata is announced first. Receivers request a missing blob exactly once; do not also push here.
-      await broadcastCtl(newMessage('asset-meta',{meta}));toast('<b>Added</b> '+escapeHtml(meta.name),'good');
-    }catch(e){toast('<b>Could not add file.</b> '+escapeHtml(e.message),'bad')}
+      await broadcastCtl(newMessage('asset-meta',{meta}));if(!quiet)toast('<b>Added</b> '+escapeHtml(meta.name),'good');results.push({ok:true,id,name:meta.name,sha:meta.sha,duplicate:false,source});scheduleAgentStateRefresh('file');
+    }catch(e){if(!quiet)toast('<b>Could not add file.</b> '+escapeHtml(e.message),'bad');results.push({ok:false,name:file.name,error:e.message})}
   }
+  return results;
 }
 async function removeAsset(id){
   const m=assets.get(id);if(!m)return;m.deleted=true;m.v=nextV();assets.set(id,m);await idbDel('files',id);await saveAssets();renderAssets();broadcastCtl(newMessage('asset-meta',{meta:m}));
@@ -830,14 +948,15 @@ async function renderAssets(){
   const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);$('#assetMeta').textContent=visible.length+' ITEM'+(visible.length===1?'':'S');
   if(!visible.length){box.innerHTML='<div class="empty">No shared files yet.<br>Drop files above or paste an image from the clipboard.</div>';return}
   for(const m of visible){
-    if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;
-    card.innerHTML=`<div class="cardtop"><div><div class="fname">${escapeHtml(m.name)}</div><div class="fmeta">${escapeHtml(m.type)} · ${fmtBytes(m.size)} · ${have?'LOCAL + ENCRYPTED':'REMOTE · REQUESTING'}</div></div><div class="cardactions"><button class="mini open">OPEN</button><button class="mini down">SAVE</button><button class="mini danger del">×</button></div></div><div class="progress"><i></i></div>`;
+    if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;card.dataset.agentFileId=m.id;card.setAttribute('data-agent-role','shared-file');
+    card.innerHTML=`<div class="cardtop"><div><div class="fname">${escapeHtml(m.name)}</div><div class="fmeta">${escapeHtml(m.type)} · ${fmtBytes(m.size)} · ${have?'LOCAL + ENCRYPTED':'REMOTE · REQUESTING'}</div></div><div class="cardactions"><button class="mini open" data-agent-action="open-file">OPEN</button><button class="mini down" data-agent-action="save-file">SAVE</button><button class="mini danger del" data-agent-action="delete-file">×</button></div></div><div class="progress"><i></i></div>`;
     card.querySelector('.open').onclick=()=>openAsset(m.id);card.querySelector('.down').onclick=()=>downloadAsset(m.id);card.querySelector('.del').onclick=()=>removeAsset(m.id);box.append(card);
     if(have&&m.type?.startsWith('image/')&&m.size<=8*1024*1024){
       try{const blob=await materializeAsset(m.id);if(token!==renderToken)return;const u=URL.createObjectURL(blob);previewUrls.set(m.id,u);const p=document.createElement('div');p.className='preview';p.innerHTML=`<img alt="${escapeHtml(m.name)}">`;p.querySelector('img').src=u;card.append(p)}catch(_){ }
     }
     if(transferProgress.has(m.id))updateCardProgress(m.id,transferProgress.get(m.id));
   }
+  scheduleAgentStateRefresh('assets');
 }
 function updateCardProgress(id,p){const el=document.querySelector(`.card[data-id="${CSS.escape(id)}"] .progress i`);if(el)el.style.width=(Math.max(0,Math.min(1,p))*100).toFixed(1)+'%'}
 
@@ -859,7 +978,7 @@ $('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true)})
 $('#scratch').addEventListener('scroll',()=>requestAnimationFrame(renderRemoteCursors));
 window.addEventListener('resize',()=>requestAnimationFrame(renderRemoteCursors));
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
-$('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',location.href)}};
+$('#copyBtn').onclick=async()=>{const u=roomLink();try{await navigator.clipboard.writeText(u);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',u)}};
 $('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
 $('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
@@ -868,14 +987,23 @@ window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])
 $('#historyBtn').onclick=()=>{renderHistory();$('#historyModal').classList.add('show')};$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
 $('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
 $('#closeQr').onclick=()=>$('#qrModal').classList.remove('show');$('#qrModal').onclick=e=>{if(e.target===$('#qrModal'))$('#qrModal').classList.remove('show')};
-window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();for(const kind of [...localMedia.keys()])stopLocalMedia(kind);for(const m of nats.mediaSessions.values())try{m.pc?.close()}catch(_){}nats.mediaSessions.clear();clearInterval(nats.timer);clearInterval(presenceSweepTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
+$('#agentBtn').onclick=()=>setAgentOpen(!agentIsOpen());
+$('#copyAgentLink').onclick=async()=>{const u=agentLink();try{await navigator.clipboard.writeText(u);toast('<b>Agent link copied.</b>','good')}catch(_){prompt('Copy this agent link:',u)}};
+$('#refreshAgentState').onclick=()=>scheduleAgentStateRefresh('manual',0);
+$('#agentReplace').onclick=()=>{try{mutateAgentText('set',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+$('#agentAppend').onclick=()=>{try{mutateAgentText('append',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+$('#agentPrepend').onclick=()=>{try{mutateAgentText('prepend',$('#agentText').value)}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+$('#agentClear').onclick=()=>{try{mutateAgentText('clear')}catch(e){toast('<b>Agent mutation failed.</b> '+escapeHtml(e.message),'bad')}};
+$('#agentUploadFiles').onclick=async()=>{const files=$('#agentFileInput').files;if(!files?.length){toast('<b>No files selected.</b>','bad');return}const r=await addFiles(files,{source:'agent'});$('#agentFileInput').value='';$('#agentResult').textContent=JSON.stringify(r,null,2);scheduleAgentStateRefresh('file',0)};
+$('#agentRun').onclick=async()=>{const out=$('#agentResult');out.className='agentPre agentResult';try{const r=await runAgentCommand($('#agentCommand').value);out.textContent=JSON.stringify(r,null,2);out.classList.add('good')}catch(e){out.textContent=JSON.stringify({ok:false,error:e.message},null,2);out.classList.add('bad')}};
+window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();for(const kind of [...localMedia.keys()])stopLocalMedia(kind);for(const m of nats.mediaSessions.values())try{m.pc?.close()}catch(_){}nats.mediaSessions.clear();clearInterval(nats.timer);clearInterval(presenceSweepTimer);clearInterval(agentPollTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
 
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await importYjs();setupYDoc();await loadLocal();updatePresence();await startMesh();
+    await initSecret();await importYjs();setupYDoc();await loadLocal();updatePresence();$('#agentLink').value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);$('#agentReadyMeta').textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();$('#agentReadyMeta').textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
-    setInterval(()=>queuePresence(true),10000);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
+    setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
 })();
 </script>
