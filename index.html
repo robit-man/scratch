@@ -19,14 +19,25 @@ header{height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);background:
 .brand{font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap}.brand b{color:var(--accent)}
 .status{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:auto;scrollbar-width:none}.status::-webkit-scrollbar{display:none}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
-.actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}
+.actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr)}
 .pad{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
 .panelhead{height:42px;flex:0 0 42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#0a0c0e}
 .paneltitle{font:800 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .panelmeta{margin-left:auto;font:9px var(--mono);color:var(--dim);white-space:nowrap}
-#scratch{flex:1;min-height:0;width:100%;resize:none;border:0;outline:0;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.65 var(--mono);caret-color:var(--accent)}
+.editorwrap{position:relative;flex:1;min-height:0;overflow:hidden;background:transparent}
+#scratch{position:absolute;inset:0;width:100%;height:100%;resize:none;border:0;outline:0;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.65 var(--mono);caret-color:var(--accent);overflow:auto}
 #scratch::placeholder{color:#444c54}
+.cursorlayer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+.remoteSelection{position:absolute;background:var(--cursor,#fff);opacity:.16;border-radius:2px;transform:translateZ(0);transition:left .11s linear,top .11s linear,width .11s linear,height .11s linear}
+.remoteCursor{position:absolute;width:2px;background:var(--cursor,#fff);border-radius:1px;transform:translateZ(0);transition:left .11s linear,top .11s linear;height:22px;opacity:.96}
+.remoteCursor .cursorflag{position:absolute;left:-1px;top:-17px;max-width:132px;padding:2px 5px;background:var(--cursor,#fff);color:#08090a;font:800 8px/1.25 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:2px 2px 2px 0;box-shadow:0 2px 8px rgba(0,0,0,.28)}
+.presencebar{display:flex;align-items:center;gap:4px;margin-left:auto;min-width:0;overflow:hidden}
+.avatar{width:22px;height:22px;border:1px solid color-mix(in srgb,var(--user) 70%,#20252a);background:color-mix(in srgb,var(--user) 15%,#0b0d0f);color:var(--user);display:flex;align-items:center;justify-content:center;font:800 7px var(--mono);letter-spacing:-.02em;border-radius:50%;flex:0 0 auto}
+.avatar.you{outline:1px solid #404851;outline-offset:1px}
+.historylist{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow:auto;padding-right:2px}
+.historyrow{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:start;border-bottom:1px solid var(--line);padding:7px 0 9px}
+.historyrow:last-child{border-bottom:0}.historydot{width:8px;height:8px;border-radius:50%;background:var(--user);margin-top:4px}.historywho{font:800 9px/1.4 var(--mono);color:var(--text)}.historydesc{font:9px/1.5 var(--mono);color:var(--muted);margin-top:2px;word-break:break-word}.historytime{font:8px var(--mono);color:var(--dim);white-space:nowrap}.historyempty{padding:18px 4px;text-align:center;color:var(--dim);font:9px/1.6 var(--mono)}
 .syncbar{flex:0 0 31px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
 .assets{min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e}
@@ -36,9 +47,9 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
 .preview{border-top:1px solid var(--line);background:#08090a;max-height:220px;overflow:hidden;display:flex;align-items:center;justify-content:center}.preview img{max-width:100%;max-height:220px;display:block}.preview video{width:100%;max-height:220px}.preview audio{width:calc(100% - 20px);margin:12px}.progress{height:2px;background:#15191d}.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .15s}
 .transport{border-top:1px solid var(--line);padding:8px 12px;display:flex;align-items:center;gap:6px;overflow:auto}.transport .tag{border:1px solid var(--line);padding:4px 6px;font:8px var(--mono);color:var(--dim);white-space:nowrap}.transport .tag.on{color:var(--good);border-color:#2c503b}.transport .tag.err{color:var(--bad);border-color:#5d3232}
 .toastbox{position:fixed;right:14px;top:70px;width:min(360px,calc(100vw - 28px));z-index:100;display:flex;flex-direction:column;gap:7px;pointer-events:none}.toast{border:1px solid var(--line2);background:#111419;box-shadow:0 14px 40px rgba(0,0,0,.42);padding:10px 11px;font:9px/1.5 var(--mono);color:var(--muted);pointer-events:auto}.toast b{color:var(--text)}.toast.good{border-color:#315740}.toast.bad{border-color:#653737;color:#d99595}
-.modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}
+.modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}.qrwrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:4px 0 2px}.qrframe{background:#fff;padding:10px;line-height:0;border:1px solid #343a40}.qrframe canvas{width:min(320px,72vw);height:auto;image-rendering:pixelated}.qrurl{width:100%;padding:9px 10px;border:1px solid var(--line);background:#090b0d;color:var(--dim);font:9px/1.5 var(--mono);word-break:break-all;user-select:all}.qrnote{font:9px/1.55 var(--mono);color:var(--muted);text-align:center;max-width:460px}
 @media(max-width:820px){body{overflow:auto}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
-@media(max-width:500px){.btn .wide{display:none}.brand{font-size:11px}.actions .btn{padding:7px}.panelmeta{display:none}}
+@media(max-width:500px){.brand{font-size:11px}.actions{gap:4px}.actions .iconbtn{width:32px;height:32px}.panelmeta{display:none}}
 </style>
 </head>
 <body>
@@ -51,15 +62,30 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
       <span class="pill warn" id="netPill">MESH STARTING</span>
     </div>
     <div class="actions">
-      <button class="btn" id="infoBtn">SECURITY</button>
-      <button class="btn" id="copyBtn">COPY <span class="wide">LINK</span></button>
-      <button class="btn primary" id="newBtn">NEW <span class="wide">ROOM</span></button>
+      <button class="iconbtn" id="historyBtn" type="button" aria-label="Edit history" title="Edit history">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/></svg>
+      </button>
+      <button class="iconbtn" id="infoBtn" type="button" aria-label="Security information" title="Security information">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 19 6v5c0 4.7-2.9 8.1-7 10-4.1-1.9-7-5.3-7-10V6l7-3Z"/><path d="m9.5 12 1.7 1.7 3.5-4"/></svg>
+      </button>
+      <button class="iconbtn" id="copyBtn" type="button" aria-label="Copy room link" title="Copy room link">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>
+      </button>
+      <button class="iconbtn" id="qrBtn" type="button" aria-label="Show room QR code" title="Show room QR code">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="3" y="15" width="6" height="6"/><path d="M15 15h2v2h-2zM19 15h2v4h-2M15 19h2v2h-2M19 21h2"/></svg>
+      </button>
+      <button class="iconbtn primary" id="newBtn" type="button" aria-label="Create new room" title="Create new room">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
     </div>
   </header>
   <main>
     <section class="pad">
-      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><span class="panelmeta" id="docMeta">LOCAL</span></div>
-      <textarea id="scratch" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <div class="editorwrap" id="editorWrap">
+        <textarea id="scratch" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+        <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
+      </div>
       <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
     </section>
     <section class="assets">
@@ -78,11 +104,34 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) min
     <h2>Room security + persistence</h2>
     <div class="modalbody">
       <strong>The URL fragment is the key.</strong> The value after <code>#</code> is never included in HTTP requests. This page hashes it to create a rendezvous room name and separately derives an AES-256-GCM application key from the original fragment.<br><br>
-      Network payloads are therefore protected by WebRTC transport encryption <em>and</em> application-layer encryption. File names, scratch text, asset metadata and file bytes are encrypted; signaling sees only a hash-derived room identifier and transport metadata.<br><br>
+      Network payloads are therefore protected by WebRTC transport encryption <em>and</em> application-layer encryption. File names, CRDT document updates, cursor presence, edit history, asset metadata and file bytes are encrypted; signaling sees only a hash-derived room identifier and transport metadata.<br><br>
       <strong>Anyone with the complete link can read and modify the room.</strong> Use the generated high-entropy room URLs rather than short human passwords. This is capability-based access, not an account system.<br><br>
       <strong>No central archive exists.</strong> Each browser keeps an encrypted local cache. A new browser can recover the current state only while at least one peer that already has that state is online. Large files are transferred peer-to-peer and are not uploaded to this host.
     </div>
     <div class="modalfoot"><button class="btn" id="closeInfo">CLOSE</button></div>
+  </div>
+</div>
+<div class="modalback" id="qrModal">
+  <div class="modal">
+    <h2>Room QR code</h2>
+    <div class="modalbody">
+      <div class="qrwrap">
+        <div class="qrframe"><canvas id="qrCanvas" width="320" height="320"></canvas></div>
+        <div class="qrurl" id="qrUrl"></div>
+        <div class="qrnote">The QR contains the complete room URL, including the fragment secret. Anyone who scans it receives full read/write access to this room.</div>
+      </div>
+    </div>
+    <div class="modalfoot"><button class="btn" id="closeQr">CLOSE</button></div>
+  </div>
+</div>
+<div class="modalback" id="historyModal">
+  <div class="modal">
+    <h2>Synchronized edit history</h2>
+    <div class="modalbody">
+      <div style="margin-bottom:10px;font:9px/1.55 var(--mono);color:var(--dim)">Recent edit bursts are part of the encrypted CRDT state, so peers converge on the same history even after reconnecting.</div>
+      <div class="historylist" id="historyList"></div>
+    </div>
+    <div class="modalfoot"><button class="btn" id="closeHistory">CLOSE</button></div>
   </div>
 </div>
 <script type="module">
@@ -91,7 +140,7 @@ const enc=new TextEncoder(), dec=new TextDecoder();
 const MAX_FILE=128*1024*1024;
 const TRYSTERO_VERSION='0.25.3';
 const NATS_VERSION='3.4.0';
-const APP_ID='robit-encrypted-scratchpad-v1';
+const APP_ID='robit-encrypted-scratchpad-v2';
 const STRATEGIES={
   nostr:{pkg:'@trystero-p2p/nostr',label:'NOSTR',priority:0},
   mqtt:{pkg:'@trystero-p2p/mqtt',label:'MQTT',priority:1},
@@ -100,9 +149,11 @@ const STRATEGIES={
   nats:{pkg:null,label:'NATS',priority:4}
 };
 const TRYSTERO_STRATEGIES=['nostr','mqtt','torrent','ipfs'];
-const actor=crypto.randomUUID();
+let actor=crypto.randomUUID();
 let secret='', roomHash='', aesKey=null, macKey=null, db=null, clock=0;
-let doc={text:'',v:{c:0,a:''}};
+let Y=null, ydoc=null, ytext=null, yhistory=null;
+let profile={name:'',color:'#67d391'};
+const LOCAL_ORIGIN={kind:'local'}, HISTORY_ORIGIN={kind:'history'}, LOAD_ORIGIN={kind:'load'}, REMOTE_ORIGIN={kind:'remote'};
 const assets=new Map();
 const wrappers=new Map();
 const actorRoutes=new Map();
@@ -111,8 +162,17 @@ const seenMessages=new Map();
 const transferProgress=new Map();
 const pendingBins=new Map();
 const previewUrls=new Map();
+const remotePresence=new Map();
+const assetAliases=new Map();
+const aliasMeta=new Map();
+const assetRequests=new Map();
+const assetSendsInFlight=new Set();
+const assetSentRecently=new Map();
+const assetReceivesInFlight=new Set();
+const incomingY=[];
 const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessions:new Map(),status:'off'};
-let editTimer=null, renderToken=0, networkReady=false;
+let renderToken=0, networkReady=false, qrModule=null, remoteFlushTimer=null, ySaveTimer=null, ySendTimer=null, presenceTimer=null, presenceSweepTimer=null, historyTimer=null, pendingHistory=null;
+let outgoingY=[], isComposing=false;
 
 function toast(html,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.innerHTML=html; $('#toastBox').append(el);
@@ -141,7 +201,6 @@ async function initSecret(){
   const macRaw=await crypto.subtle.digest('SHA-256',enc.encode('robit-scratchpad-mac|'+secret));
   macKey=await crypto.subtle.importKey('raw',macRaw,{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
   $('#roomPill').textContent='ROOM '+roomHash.slice(0,10).toUpperCase();
-  $('#actorText').textContent='NODE '+actor.slice(0,8).toUpperCase();
 }
 async function encryptBytes(input,aad=''){
   const bytes=input instanceof Uint8Array?input:new Uint8Array(input);
@@ -162,7 +221,7 @@ function cmpV(a,b){
   if(Number(a.c)!==Number(b.c))return Number(a.c)-Number(b.c);
   return String(a.a).localeCompare(String(b.a));
 }
-function nextV(){clock=Math.max(clock,Number(doc.v?.c)||0)+1;return{c:clock,a:actor}}
+function nextV(){clock+=1;return{c:clock,a:actor}}
 function absorbV(v){clock=Math.max(clock,Number(v?.c)||0)}
 function newMessage(type,data={}){return{v:1,mid:crypto.randomUUID(),type,actor,ts:Date.now(),...data}}
 function remember(mid){
@@ -171,7 +230,111 @@ function remember(mid){
 }
 function fmtBytes(n){if(n<1024)return n+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';if(n<1073741824)return(n/1048576).toFixed(1)+' MB';return(n/1073741824).toFixed(1)+' GB'}
 function safeName(s){return String(s||'file').replace(/[\u0000-\u001f]/g,'').slice(0,240)||'file'}
-
+function hash32(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function aliasFromActor(id){const a=['Amber','Blue','Cedar','Clear','Copper','Gray','Indigo','Ivory','Jade','Lunar','Moss','Nova','Ochre','Quartz','Silver','Slate','Solar','Umber','Violet','Wild'];const b=['Badger','Crane','Falcon','Fox','Gecko','Heron','Kite','Lynx','Marten','Otter','Owl','Panda','Raven','Seal','Sparrow','Tern','Wolf','Wren'];const h=hash32(id);return a[h%a.length]+' '+b[(h>>>8)%b.length]+' '+id.slice(0,2).toUpperCase()}
+function colorFromActor(id){const colors=['#67d391','#f1bb37','#70a7ff','#e77fb3','#9c8cff','#62d5d0','#ef8b62','#b8d66a','#d08cff','#76c7ff','#f08c96','#a8aeb7'];return colors[hash32(id)%colors.length]}
+function initials(name){return String(name||'?').split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase()}
+async function importYjs(){
+  if(Y)return Y;let last;
+  for(const u of ['https://esm.sh/yjs@13.6.32?bundle','https://cdn.jsdelivr.net/npm/yjs@13.6.32/+esm','https://esm.run/yjs@13.6.32']){
+    try{const m=await import(u);if(!m.Doc||!m.encodeStateAsUpdate)throw new Error('Yjs exports missing');Y=m;return m}catch(e){last=e}
+  }
+  throw last||new Error('Yjs unavailable');
+}
+function setupYDoc(){
+  ydoc=new Y.Doc();ytext=ydoc.getText('scratch');yhistory=ydoc.getArray('history');
+  ydoc.on('update',(update,origin)=>{
+    scheduleYSave();
+    if(origin===LOCAL_ORIGIN||origin===HISTORY_ORIGIN)queueYBroadcast(update);
+  });
+  yhistory.observe(()=>renderHistory());
+}
+function queueYBroadcast(update){
+  outgoingY.push(update);if(ySendTimer)return;
+  ySendTimer=setTimeout(async()=>{
+    ySendTimer=null;if(!outgoingY.length)return;const merged=Y.mergeUpdates(outgoingY.splice(0));
+    await broadcastCtl(newMessage('y-update',{u:bytesToB64(merged)}));
+  },32);
+}
+function scheduleYSave(){
+  clearTimeout(ySaveTimer);ySaveTimer=setTimeout(async()=>{
+    try{const full=Y.encodeStateAsUpdate(ydoc);await idbPut('kv','yjs-state',await encryptBytes(full,'local:yjs-state'))}catch(e){console.warn('Yjs local save failed',e)}
+  },220);
+}
+function selectionRelative(){
+  const s=$('#scratch');if(!ydoc||!ytext||document.activeElement!==s)return null;
+  const start=Math.min(s.selectionStart,ytext.length),end=Math.min(s.selectionEnd,ytext.length);
+  const dir=s.selectionDirection||'none';const anchor=dir==='backward'?end:start,head=dir==='backward'?start:end;
+  return {anchor:Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,anchor)),head:Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,head)),dir};
+}
+function resolveRelative(bytes){
+  try{const abs=Y.createAbsolutePositionFromRelativePosition(Y.decodeRelativePosition(bytes),ydoc);return abs&&abs.type===ytext?abs.index:null}catch(_){return null}
+}
+function renderEditor(sel=null){
+  const s=$('#scratch'),text=ytext.toString();if(s.value!==text)s.value=text;
+  if(sel){const a=resolveRelative(sel.anchor),h=resolveRelative(sel.head);if(a!=null&&h!=null){const start=Math.min(a,h),end=Math.max(a,h),dir=a>h?'backward':'forward';try{s.setSelectionRange(start,end,dir)}catch(_){}}}
+  updateDocMeta();requestAnimationFrame(renderRemoteCursors);
+}
+function queueRemoteYUpdate(b64){
+  if(!b64)return;try{incomingY.push(b64ToBytes(b64))}catch(_){return}
+  if(remoteFlushTimer)return;remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),135);
+}
+function flushRemoteYUpdates(){
+  remoteFlushTimer=null;if(!incomingY.length)return;if(isComposing){remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),80);return}const sel=selectionRelative();
+  try{const merged=Y.mergeUpdates(incomingY.splice(0));Y.applyUpdate(ydoc,merged,REMOTE_ORIGIN);renderEditor(sel)}catch(e){console.warn('CRDT update rejected',e)}
+}
+function diffText(before,after){let p=0;const max=Math.min(before.length,after.length);while(p<max&&before.charCodeAt(p)===after.charCodeAt(p))p++;let bs=before.length,as=after.length;while(bs>p&&as>p&&before.charCodeAt(bs-1)===after.charCodeAt(as-1)){bs--;as--}return{index:p,deleted:before.slice(p,bs),inserted:after.slice(p,as)}}
+function noteHistory(change){
+  const now=Date.now();if(!pendingHistory){pendingHistory={id:crypto.randomUUID(),actor,name:profile.name,color:profile.color,started:now,ended:now,inserted:0,deleted:0,insertSample:'',deleteSample:''}}
+  pendingHistory.ended=now;pendingHistory.inserted+=change.inserted.length;pendingHistory.deleted+=change.deleted.length;
+  if(pendingHistory.insertSample.length<400)pendingHistory.insertSample=(pendingHistory.insertSample+change.inserted).slice(0,400);
+  if(pendingHistory.deleteSample.length<400)pendingHistory.deleteSample=(pendingHistory.deleteSample+change.deleted).slice(0,400);
+  clearTimeout(historyTimer);historyTimer=setTimeout(commitHistory,700);
+}
+function commitHistory(){
+  clearTimeout(historyTimer);historyTimer=null;if(!pendingHistory||!yhistory)return;const h=pendingHistory;pendingHistory=null;
+  ydoc.transact(()=>{yhistory.push([h]);if(yhistory.length>360)yhistory.delete(0,yhistory.length-360)},HISTORY_ORIGIN);renderHistory();
+}
+function formatHistoryDesc(h){
+  const parts=[];if(h.inserted)parts.push('+'+h.inserted);if(h.deleted)parts.push('−'+h.deleted);let sample=h.insertSample||h.deleteSample||'';sample=sample.replace(/\s+/g,' ').trim();return (parts.join(' / ')||'edit')+(sample?' · “'+sample.slice(0,90)+(sample.length>90?'…':'')+'”':'');
+}
+function renderHistory(){
+  const box=$('#historyList');if(!box||!yhistory)return;const rows=yhistory.toArray().slice(-120).reverse();if(!rows.length){box.innerHTML='<div class="historyempty">No synchronized edits yet.</div>';return}
+  box.innerHTML=rows.map(h=>`<div class="historyrow"><span class="historydot" style="--user:${escapeHtml(h.color||'#9099a2')}"></span><div><div class="historywho">${escapeHtml(h.name||'Peer')}</div><div class="historydesc">${escapeHtml(formatHistoryDesc(h))}</div></div><div class="historytime">${new Date(Number(h.ended||h.started||Date.now())).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');
+}
+function currentPresence(){
+  const s=$('#scratch'),len=ytext?.length||0,start=Math.min(s.selectionStart||0,len),end=Math.min(s.selectionEnd||0,len),dir=s.selectionDirection||'none';const anchor=dir==='backward'?end:start,head=dir==='backward'?start:end;
+  return {name:profile.name,color:profile.color,focus:document.activeElement===s,anchor:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,anchor))),head:bytesToB64(Y.encodeRelativePosition(Y.createRelativePositionFromTypeIndex(ytext,head))),ts:Date.now()};
+}
+function queuePresence(immediate=false){
+  if(!ydoc)return;clearTimeout(presenceTimer);presenceTimer=setTimeout(()=>broadcastCtl(newMessage('presence',{presence:currentPresence()})).catch(()=>{}),immediate?0:70);
+}
+function mergePresence(remote,p){
+  if(!remote||remote===actor||!p)return;const old=remotePresence.get(remote);if(old&&Number(old.ts||0)>Number(p.ts||0))return;remotePresence.set(remote,p);renderPresence();if(!remoteFlushTimer)requestAnimationFrame(renderRemoteCursors);
+}
+function renderPresence(){
+  const bar=$('#presenceBar');if(!bar)return;const live=[...remotePresence.entries()].filter(([id,p])=>actorRoutes.has(id)&&Date.now()-Number(p.ts||0)<35000);
+  const all=[[actor,{...profile,local:true}],...live];bar.innerHTML=all.slice(0,8).map(([id,p])=>`<span class="avatar ${p.local?'you':''}" style="--user:${escapeHtml(p.color||'#9099a2')}" title="${escapeHtml((p.name||'Peer')+(p.local?' (you)':''))}">${escapeHtml(initials(p.name))}</span>`).join('');
+}
+let caretMirror=null;
+function prepareCaretMirror(el){
+  if(!caretMirror){caretMirror=document.createElement('div');caretMirror.style.position='absolute';caretMirror.style.visibility='hidden';caretMirror.style.pointerEvents='none';caretMirror.style.whiteSpace='pre-wrap';caretMirror.style.wordWrap='break-word';caretMirror.style.overflowWrap='break-word';caretMirror.style.top='-100000px';caretMirror.style.left='0';document.body.append(caretMirror)}
+  const cs=getComputedStyle(el),props=['fontFamily','fontSize','fontWeight','fontStyle','letterSpacing','textTransform','lineHeight','paddingTop','paddingRight','paddingBottom','paddingLeft','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','boxSizing','tabSize'];for(const k of props)caretMirror.style[k]=cs[k];caretMirror.style.width=el.clientWidth+'px';caretMirror.replaceChildren();return cs;
+}
+function caretXY(el,pos){
+  const cs=prepareCaretMirror(el);caretMirror.append(document.createTextNode(el.value.slice(0,pos)));const mark=document.createElement('span');mark.textContent=el.value.slice(pos,pos+1)||'\u200b';caretMirror.append(mark);const x=mark.offsetLeft-el.scrollLeft,y=mark.offsetTop-el.scrollTop,h=parseFloat(cs.lineHeight)||22;return{x,y,h};
+}
+function selectionRects(el,start,end){
+  start=Math.max(0,Math.min(start,el.value.length));end=Math.max(start,Math.min(end,el.value.length));if(end<=start)return[];prepareCaretMirror(el);caretMirror.append(document.createTextNode(el.value.slice(0,start)));const mark=document.createElement('span');mark.textContent=el.value.slice(start,end);caretMirror.append(mark);caretMirror.append(document.createTextNode(el.value.slice(end)||'\u200b'));const root=caretMirror.getBoundingClientRect();return [...mark.getClientRects()].map(r=>({left:r.left-root.left-el.scrollLeft,top:r.top-root.top-el.scrollTop,width:r.width,height:r.height})).filter(r=>r.width>0&&r.height>0&&r.top+r.height>=0&&r.top<=el.clientHeight&&r.left+r.width>=0&&r.left<=el.clientWidth);
+}
+function renderRemoteCursors(){
+  if(remoteFlushTimer)return;const layer=$('#cursorLayer'),s=$('#scratch');if(!layer||!ydoc)return;layer.innerHTML='';const now=Date.now();
+  for(const [id,p] of remotePresence){
+    if(!actorRoutes.has(id)||!p.focus||now-Number(p.ts||0)>35000)continue;let anchor=null,head=null;try{anchor=resolveRelative(b64ToBytes(p.anchor));head=resolveRelative(b64ToBytes(p.head))}catch(_){}if(head==null)continue;
+    if(anchor!=null&&anchor!==head){for(const r of selectionRects(s,Math.min(anchor,head),Math.max(anchor,head))){const h=document.createElement('div');h.className='remoteSelection';h.style.setProperty('--cursor',p.color||'#fff');h.style.left=r.left+'px';h.style.top=r.top+'px';h.style.width=Math.max(1,r.width)+'px';h.style.height=Math.max(2,r.height)+'px';layer.append(h)}}
+    const xy=caretXY(s,Math.min(head,s.value.length));if(xy.y+xy.h<0||xy.y>s.clientHeight||xy.x<0||xy.x>s.clientWidth)continue;const c=document.createElement('div');c.className='remoteCursor';c.style.setProperty('--cursor',p.color||'#fff');c.style.left=xy.x+'px';c.style.top=xy.y+'px';c.style.height=Math.max(16,xy.h)+'px';c.innerHTML=`<span class="cursorflag">${escapeHtml(p.name||'Peer')}</span>`;layer.append(c)
+  }
+}
 function openDB(){return new Promise((resolve,reject)=>{
   const req=indexedDB.open('robit-scratchpad-'+roomHash,1);
   req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');if(!d.objectStoreNames.contains('files'))d.createObjectStore('files')};
@@ -184,11 +347,15 @@ async function putKV(name,value){await idbPut('kv',name,await encryptBytes(enc.e
 async function getKV(name,fallback){try{const p=await idbGet('kv',name);if(!p)return fallback;return JSON.parse(dec.decode(await decryptBytes(p,'local:'+name)))}catch(e){console.warn('local decrypt failed',name,e);return fallback}}
 async function loadLocal(){
   db=await openDB();
-  doc=await getKV('doc',{text:'',v:{c:0,a:''}});absorbV(doc.v);$('#scratch').value=doc.text||'';
-  const list=await getKV('assets',[]);for(const m of list||[])assets.set(m.id,m);
-  renderAssets();updateDocMeta();
+  const savedActor=await getKV('actor',null);if(savedActor)actor=String(savedActor);else await putKV('actor',actor);
+  profile=await getKV('profile',null)||{name:aliasFromActor(actor),color:colorFromActor(actor)};profile.name=String(profile.name||aliasFromActor(actor)).slice(0,40);profile.color=String(profile.color||colorFromActor(actor));await putKV('profile',profile);
+  $('#actorText').textContent='YOU · '+profile.name.toUpperCase();
+  let loaded=false;try{const packet=await idbGet('kv','yjs-state');if(packet){const raw=new Uint8Array(await decryptBytes(packet,'local:yjs-state'));Y.applyUpdate(ydoc,raw,LOAD_ORIGIN);loaded=true}}catch(e){console.warn('Yjs cache load failed',e)}
+  if(!loaded){const legacy=await getKV('doc',{text:'',v:{c:0,a:''}});absorbV(legacy.v);if(legacy.text)ydoc.transact(()=>ytext.insert(0,String(legacy.text)),LOAD_ORIGIN)}
+  const list=await getKV('assets',[]);for(const m of list||[]){assets.set(m.id,m);absorbV(m.v)}
+  await migrateAssetCache();
+  renderEditor();renderPresence();renderHistory();renderAssets();scheduleYSave();
 }
-async function saveDoc(){await putKV('doc',doc)}
 async function saveAssets(){await putKV('assets',[...assets.values()])}
 
 async function importStrategy(pkg){
@@ -205,7 +372,7 @@ function trackActorRoute(remoteActor,w,peerId){
 }
 function untrackRoute(w,peerId){
   const k=routeKey(w,peerId),remote=routeActors.get(k);routeActors.delete(k);
-  if(remote){const map=actorRoutes.get(remote);map?.delete(w.key);if(!map?.size)actorRoutes.delete(remote)}updatePresence();
+  if(remote){const map=actorRoutes.get(remote);map?.delete(w.key);if(!map?.size){actorRoutes.delete(remote);remotePresence.delete(remote);renderPresence();requestAnimationFrame(renderRemoteCursors)}}updatePresence();
 }
 function chooseRoute(remoteActor){
   const map=actorRoutes.get(remoteActor);if(!map)return null;
@@ -224,12 +391,12 @@ async function joinStrategy(strategy){
     const cfg={appId:APP_ID};
     if(strategy==='nostr'||strategy==='mqtt'||strategy==='torrent')cfg.relayConfig={redundancy:strategy==='nostr'?9:strategy==='mqtt'?5:4,warnOnRelayFailure:false};
     cfg.trickleIce=!(strategy==='torrent'||strategy==='ipfs');
-    const roomName='scratch-v1:'+roomHash.slice(0,40);
+    const roomName='scratch-v2:'+roomHash.slice(0,40);
     const room=mod.joinRoom(cfg,roomName,{handshakeTimeoutMs:14000,onJoinError:d=>console.warn(strategy,'join error',d?.error||d)});
     const w={strategy,key:strategy+':main',room,ctl:room.makeAction('sp-ctl'),bin:room.makeAction('sp-bin'),peers:new Set()};wrappers.set(w.key,w);
     room.onPeerJoin=peerId=>{
       w.peers.add(peerId);setTransport(strategy,'on');updatePresence();
-      sendCtlVia(w,newMessage('hello'),peerId);sendCtlVia(w,newMessage('state-req'),peerId);
+      sendCtlVia(w,newMessage('hello',{profile}),peerId);sendCtlVia(w,newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}),peerId);sendCtlVia(w,newMessage('presence',{presence:currentPresence()}),peerId);
     };
     room.onPeerLeave=peerId=>{w.peers.delete(peerId);untrackRoute(w,peerId);updatePresence()};
     w.ctl.onMessage=(packet,meta)=>handleControl(packet,meta,w);
@@ -258,7 +425,7 @@ async function importNats(){
   }
   throw last||new Error('NATS browser module unavailable');
 }
-function natsSubjects(remote=actor){const h=roomHash.slice(0,24);return{presence:`scratch.v1.${h}.presence`,signal:`scratch.v1.${h}.signal.${remote}`}}
+function natsSubjects(remote=actor){const h=roomHash.slice(0,24);return{presence:`scratch.v2.${h}.presence`,signal:`scratch.v2.${h}.signal.${remote}`}}
 async function publishNats(subject,obj){if(!nats.nc)return; nats.nc.publish(subject,enc.encode(JSON.stringify(obj)))}
 async function publishNatsPresence(){
   if(!nats.nc)return;const body={v:1,actor,ts:Date.now(),expires:Date.now()+30000};await publishNats(natsSubjects().presence,await signedEnvelope(body));
@@ -297,7 +464,7 @@ function setupNatsChannels(remote,session,pc,ctrl,bin){
       }else if(x.rx){const part=new Uint8Array(e.data);x.rx.parts.push(part);x.rx.got+=part.length;const p=Math.min(1,x.rx.got/x.rx.total);transferProgress.set(x.rx.id,p);updateCardProgress(x.rx.id,p)}
     };
     x.wrapper=w;wrappers.set(w.key,w);trackActorRoute(remote,w,peerId);setTransport('nats','on');updatePresence();
-    sendCtlVia(w,newMessage('hello'),peerId);sendCtlVia(w,newMessage('state-req'),peerId);
+    sendCtlVia(w,newMessage('hello',{profile}),peerId);sendCtlVia(w,newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}),peerId);sendCtlVia(w,newMessage('presence',{presence:currentPresence()}),peerId);
   };
   for(const dc of [x.ctrl,x.bin].filter(Boolean)){dc.onopen=maybeOpen;dc.onclose=()=>{if(!x.closed)closeNatsSession(remote)}}
   maybeOpen();
@@ -327,68 +494,138 @@ async function startNats(){
   setTransport('nats','loading');try{const mod=await importNats();nats.nc=await mod.wsconnect({servers:'wss://demo.nats.io:8443',reconnect:true,maxReconnectAttempts:-1,reconnectTimeWait:1500,timeout:5000});nats.presenceSub=nats.nc.subscribe(natsSubjects().presence);nats.signalSub=nats.nc.subscribe(natsSubjects().signal);consumeNats(nats.presenceSub,handleNatsPresence);consumeNats(nats.signalSub,handleNatsSignal);nats.status='on';setTransport('nats','on');await publishNatsPresence();nats.timer=setInterval(()=>publishNatsPresence().catch(()=>{}),8000);return true}catch(e){console.warn('NATS unavailable',e);nats.status='err';setTransport('nats','err');return false}
 }
 
+
+function canonicalAssetId(meta){
+  const sha=String(meta?.sha||'').toLowerCase();
+  return /^[0-9a-f]{64}$/.test(sha)?'f-'+sha:String(meta?.id||'');
+}
+function canonicalMeta(meta){
+  if(!meta)return meta;const id=canonicalAssetId(meta);return id&&id!==meta.id?{...meta,id}:meta;
+}
+function findAssetBySha(sha){
+  sha=String(sha||'').toLowerCase();if(!sha)return null;
+  for(const m of assets.values())if(String(m.sha||'').toLowerCase()===sha)return m;
+  return null;
+}
+function pruneTransferGuards(){
+  const now=Date.now();for(const [k,t] of assetRequests)if(now-t>30000)assetRequests.delete(k);for(const [k,t] of assetSentRecently)if(now-t>30000)assetSentRecently.delete(k);
+}
+async function requestAssetOnce(sourceActor,wireId,canonicalId){
+  if(!sourceActor||!wireId)return false;canonicalId=canonicalId||wireId;const have=await idbGet('files',canonicalId);if(have)return false;
+  pruneTransferGuards();const now=Date.now(),last=assetRequests.get(canonicalId)||0;if(now-last<8000||assetReceivesInFlight.has(canonicalId))return false;
+  assetRequests.set(canonicalId,now);const sent=await sendCtlActor(sourceActor,newMessage('asset-need',{ids:[wireId]}));if(sent===false)assetRequests.delete(canonicalId);return sent!==false;
+}
+async function migrateAssetCache(){
+  if(!assets.size)return;const grouped=new Map();
+  for(const raw of assets.values()){
+    const sha=String(raw?.sha||'').toLowerCase();const key=/^[0-9a-f]{64}$/.test(sha)?sha:'id:'+raw.id;let arr=grouped.get(key);if(!arr){arr=[];grouped.set(key,arr)}arr.push(raw);
+  }
+  const normalized=new Map();
+  for(const [key,list] of grouped){
+    let winner=list[0];for(const m of list.slice(1))if(cmpV(m.v,winner.v)>0)winner=m;
+    const sha=String(winner?.sha||'').toLowerCase(),canonical=/^[0-9a-f]{64}$/.test(sha)?'f-'+sha:String(winner.id);const meta={...winner,id:canonical};normalized.set(canonical,meta);
+    let canonicalPacket=await idbGet('files',canonical);
+    if(!canonicalPacket&&!meta.deleted){
+      for(const old of list){
+        const packet=await idbGet('files',old.id);if(!packet)continue;
+        try{const plain=await decryptBytes(packet,'file:'+old.id);canonicalPacket=old.id===canonical?packet:await encryptBytes(plain,'file:'+canonical);await idbPut('files',canonical,canonicalPacket);break}catch(e){console.warn('asset cache migration skipped',old.id,e)}
+      }
+    }
+    for(const old of list)if(old.id!==canonical)await idbDel('files',old.id);
+  }
+  assets.clear();for(const [id,m] of normalized)assets.set(id,m);await saveAssets();
+}
+
 async function handleControl(packet,{peerId},w){
   let msg;try{msg=await openObject(packet)}catch(e){return}
   if(!msg||msg.v!==1||remember(msg.mid)||msg.actor===actor)return;
-  trackActorRoute(msg.actor,w,peerId);absorbV(msg.doc?.v);absorbV(msg.meta?.v);
+  trackActorRoute(msg.actor,w,peerId);absorbV(msg.meta?.v);if(msg.profile)mergePresence(msg.actor,{...msg.profile,ts:Date.now(),focus:false});
   switch(msg.type){
     case 'hello':
-      if(!msg.reply)sendCtlVia(w,newMessage('hello',{reply:true}),peerId);
+      if(!msg.reply)sendCtlVia(w,newMessage('hello',{reply:true,profile}),peerId);
+      sendCtlVia(w,newMessage('presence',{presence:currentPresence()}),peerId);
       break;
-    case 'state-req':
-      await sendCtlVia(w,newMessage('state',{doc,manifest:[...assets.values()]}),peerId);
+    case 'state-req':{
+      let sv;try{sv=msg.sv?b64ToBytes(msg.sv):undefined}catch(_){sv=undefined}
+      const update=Y.encodeStateAsUpdate(ydoc,sv);await sendCtlVia(w,newMessage('state',{yUpdate:bytesToB64(update),manifest:[...assets.values()]}),peerId);
       break;
+    }
     case 'state':
-      mergeDoc(msg.doc);await mergeManifest(msg.manifest||[],msg.actor);break;
-    case 'doc':mergeDoc(msg.doc);break;
+      if(msg.yUpdate)queueRemoteYUpdate(msg.yUpdate);await mergeManifest(msg.manifest||[],msg.actor);break;
+    case 'y-update':queueRemoteYUpdate(msg.u);break;
+    case 'presence':mergePresence(msg.actor,msg.presence);break;
+    case 'doc':{
+      const incoming=String(msg.doc?.text||'');if(!ytext.length&&incoming)ydoc.transact(()=>ytext.insert(0,incoming),REMOTE_ORIGIN);renderEditor();break;
+    }
     case 'asset-meta':await mergeMeta(msg.meta,msg.actor);break;
     case 'asset-need':
       for(const id of (msg.ids||[]).slice(0,64))sendAssetToActor(id,msg.actor).catch(()=>{});
       break;
   }
 }
-function mergeDoc(incoming){
-  if(!incoming?.v)return;absorbV(incoming.v);
-  if(cmpV(incoming.v,doc.v)>0){doc={text:String(incoming.text||''),v:incoming.v};if(document.activeElement!==$('#scratch'))$('#scratch').value=doc.text;else{const s=$('#scratch');const a=s.selectionStart,b=s.selectionEnd;s.value=doc.text;s.setSelectionRange(Math.min(a,s.value.length),Math.min(b,s.value.length))}saveDoc();updateDocMeta()}
-}
 async function mergeManifest(list,sourceActor){for(const m of list)await mergeMeta(m,sourceActor,false);renderAssets()}
-async function mergeMeta(m,sourceActor,rerender=true){
-  if(!m?.id||!m.v)return;absorbV(m.v);const old=assets.get(m.id);
-  if(!old||cmpV(m.v,old.v)>0){assets.set(m.id,m);if(m.deleted)await idbDel('files',m.id);await saveAssets()}
-  const cur=assets.get(m.id);
-  if(cur&&!cur.deleted&&sourceActor){const have=await idbGet('files',m.id);if(!have)sendCtlActor(sourceActor,newMessage('asset-need',{ids:[m.id]}))}
-  if(pendingBins.has(m.id)&&assets.has(m.id)){const pending=pendingBins.get(m.id);pendingBins.delete(m.id);handleBinary(pending.packet,{peerId:pending.peerId,metadata:{id:m.id}},pending.w)}
+async function mergeMeta(raw,sourceActor,rerender=true){
+  if(!raw?.id||!raw.v)return;const wireId=String(raw.id),m=canonicalMeta(raw),id=m.id;if(!id)return;absorbV(m.v);
+  if(wireId!==id){assetAliases.set(wireId,id);aliasMeta.set(wireId,raw)}
+  const old=assets.get(id);
+  if(!old||cmpV(m.v,old.v)>0){assets.set(id,m);if(m.deleted)await idbDel('files',id);await saveAssets()}
+  const cur=assets.get(id);
+  if(cur&&!cur.deleted&&sourceActor)await requestAssetOnce(sourceActor,wireId,id);
+  if(pendingBins.has(wireId)&&assets.has(id)){const pending=pendingBins.get(wireId);pendingBins.delete(wireId);handleBinary(pending.packet,{peerId:pending.peerId,metadata:{id:wireId}},pending.w)}
   if(rerender)renderAssets();
 }
 async function handleBinary(packet,{peerId,metadata},w){
-  const id=metadata?.id;if(!id)return;if(!assets.has(id)){pendingBins.set(id,{packet,peerId,w,ts:Date.now()});setTimeout(()=>{const p=pendingBins.get(id);if(p&&Date.now()-p.ts>60000)pendingBins.delete(id)},65000);return}
+  const wireId=String(metadata?.id||'');if(!wireId)return;const canonicalId=assetAliases.get(wireId)||wireId,meta=assets.get(canonicalId)||canonicalMeta(aliasMeta.get(wireId));
+  if(!meta){pendingBins.set(wireId,{packet,peerId,w,ts:Date.now()});setTimeout(()=>{const p=pendingBins.get(wireId);if(p&&Date.now()-p.ts>60000)pendingBins.delete(wireId)},65000);return}
+  if(await idbGet('files',canonicalId)){transferProgress.delete(canonicalId);return}
+  if(assetReceivesInFlight.has(canonicalId))return;assetReceivesInFlight.add(canonicalId);
   try{
-    const meta=assets.get(id);const plain=await decryptBytes(packet,'file:'+id);const sha=await sha256Hex(new Uint8Array(plain));
-    if(meta.sha&&sha!==meta.sha)throw new Error('checksum mismatch');
-    await idbPut('files',id,packet);transferProgress.delete(id);renderAssets();toast('<b>Received</b> '+escapeHtml(meta.name),'good');
-  }catch(e){toast('<b>File rejected.</b> '+escapeHtml(e.message),'bad')}
+    const plain=await decryptBytes(packet,'file:'+wireId),sha=await sha256Hex(new Uint8Array(plain));
+    if(meta.sha&&sha!==String(meta.sha).toLowerCase())throw new Error('checksum mismatch');
+    const stored=wireId===canonicalId?packet:await encryptBytes(plain,'file:'+canonicalId);await idbPut('files',canonicalId,stored);
+    transferProgress.delete(canonicalId);assetRequests.delete(canonicalId);renderAssets();toast('<b>Received</b> '+escapeHtml(meta.name),'good');
+  }catch(e){toast('<b>File rejected.</b> '+escapeHtml(e.message),'bad')}finally{assetReceivesInFlight.delete(canonicalId)}
 }
-async function sendAssetToActor(id,remoteActor){
-  const meta=assets.get(id);if(!meta||meta.deleted)return false;const packet=await idbGet('files',id);if(!packet)return false;const r=chooseRoute(remoteActor);if(!r)return false;
-  updateCardProgress(id,.01);
-  await r.w.bin.send(packet,{target:r.peerId,metadata:{id},onProgress:p=>updateCardProgress(id,p)});updateCardProgress(id,0);return true;
+async function sendAssetToActor(requestedId,remoteActor){
+  const wireId=String(requestedId||'');if(!wireId||!remoteActor)return false;const canonicalId=assetAliases.get(wireId)||wireId,meta=assets.get(canonicalId);if(!meta||meta.deleted)return false;
+  let packet=await idbGet('files',canonicalId);if(!packet)return false;const r=chooseRoute(remoteActor);if(!r)return false;
+  pruneTransferGuards();const guard=remoteActor+'|'+wireId,now=Date.now();if(assetSendsInFlight.has(guard)||(now-(assetSentRecently.get(guard)||0)<5000))return false;assetSendsInFlight.add(guard);
+  try{
+    if(wireId!==canonicalId){const plain=await decryptBytes(packet,'file:'+canonicalId);packet=await encryptBytes(plain,'file:'+wireId)}
+    updateCardProgress(canonicalId,.01);await r.w.bin.send(packet,{target:r.peerId,metadata:{id:wireId},onProgress:p=>updateCardProgress(canonicalId,p)});assetSentRecently.set(guard,Date.now());updateCardProgress(canonicalId,0);return true;
+  }finally{assetSendsInFlight.delete(guard)}
 }
 async function sendAssetToAll(id){await Promise.allSettled([...actorRoutes.keys()].map(a=>sendAssetToActor(id,a)))}
 
-async function localDocChanged(){
-  doc={text:$('#scratch').value,v:nextV()};await saveDoc();updateDocMeta();broadcastCtl(newMessage('doc',{doc}));
+function localDocChanged(){
+  const s=$('#scratch'),before=ytext.toString(),after=s.value;if(before===after)return;const change=diffText(before,after);
+  ydoc.transact(()=>{if(change.deleted.length)ytext.delete(change.index,change.deleted.length);if(change.inserted.length)ytext.insert(change.index,change.inserted)},LOCAL_ORIGIN);
+  noteHistory(change);updateDocMeta();queuePresence();
 }
-function updateDocMeta(){$('#docMeta').textContent='V'+(doc.v?.c||0)+' · '+(doc.text?.length||0)+' CHARS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`synced with ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'}`:networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+function updateDocMeta(){const chars=ytext?.length||0,hist=yhistory?.length||0;$('#docMeta').textContent=chars+' CHARS · '+hist+' EDITS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`CRDT LIVE · ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'} · buffered display` : networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+async function loadQrModule(){
+  if(qrModule)return qrModule;let last;
+  for(const u of ['https://esm.sh/qrcode@1.5.4?bundle','https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm','https://esm.run/qrcode@1.5.4']){
+    try{const m=await import(u),q=m.default||m;if(typeof q.toCanvas!=='function')throw new Error('QR canvas export missing');qrModule=q;return q}catch(e){last=e}
+  }
+  throw last||new Error('QR generator unavailable');
+}
+async function showRoomQr(){
+  const modal=$('#qrModal'),canvas=$('#qrCanvas');$('#qrUrl').textContent=location.href;modal.classList.add('show');
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+  try{const q=await loadQrModule();await q.toCanvas(canvas,location.href,{width:320,margin:2,errorCorrectionLevel:'M',color:{dark:'#000000',light:'#ffffff'}})}catch(e){modal.classList.remove('show');toast('<b>QR unavailable.</b> '+escapeHtml(e.message),'bad')}
+}
 
 async function addFiles(fileList){
   for(const file of [...fileList]){
     if(file.size>MAX_FILE){toast('<b>Too large:</b> '+escapeHtml(file.name)+' · max 128 MB','bad');continue}
-    const id=crypto.randomUUID();
     try{
-      toast('<b>Encrypting</b> '+escapeHtml(file.name));const plain=await file.arrayBuffer();const sha=await sha256Hex(new Uint8Array(plain));const packet=await encryptBytes(plain,'file:'+id);
-      const meta={id,name:safeName(file.name),type:file.type||'application/octet-stream',size:file.size,created:Date.now(),sha,deleted:false,v:nextV(),owner:actor};
+      toast('<b>Hashing + encrypting</b> '+escapeHtml(file.name));const plain=await file.arrayBuffer(),bytes=new Uint8Array(plain),sha=await sha256Hex(bytes);let existing=findAssetBySha(sha),id=existing?.id||('f-'+sha);
+      if(existing&&!existing.deleted&&await idbGet('files',id)){toast('<b>Already shared</b> '+escapeHtml(existing.name),'good');continue}
+      const packet=await encryptBytes(plain,'file:'+id),meta={id,name:safeName(file.name),type:file.type||'application/octet-stream',size:file.size,created:existing?.created||Date.now(),sha,deleted:false,v:nextV(),owner:existing?.owner||actor};
       assets.set(id,meta);await idbPut('files',id,packet);await saveAssets();renderAssets();
-      await broadcastCtl(newMessage('asset-meta',{meta}));sendAssetToAll(id);toast('<b>Added</b> '+escapeHtml(meta.name),'good');
+      // Metadata is announced first. Receivers request a missing blob exactly once; do not also push here.
+      await broadcastCtl(newMessage('asset-meta',{meta}));toast('<b>Added</b> '+escapeHtml(meta.name),'good');
     }catch(e){toast('<b>Could not add file.</b> '+escapeHtml(e.message),'bad')}
   }
 }
@@ -428,23 +665,33 @@ function setTransport(name,state){
 function updatePresence(){
   const n=actorRoutes.size;$('#peerPill').textContent='PEERS '+n;$('#peerPill').className='pill '+(n?'good':'');
   const online=[...wrappers.values()].filter(w=>w.peers.size||true).length;const good=[...document.querySelectorAll('#transportBar .tag.on')].length;
-  $('#netPill').textContent=networkReady||good?`MESH ${good}/${Object.keys(STRATEGIES).length}`:'MESH STARTING';$('#netPill').className='pill '+(networkReady||good?'good':'warn');updateDocMeta();
+  $('#netPill').textContent=networkReady||good?`MESH ${good}/${Object.keys(STRATEGIES).length}`:'MESH STARTING';$('#netPill').className='pill '+(networkReady||good?'good':'warn');updateDocMeta();renderPresence();requestAnimationFrame(renderRemoteCursors);
 }
 
-$('#scratch').addEventListener('input',()=>{clearTimeout(editTimer);editTimer=setTimeout(localDocChanged,180)});
+$('#scratch').addEventListener('compositionstart',()=>{isComposing=true});
+$('#scratch').addEventListener('compositionend',()=>{isComposing=false;localDocChanged();if(incomingY.length&&!remoteFlushTimer)remoteFlushTimer=setTimeout(()=>requestAnimationFrame(flushRemoteYUpdates),40)});
+$('#scratch').addEventListener('input',()=>{if(!isComposing)localDocChanged()});
+for(const ev of ['select','click','keyup','focus'])$('#scratch').addEventListener(ev,()=>queuePresence());
+$('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true)});
+$('#scratch').addEventListener('scroll',()=>requestAnimationFrame(renderRemoteCursors));
+window.addEventListener('resize',()=>requestAnimationFrame(renderRemoteCursors));
 $('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',location.href)}};
+$('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
 $('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
 const drop=$('#dropZone');for(const ev of ['dragenter','dragover'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')});for(const ev of ['dragleave','drop'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')});drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
 window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();addFiles(files)}});
+$('#historyBtn').onclick=()=>{renderHistory();$('#historyModal').classList.add('show')};$('#closeHistory').onclick=()=>$('#historyModal').classList.remove('show');$('#historyModal').onclick=e=>{if(e.target===$('#historyModal'))$('#historyModal').classList.remove('show')};
 $('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
-window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{clearInterval(nats.timer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
+$('#closeQr').onclick=()=>$('#qrModal').classList.remove('show');$('#qrModal').onclick=e=>{if(e.target===$('#qrModal'))$('#qrModal').classList.remove('show')};
+window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{commitHistory();clearInterval(nats.timer);clearInterval(presenceSweepTimer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
 
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await loadLocal();updatePresence();await startMesh();
-    setTimeout(()=>broadcastCtl(newMessage('state-req')),900);
+    await initSecret();await importYjs();setupYDoc();await loadLocal();updatePresence();await startMesh();
+    setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
+    setInterval(()=>queuePresence(true),10000);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
 })();
 </script>
