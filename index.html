@@ -114,8 +114,8 @@ body.resizing-media .assets{pointer-events:none}
   body.history-open .historyRail{display:flex}.historyRailBody{min-height:0;max-height:calc(min(34dvh,300px) - 42px);padding:8px 10px 12px}
 
   .pad{order:2;height:64dvh;min-height:420px;max-height:760px;border-bottom:1px solid var(--line)}
-  .pad>.panelhead{height:auto;min-height:48px;display:grid;grid-template-columns:26px minmax(0,1fr);grid-template-areas:"history-toggle scratch-title" "presence presence";gap:4px 6px;padding:5px 8px;align-items:center}
-  #historyRailToggle{grid-area:history-toggle;margin:0}.pad>.panelhead .paneltitle{grid-area:scratch-title;min-width:0;overflow:hidden;text-overflow:ellipsis}.pad>.panelhead .presencebar{grid-area:presence;margin:0;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;padding-bottom:1px;scrollbar-width:none}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
+  .pad>.panelhead{height:48px;min-height:48px;display:flex;align-items:center;gap:8px;padding:0 8px}
+  #historyRailToggle{margin:0;flex:0 0 auto}.pad>.panelhead .paneltitle{display:none}.pad>.panelhead .presencebar{margin-left:auto;min-width:0;max-width:calc(100% - 42px);height:32px;min-height:32px;padding:4px 3px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;justify-content:flex-end}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
   #historyRailToggle svg{transform:rotate(90deg)}body.history-open #historyRailToggle svg{transform:rotate(-90deg)}
   #historyRailClose svg{transform:rotate(-90deg)}
 
@@ -145,7 +145,7 @@ body.resizing-media .assets{pointer-events:none}
 @media(max-width:380px){
   header{padding-inline:7px}.actions{gap:3px}.actions .iconbtn{width:30px;height:30px;flex-basis:30px}
   .status .pill{font-size:7.5px;padding-inline:5px}
-  .pad{min-height:350px}.pad>.panelhead{gap:3px 5px}.avatar{width:20px;height:20px}
+  .pad{min-height:350px}.pad>.panelhead{gap:6px}.avatar{width:20px;height:20px}
 }
 
 </style>
