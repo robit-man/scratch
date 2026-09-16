@@ -254,7 +254,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       <div class="historyRailBody"><div class="historylist" id="historyRailList" data-agent-id="edit-history"></div></div>
     </aside>
     <section class="pad">
-      <div class="panelhead"><button class="railArrow" id="historyRailToggle" type="button" aria-label="Toggle edit history" title="Toggle edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="paneltitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <div class="panelhead"><button class="railArrow" id="historyRailToggle" type="button" aria-label="Toggle edit history" title="Toggle edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="paneltitle" id="activeDocTitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
       <div class="editorwrap" id="editorWrap">
         <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
         <div class="markdownView" id="markdownView" data-agent-id="markdown-view" aria-label="Rendered Markdown view" tabindex="0"></div>
@@ -514,15 +514,27 @@ function setupYDoc(){
   yfs.observe(()=>requestAnimationFrame(()=>{ensureActiveDocument();renderDocNavigator();scheduleAgentStateRefresh('documents')}));
 }
 
-function fsEntries(){return yfs?[...yfs.entries()].map(([id,v])=>({id,...(v||{})})).filter(x=>!x.deleted):[]}
-function fsEntry(id){const v=yfs?.get(String(id));return v&&!v.deleted?{id:String(id),...v}:null}
+function fsEntries(){return yfs?[...yfs.entries()].map(([id,v])=>({...(v||{}),id:String(id)})).filter(x=>!x.deleted):[]}
+function fsEntry(id){const key=String(id);const v=yfs?.get(key);return v&&!v.deleted?{...v,id:key}:null}
 function fsChildren(parent=null){return fsEntries().filter(x=>(x.parent||null)===(parent||null)).sort((a,b)=>a.type===b.type?String(a.name||'').localeCompare(String(b.name||'')):a.type==='folder'?-1:1)}
 function docTextFor(meta){if(!meta||meta.type!=='doc')return null;return ydoc.getText(meta.textKey||('doc:'+meta.id))}
 function currentDocMeta(){return fsEntry(activeDocId)}
 function folderPath(folderId){const out=[],seen=new Set();let id=folderId||null;while(id&&!seen.has(id)){seen.add(id);const m=fsEntry(id);if(!m||m.type!=='folder')break;out.unshift(m);id=m.parent||null}return out}
 function activeDocPath(){const m=currentDocMeta();return m?[...folderPath(m.parent),m]:[]}
-function setFsEntry(id,patch){const old=yfs.get(id)||{};yfs.set(id,{...old,...patch,id:undefined,updated:Date.now()})}
+function setFsEntry(id,patch){
+  id=String(id);const old={...(yfs.get(id)||{})},next={...(patch||{})};
+  delete old.id;delete next.id;
+  yfs.set(id,{...old,...next,updated:Date.now()});
+}
+function repairFilesystemIds(){
+  if(!yfs||!ydoc)return;const bad=[];
+  for(const [key,value] of yfs.entries()){if(value&&Object.prototype.hasOwnProperty.call(value,'id'))bad.push([String(key),value])}
+  if(!bad.length)return;
+  ydoc.transact(()=>{for(const [key,value] of bad){const clean={...value};delete clean.id;yfs.set(key,clean)}},REPAIR_ORIGIN);
+}
+function updateActiveDocTitle(){const el=$('#activeDocTitle');if(el)el.textContent=currentDocMeta()?.name||'Shared scratch pad'}
 function ensureFilesystem(){
+  repairFilesystemIds();
   const docs=fsEntries().filter(x=>x.type==='doc');
   if(!docs.length){ydoc.transact(()=>yfs.set('doc-main',{type:'doc',parent:null,name:'Scratch pad',textKey:'scratch',created:Date.now(),updated:Date.now(),deleted:false}),LOCAL_ORIGIN)}
   const preferred=(()=>{try{return localStorage.getItem('scratch-active-doc')}catch(_){return null}})();
@@ -541,7 +553,7 @@ function selectDocument(id,{persist=true,focus=false,quiet=false}={}){
   const meta=fsEntry(id);if(!meta||meta.type!=='doc')return false;if(activeDocId===id&&ytext===docTextFor(meta)){renderDocNavigator();return true}
   commitHistory();activeDocId=id;activeFolderId=meta.parent||null;ytext=docTextFor(meta);editorShadow=ytext.toString();
   if(persist)try{localStorage.setItem('scratch-active-doc',id)}catch(_){}
-  renderEditor();renderDocNavigator();queuePresence(true);if(focus){requestAnimationFrame(()=>$('#scratch')?.focus())}if(!quiet)toast('<b>Opened</b> '+escapeHtml(meta.name),'good');scheduleAgentStateRefresh('document');return true;
+  renderEditor();updateActiveDocTitle();renderDocNavigator();queuePresence(true);if(focus){requestAnimationFrame(()=>$('#scratch')?.focus())}if(!quiet)toast('<b>Opened</b> '+escapeHtml(meta.name),'good');scheduleAgentStateRefresh('document');return true;
 }
 function setDocsOpen(on){document.body.classList.toggle('docs-open',!!on);$('#docNavToggle')?.setAttribute('aria-expanded',on?'true':'false');if(on)renderDocNavigator();scheduleAgentStateRefresh('documents')}
 function uniqueEntryName(parent,type,base){const names=new Set(fsChildren(parent).map(x=>String(x.name||'').toLowerCase()));let n=base,i=2;while(names.has(n.toLowerCase()))n=base+' '+i++;return n}
@@ -594,6 +606,7 @@ function bindDocTreeInteractions(tree){
   });
 }
 function renderDocNavigator(){
+  updateActiveDocTitle();
   const crumb=$('#docBreadcrumbPath');if(crumb)crumb.innerHTML=breadcrumbHtml();const tree=$('#docTree');if(!tree||!yfs)return;bindDocTreeInteractions(tree);const all=fsEntries(),docs=all.filter(x=>x.type==='doc');$('#docBrowserMeta').textContent=`${docs.length} FILE${docs.length===1?'':'S'} · ${all.filter(x=>x.type==='folder').length} FOLDER${all.filter(x=>x.type==='folder').length===1?'':'S'}`;
   let html='';const walk=(parent,depth)=>{for(const m of fsChildren(parent)){html+=docRowHtml(m,depth);if(m.type==='folder'&&expandedFolders.has(m.id))walk(m.id,depth+1)}};walk(null,0);tree.innerHTML=html||'<div class="docTreeEmpty">No documents yet.</div>';
 }
