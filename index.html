@@ -48,7 +48,7 @@ body{overflow:hidden;touch-action:pan-x pan-y} button,input,textarea,select{font
 #app{height:100dvh;display:flex;flex-direction:column;min-height:0}
 header{flex:0 0 auto;min-height:0;border-bottom:1px solid var(--line);background:rgba(8,9,10,.96);backdrop-filter:blur(14px);display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"brand actions" "status status";align-items:center;gap:8px 12px;padding:9px 14px 8px;z-index:10}
 .brand{grid-area:brand;font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap;min-width:0}.brand b{color:var(--accent)}.brandCompact{display:none;color:var(--accent);font-size:17px;letter-spacing:-.08em}
-.status{grid-area:status;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:7px;min-width:0;width:100%;overflow:visible}.status .pill{min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}.status #roomPill{text-align:left}.roomPillBtn{appearance:none;-webkit-appearance:none;width:100%;display:flex;align-items:center;gap:6px;min-width:0;cursor:default}.roomPillLabel{flex:0 0 auto}.roomPillCode{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.roomCopyIcon{display:none;margin-left:auto;flex:0 0 18px;width:18px;height:18px;align-items:center;justify-content:center;color:var(--dim)}.roomCopyIcon svg{width:13px;height:13px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.status{grid-area:status;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:7px;min-width:0;width:100%;overflow:visible}.status .pill{min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}.status #roomPill{text-align:left}.roomPillBtn{appearance:none;-webkit-appearance:none;width:100%;display:flex;align-items:center;gap:6px;min-width:0;cursor:pointer}.roomPillLabel{flex:0 0 auto}.roomPillCode{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.roomCopyIcon{display:inline-flex;margin:-5px 0 -5px auto;flex:0 0 18px;width:18px;height:18px;align-items:center;justify-content:center;color:var(--dim)}.roomCopyIcon svg{width:13px;height:13px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
 .actions{grid-area:actions;display:flex;gap:6px;min-width:0;justify-content:flex-end;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}.actions::-webkit-scrollbar{display:none}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;position:relative}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.active{color:var(--good);border-color:#315740;background:#0d1712}.iconbtn.active::after{content:'';position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px rgba(103,211,145,.55)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 main{position:relative;--history-w:0px;--media-w:420px;--splitter-w:1px;--agent-w:clamp(340px,28vw,420px);flex:1;min-height:0;display:grid;grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w);overflow:hidden}
@@ -67,6 +67,7 @@ body.history-open .historyRail{display:flex}
 .paneltitle{font:800 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex:0 0 auto}
 .panelmeta{margin-left:auto;font:9px var(--mono);color:var(--dim);white-space:nowrap}
 .editorwrap{position:relative;flex:1;min-height:0;overflow:hidden;background:transparent}
+.syncGate{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,9,10,.92);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:1;visibility:visible;pointer-events:auto;transition:opacity .16s ease,visibility .16s ease}.syncGate.hidden{opacity:0;visibility:hidden;pointer-events:none}.syncGateInner{width:min(360px,calc(100% - 24px));display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px;border:1px solid var(--line2);background:#0b0d0f}.syncSpinner{width:20px;height:20px;border:2px solid #293039;border-top-color:var(--accent);border-radius:50%;animation:syncSpin .8s linear infinite}.syncGate.error .syncSpinner{animation:none;border-color:var(--bad);border-top-color:var(--bad)}.syncGate.ready .syncSpinner{animation:none;border-color:var(--good);border-top-color:var(--good)}.syncGateTitle{font:800 10px var(--mono);letter-spacing:.08em;color:var(--text)}.syncGateText{max-width:310px;color:var(--muted);font:9px/1.55 var(--mono)}.syncGateActions{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:4px}.syncGateActions[hidden]{display:none}.syncGateActions .btn{min-height:30px}@keyframes syncSpin{to{transform:rotate(360deg)}}
 #scratch{position:absolute;inset:0;width:100%;height:100%;resize:none;border:0;outline:0;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.65 var(--mono);caret-color:var(--accent);overflow:auto}
 #scratch::placeholder{color:#444c54}
 .markdownView{display:none;position:absolute;inset:0;overflow:auto;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.68 var(--mono);overflow-wrap:anywhere;z-index:2}
@@ -291,7 +292,8 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
     <section class="pad">
       <div class="panelhead"><button class="railArrow" id="historyRailToggle" type="button" aria-label="Toggle edit history" title="Toggle edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="paneltitle" id="activeDocTitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
       <div class="editorwrap" id="editorWrap">
-        <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+        <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" readonly placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+        <div class="syncGate" id="syncGate" role="status" aria-live="polite" aria-busy="true"><div class="syncGateInner"><span class="syncSpinner" aria-hidden="true"></span><strong class="syncGateTitle" id="syncGateTitle">CONNECTING TO ROOM</strong><span class="syncGateText" id="syncGateText">Loading local state and checking the encrypted peer mesh…</span><div class="syncGateActions" id="syncGateActions" hidden><button class="btn small" id="syncGateRetry" type="button">RETRY</button><button class="btn small" id="syncGateOffline" type="button">CONTINUE OFFLINE</button></div></div></div>
         <div class="markdownView" id="markdownView" data-agent-id="markdown-view" aria-label="Rendered Markdown view" tabindex="0"></div>
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
@@ -471,6 +473,46 @@ let agentStateTimer=null,agentPollTimer=null,agentReadyResolve=null;const agentR
 let outgoingY=[], isComposing=false, renderingEditor=false, editorShadow='', remoteStateRepairPending=false;
 const MEDIA_COLLAPSED_W=54,MEDIA_MIN_W=260,MEDIA_DEFAULT_W=420,MEDIA_COLLAPSE_TRIGGER=112,MEDIA_SCRATCH_MIN_W=300;
 let markdownEnabled=false,markdownEditing=false,mediaWidth=MEDIA_DEFAULT_W,mediaExpandedWidth=MEDIA_DEFAULT_W,mediaResizeStart=null;
+const INITIAL_SYNC_DISCOVERY_MS=2400,INITIAL_SYNC_HARD_MS=8000;
+let initialSyncGateActive=true,initialSyncDiscoveryDone=false,initialSyncDiscoveryTimer=null,initialSyncHardTimer=null;
+const initialSyncExpectedActors=new Set(),initialSyncReceivedActors=new Set();
+
+function setInitialSyncGate(title,text,state=''){
+  const gate=$('#syncGate'),titleEl=$('#syncGateTitle'),textEl=$('#syncGateText');if(!gate)return;
+  gate.classList.toggle('error',state==='error');gate.classList.toggle('ready',state==='ready');
+  if(titleEl)titleEl.textContent=title;if(textEl)textEl.textContent=text;
+}
+function releaseInitialSyncGate(reason='ready'){
+  if(!initialSyncGateActive)return;initialSyncGateActive=false;clearTimeout(initialSyncDiscoveryTimer);clearTimeout(initialSyncHardTimer);
+  const s=$('#scratch'),gate=$('#syncGate');if(s)s.readOnly=false;if(gate){gate.setAttribute('aria-busy','false');gate.classList.add('hidden')}
+  scheduleAgentStateRefresh('initial-sync-ready',0);
+}
+function pendingInitialSyncActors(){return [...initialSyncExpectedActors].filter(id=>!initialSyncReceivedActors.has(id))}
+function maybeReleaseInitialSyncGate(){
+  if(!initialSyncGateActive||!networkReady||!initialSyncDiscoveryDone)return;
+  const pending=pendingInitialSyncActors();
+  if(pending.length){setInitialSyncGate('SYNCING ROOM',`Waiting for ${pending.length} peer state ${pending.length===1?'response':'responses'}…`);return}
+  if(remoteFlushTimer||incomingY.length){setTimeout(maybeReleaseInitialSyncGate,180);return}
+  const n=initialSyncExpectedActors.size;setInitialSyncGate('ROOM READY',n?`Reconciled encrypted state with ${n} peer${n===1?'':'s'}.`:'No existing peers detected. Starting from the local room state.','ready');
+  setTimeout(()=>{if(!initialSyncGateActive)return;if(pendingInitialSyncActors().length||remoteFlushTimer||incomingY.length){maybeReleaseInitialSyncGate();return}releaseInitialSyncGate('ready')},120);
+}
+function noteInitialSyncPeer(remoteActor){
+  if(!initialSyncGateActive||!remoteActor||remoteActor===actor)return;initialSyncExpectedActors.add(remoteActor);
+  const pending=pendingInitialSyncActors().length;setInitialSyncGate('SYNCING ROOM',`Found ${initialSyncExpectedActors.size} peer${initialSyncExpectedActors.size===1?'':'s'} · ${pending||1} state ${pending===1?'sync':'syncs'} pending…`);
+}
+function markInitialStateReceived(remoteActor){
+  if(!initialSyncGateActive||!remoteActor||remoteActor===actor)return;initialSyncExpectedActors.add(remoteActor);initialSyncReceivedActors.add(remoteActor);
+  const pending=pendingInitialSyncActors().length;setInitialSyncGate('SYNCING ROOM',pending?`State received · waiting for ${pending} more peer${pending===1?'':'s'}…`:'Applying synchronized room state…');
+  setTimeout(maybeReleaseInitialSyncGate,220);
+}
+function startInitialSyncGate(){
+  if(!initialSyncGateActive)return;
+  if(!networkReady){setInitialSyncGate('MESH UNAVAILABLE','Could not reach a signaling fabric. Retry, or explicitly continue offline.','error');const a=$('#syncGateActions'),off=$('#syncGateOffline');if(a)a.hidden=false;if(off)off.hidden=false;return}
+  const a=$('#syncGateActions');if(a)a.hidden=true;setInitialSyncGate('CHECKING ROOM','Mesh online · discovering room peers before editing is enabled…');
+  clearTimeout(initialSyncDiscoveryTimer);clearTimeout(initialSyncHardTimer);
+  initialSyncDiscoveryTimer=setTimeout(()=>{initialSyncDiscoveryDone=true;maybeReleaseInitialSyncGate()},INITIAL_SYNC_DISCOVERY_MS);
+  initialSyncHardTimer=setTimeout(()=>{if(!initialSyncGateActive)return;setInitialSyncGate('ROOM READY','Initial synchronization window complete. Late peers will still reconcile through the CRDT.','ready');setTimeout(()=>releaseInitialSyncGate('timeout'),120)},INITIAL_SYNC_HARD_MS);
+}
 
 function toast(html,kind=''){
   const el=document.createElement('div'); el.className='toast '+kind; el.innerHTML=html; $('#toastBox').append(el);
@@ -855,6 +897,7 @@ async function importStrategy(pkg){
 function routeKey(w,peerId){return w.key+'|'+peerId}
 function trackActorRoute(remoteActor,w,peerId){
   if(!remoteActor||remoteActor===actor)return;
+  noteInitialSyncPeer(remoteActor);
   routeActors.set(routeKey(w,peerId),remoteActor);
   let map=actorRoutes.get(remoteActor);if(!map){map=new Map();actorRoutes.set(remoteActor,map)}map.set(w.key,peerId);updatePresence();
   queueMicrotask(()=>syncMediaToActor(remoteActor).catch(()=>{}));
@@ -1182,8 +1225,9 @@ async function handleControl(packet,{peerId},w){
       const update=Y.encodeStateAsUpdate(ydoc,sv);await sendCtlVia(w,newMessage('state',{yUpdate:bytesToB64(update),manifest:[...assets.values()]}),peerId);
       break;
     }
-    case 'state':
-      if(msg.yUpdate)queueRemoteYUpdate(msg.yUpdate,true);await mergeManifest(msg.manifest||[],msg.actor);break;
+    case 'state':{
+      if(msg.yUpdate)queueRemoteYUpdate(msg.yUpdate,true);await mergeManifest(msg.manifest||[],msg.actor);markInitialStateReceived(msg.actor);break
+    }
     case 'y-update':queueRemoteYUpdate(msg.u);break;
     case 'presence':mergePresence(msg.actor,msg.presence);break;
     case 'doc':{
@@ -1250,13 +1294,13 @@ async function agentFilesState(){const out=[];for(const m of [...assets.values()
 async function getAgentState(){
   const peers=[...actorRoutes.keys()].map(id=>{const p=remotePresence.get(id)||{};return{actor:id,name:p.name||aliasFromActor(id),color:p.color||colorFromActor(id),focused:!!p.focus,lastSeen:p.ts||null,routes:actorRoutes.get(id)?.size||0}});
   const local=[...localMedia.keys()],remote=[...remoteMedia.values()].map(x=>({actor:x.actor,kind:x.kind,id:x.id}));
-  return{version:'1.2',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{id:activeDocId,name:currentDocMeta()?.name||'Scratch pad',path:activeDocPath().map(x=>({id:x.id,name:x.name,type:x.type})),text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},documents:fsEntries().map(x=>({id:x.id,type:x.type,parent:x.parent||null,name:x.name,created:x.created,updated:x.updated,active:x.id===activeDocId})),users:peers,files:await agentFilesState(),media:{local,remote},ui:{markdown:markdownEnabled,historyOpen:document.body.classList.contains('history-open'),documentsOpen:document.body.classList.contains('docs-open'),mediaCollapsed:document.body.classList.contains('media-collapsed'),mediaWidth,mediaExpandedWidth},timestamp:new Date().toISOString()}
+  return{version:'1.2',ready:!!(ydoc&&aesKey&&db),room:{id:roomHash,url:roomLink(),agentUrl:agentLink()},self:{actor,name:profile.name,color:profile.color},sync:{networkReady,initializing:initialSyncGateActive,peerCount:actorRoutes.size,transportCount:document.querySelectorAll('#transportBar .tag.on').length},document:{id:activeDocId,name:currentDocMeta()?.name||'Scratch pad',path:activeDocPath().map(x=>({id:x.id,name:x.name,type:x.type})),text:ytext?.toString()||'',chars:ytext?.length||0,historyCount:yhistory?.length||0,history:yhistory?.toArray().slice(-120)||[]},documents:fsEntries().map(x=>({id:x.id,type:x.type,parent:x.parent||null,name:x.name,created:x.created,updated:x.updated,active:x.id===activeDocId})),users:peers,files:await agentFilesState(),media:{local,remote},ui:{markdown:markdownEnabled,historyOpen:document.body.classList.contains('history-open'),documentsOpen:document.body.classList.contains('docs-open'),mediaCollapsed:document.body.classList.contains('media-collapsed'),mediaWidth,mediaExpandedWidth},timestamp:new Date().toISOString()}
 }
 function scheduleAgentStateRefresh(reason='change',delay=90){
   clearTimeout(agentStateTimer);agentStateTimer=setTimeout(async()=>{agentStateTimer=null;let state;try{state=await getAgentState()}catch(e){return}const box=$('#agentState');if(box&&agentIsOpen()){box.textContent=JSON.stringify(state,null,2);$('#agentStateTime').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}for(const fn of [...agentSubscribers])try{fn(state,reason)}catch(e){console.warn('agent subscriber failed',e)}document.dispatchEvent(new CustomEvent('scratchpad:state',{detail:{reason,state}}))},delay)
 }
 function mutateAgentText(mode,text='',start=0,end=start){
-  if(!ydoc||!ytext)throw new Error('scratchpad is not ready');text=String(text??'');commitHistory();const before=ytext.toString();let after=before;
+  if(!ydoc||!ytext)throw new Error('scratchpad is not ready');if(initialSyncGateActive)throw new Error('room is still synchronizing');text=String(text??'');commitHistory();const before=ytext.toString();let after=before;
   if(mode==='set')after=text;else if(mode==='append')after=before+text;else if(mode==='prepend')after=text+before;else if(mode==='insert'){start=Math.max(0,Math.min(Number(start)||0,before.length));after=before.slice(0,start)+text+before.slice(start)}else if(mode==='range'){start=Math.max(0,Math.min(Number(start)||0,before.length));end=Math.max(start,Math.min(Number(end)||0,before.length));after=before.slice(0,start)+text+before.slice(end)}else if(mode==='clear')after='';else throw new Error('unknown text mutation');
   if(after===before)return{changed:false,chars:before.length};const sel=selectionRelative(),change=diffText(before,after);ydoc.transact(()=>{if(change.deleted.length)ytext.delete(change.index,change.deleted.length);if(change.inserted.length)ytext.insert(change.index,change.inserted)},LOCAL_ORIGIN);editorShadow=after;noteHistory(change,profile.name+' · agent',profile.color,'agent');commitHistory();renderEditor(sel);queuePresence();scheduleAgentStateRefresh('text');return{changed:true,chars:after.length,inserted:change.inserted.length,deleted:change.deleted.length}
 }
@@ -1411,6 +1455,7 @@ mediaSplitter.addEventListener('keydown',e=>{
 });
 $('#docNavToggle').onclick=()=>setDocsOpen(!document.body.classList.contains('docs-open'));$('#docBrowserClose').onclick=()=>setDocsOpen(false);$('#newFolderBtn').onclick=()=>createFolder(activeFolderId);$('#newDocBtn').onclick=()=>createDocument(activeFolderId);$('#docQuickNew').onclick=()=>createDocument(activeFolderId);
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
+const syncGateRetry=$('#syncGateRetry');if(syncGateRetry)syncGateRetry.onclick=()=>location.reload();const syncGateOffline=$('#syncGateOffline');if(syncGateOffline)syncGateOffline.onclick=()=>releaseInitialSyncGate('offline');
 const roomPill=$('#roomPill');if(roomPill)roomPill.onclick=copyCurrentPageUrl;
 $('#qrBtn').onclick=showRoomQr;
 $('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
@@ -1435,10 +1480,10 @@ window.addEventListener('hashchange',()=>location.reload());window.addEventListe
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await importYjs();setupYDoc();await loadLocal();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
+    await initSecret();await importYjs();setupYDoc();await loadLocal();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();startInitialSyncGate();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
-  }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
+  }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;setInitialSyncGate('INITIALIZATION FAILED',e.message,'error');const ga=$('#syncGateActions'),off=$('#syncGateOffline');if(ga)ga.hidden=false;if(off)off.hidden=true;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
 })();
 </script>
 </body>
