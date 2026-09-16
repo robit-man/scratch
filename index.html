@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Scratch // P2P</title>
+<style>
+:root{
+  --bg:#08090a;--panel:#0d0f11;--panel2:#111418;--line:#23282e;--line2:#353c44;
+  --text:#eef1f3;--muted:#9099a2;--dim:#5f6871;--accent:#f1bb37;--good:#67d391;
+  --warn:#e9aa50;--bad:#e36a6a;--mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans)}
+body{overflow:hidden} button,input,textarea{font:inherit} button{cursor:pointer} ::selection{background:var(--accent);color:#111}
+#app{height:100dvh;display:flex;flex-direction:column;min-height:0}
+header{height:58px;flex:0 0 58px;border-bottom:1px solid var(--line);background:rgba(8,9,10,.96);backdrop-filter:blur(14px);display:flex;align-items:center;gap:12px;padding:0 14px;z-index:10}
+.brand{font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap}.brand b{color:var(--accent)}
+.status{display:flex;align-items:center;gap:7px;min-width:0;flex:1;overflow:auto;scrollbar-width:none}.status::-webkit-scrollbar{display:none}
+.pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
+.actions{display:flex;gap:6px}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr)}
+.pad{min-width:0;min-height:0;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+.panelhead{height:42px;flex:0 0 42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#0a0c0e}
+.paneltitle{font:800 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.panelmeta{margin-left:auto;font:9px var(--mono);color:var(--dim);white-space:nowrap}
+#scratch{flex:1;min-height:0;width:100%;resize:none;border:0;outline:0;padding:22px 24px;background:transparent;color:var(--text);font:14px/1.65 var(--mono);caret-color:var(--accent)}
+#scratch::placeholder{color:#444c54}
+.syncbar{flex:0 0 31px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.assets{min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e}
+.drop{margin:12px;border:1px dashed #3a424b;background:#0b0d0f;min-height:112px;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;transition:.14s}.drop.drag{border-color:var(--accent);background:#151207}.drop strong{display:block;font:800 11px var(--mono);letter-spacing:.06em}.drop span{display:block;margin-top:6px;font:10px/1.5 var(--mono);color:var(--dim)}
+.assetlist{flex:1;min-height:0;overflow:auto;padding:0 12px 12px}.empty{border:1px dashed var(--line);padding:16px;text-align:center;color:var(--dim);font:9px/1.6 var(--mono)}
+.card{border:1px solid var(--line);background:#0d0f11;margin-top:8px;overflow:hidden}.cardtop{padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}.fname{font:800 10px/1.4 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fmeta{font:9px/1.45 var(--mono);color:var(--dim);margin-top:4px}.cardactions{display:flex;gap:5px}.mini{border:1px solid var(--line);background:#0a0c0e;color:var(--muted);padding:5px 6px;font:800 8px var(--mono);text-transform:uppercase}.mini:hover{color:var(--text);border-color:var(--line2)}.mini.danger:hover{color:var(--bad);border-color:#653737}
+.preview{border-top:1px solid var(--line);background:#08090a;max-height:220px;overflow:hidden;display:flex;align-items:center;justify-content:center}.preview img{max-width:100%;max-height:220px;display:block}.preview video{width:100%;max-height:220px}.preview audio{width:calc(100% - 20px);margin:12px}.progress{height:2px;background:#15191d}.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .15s}
+.transport{border-top:1px solid var(--line);padding:8px 12px;display:flex;align-items:center;gap:6px;overflow:auto}.transport .tag{border:1px solid var(--line);padding:4px 6px;font:8px var(--mono);color:var(--dim);white-space:nowrap}.transport .tag.on{color:var(--good);border-color:#2c503b}.transport .tag.err{color:var(--bad);border-color:#5d3232}
+.toastbox{position:fixed;right:14px;top:70px;width:min(360px,calc(100vw - 28px));z-index:100;display:flex;flex-direction:column;gap:7px;pointer-events:none}.toast{border:1px solid var(--line2);background:#111419;box-shadow:0 14px 40px rgba(0,0,0,.42);padding:10px 11px;font:9px/1.5 var(--mono);color:var(--muted);pointer-events:auto}.toast b{color:var(--text)}.toast.good{border-color:#315740}.toast.bad{border-color:#653737;color:#d99595}
+.modalback{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:90;display:none;align-items:center;justify-content:center;padding:18px}.modalback.show{display:flex}.modal{width:min(620px,100%);border:1px solid var(--line2);background:#0d0f11;box-shadow:0 24px 70px rgba(0,0,0,.55)}.modal h2{margin:0;padding:13px 14px;border-bottom:1px solid var(--line);font:800 11px var(--mono);letter-spacing:.1em;text-transform:uppercase}.modalbody{padding:14px;font:11px/1.65 var(--mono);color:var(--muted)}.modalbody strong{color:var(--text)}.modalbody code{color:var(--accent)}.modalfoot{border-top:1px solid var(--line);padding:10px 14px;display:flex;justify-content:flex-end;gap:7px}
+@media(max-width:820px){body{overflow:auto}#app{height:auto;min-height:100dvh}header{height:auto;min-height:58px;flex-wrap:wrap;padding:9px 10px}.status{order:3;width:100%;flex-basis:100%}.actions{margin-left:auto}main{display:block}.pad{height:56dvh;border-right:0;border-bottom:1px solid var(--line)}.assets{min-height:44dvh}.drop{min-height:92px}#scratch{padding:16px;font-size:13px}}
+@media(max-width:500px){.btn .wide{display:none}.brand{font-size:11px}.actions .btn{padding:7px}.panelmeta{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">SCRATCH<b>//</b>P2P</div>
+    <div class="status">
+      <span class="pill" id="roomPill">ROOM …</span>
+      <span class="pill" id="peerPill">PEERS 0</span>
+      <span class="pill warn" id="netPill">MESH STARTING</span>
+    </div>
+    <div class="actions">
+      <button class="btn" id="infoBtn">SECURITY</button>
+      <button class="btn" id="copyBtn">COPY <span class="wide">LINK</span></button>
+      <button class="btn primary" id="newBtn">NEW <span class="wide">ROOM</span></button>
+    </div>
+  </header>
+  <main>
+    <section class="pad">
+      <div class="panelhead"><span class="paneltitle">Shared scratch pad</span><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <textarea id="scratch" spellcheck="false" placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
+      <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
+    </section>
+    <section class="assets">
+      <div class="panelhead"><span class="paneltitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span></div>
+      <div class="drop" id="dropZone">
+        <div><strong>DROP / PASTE / UPLOAD</strong><span>Images, video, audio, PDFs, archives, code — encrypted before transfer · max 128 MB each</span><button class="btn small" id="chooseBtn" style="margin-top:10px">CHOOSE FILES</button><input id="fileInput" type="file" multiple hidden></div>
+      </div>
+      <div class="assetlist" id="assetList"></div>
+      <div class="transport" id="transportBar"></div>
+    </section>
+  </main>
+</div>
+<div class="toastbox" id="toastBox"></div>
+<div class="modalback" id="infoModal">
+  <div class="modal">
+    <h2>Room security + persistence</h2>
+    <div class="modalbody">
+      <strong>The URL fragment is the key.</strong> The value after <code>#</code> is never included in HTTP requests. This page hashes it to create a rendezvous room name and separately derives an AES-256-GCM application key from the original fragment.<br><br>
+      Network payloads are therefore protected by WebRTC transport encryption <em>and</em> application-layer encryption. File names, scratch text, asset metadata and file bytes are encrypted; signaling sees only a hash-derived room identifier and transport metadata.<br><br>
+      <strong>Anyone with the complete link can read and modify the room.</strong> Use the generated high-entropy room URLs rather than short human passwords. This is capability-based access, not an account system.<br><br>
+      <strong>No central archive exists.</strong> Each browser keeps an encrypted local cache. A new browser can recover the current state only while at least one peer that already has that state is online. Large files are transferred peer-to-peer and are not uploaded to this host.
+    </div>
+    <div class="modalfoot"><button class="btn" id="closeInfo">CLOSE</button></div>
+  </div>
+</div>
+<script type="module">
+const $=s=>document.querySelector(s);
+const enc=new TextEncoder(), dec=new TextDecoder();
+const MAX_FILE=128*1024*1024;
+const TRYSTERO_VERSION='0.25.3';
+const NATS_VERSION='3.4.0';
+const APP_ID='robit-encrypted-scratchpad-v1';
+const STRATEGIES={
+  nostr:{pkg:'@trystero-p2p/nostr',label:'NOSTR',priority:0},
+  mqtt:{pkg:'@trystero-p2p/mqtt',label:'MQTT',priority:1},
+  torrent:{pkg:'@trystero-p2p/torrent',label:'BITTORRENT',priority:2},
+  ipfs:{pkg:'@trystero-p2p/ipfs',label:'WAKU',priority:3},
+  nats:{pkg:null,label:'NATS',priority:4}
+};
+const TRYSTERO_STRATEGIES=['nostr','mqtt','torrent','ipfs'];
+const actor=crypto.randomUUID();
+let secret='', roomHash='', aesKey=null, macKey=null, db=null, clock=0;
+let doc={text:'',v:{c:0,a:''}};
+const assets=new Map();
+const wrappers=new Map();
+const actorRoutes=new Map();
+const routeActors=new Map();
+const seenMessages=new Map();
+const transferProgress=new Map();
+const pendingBins=new Map();
+const previewUrls=new Map();
+const nats={module:null,nc:null,presenceSub:null,signalSub:null,timer:null,sessions:new Map(),status:'off'};
+let editTimer=null, renderToken=0, networkReady=false;
+
+function toast(html,kind=''){
+  const el=document.createElement('div'); el.className='toast '+kind; el.innerHTML=html; $('#toastBox').append(el);
+  setTimeout(()=>el.remove(),4200);
+}
+function randSecret(bytes=24){
+  const a=crypto.getRandomValues(new Uint8Array(bytes));
+  return bytesToB64(a).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function bytesToB64(bytes){
+  let s=''; const step=0x8000;
+  for(let i=0;i<bytes.length;i+=step)s+=String.fromCharCode(...bytes.subarray(i,i+step));
+  return btoa(s);
+}
+function b64ToBytes(s){const bin=atob(s);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a}
+async function sha256Hex(data){
+  const buf=typeof data==='string'?enc.encode(data):data;
+  return [...new Uint8Array(await crypto.subtle.digest('SHA-256',buf))].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function initSecret(){
+  secret=decodeURIComponent(location.hash.slice(1).trim());
+  if(!secret){secret=randSecret();location.hash=encodeURIComponent(secret)}
+  roomHash=await sha256Hex('scratch-room|'+secret);
+  const base=await crypto.subtle.importKey('raw',enc.encode(secret),'PBKDF2',false,['deriveKey']);
+  aesKey=await crypto.subtle.deriveKey({name:'PBKDF2',salt:enc.encode('robit-scratchpad-v1|'+roomHash),iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+  const macRaw=await crypto.subtle.digest('SHA-256',enc.encode('robit-scratchpad-mac|'+secret));
+  macKey=await crypto.subtle.importKey('raw',macRaw,{name:'HMAC',hash:'SHA-256'},false,['sign','verify']);
+  $('#roomPill').textContent='ROOM '+roomHash.slice(0,10).toUpperCase();
+  $('#actorText').textContent='NODE '+actor.slice(0,8).toUpperCase();
+}
+async function encryptBytes(input,aad=''){
+  const bytes=input instanceof Uint8Array?input:new Uint8Array(input);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:enc.encode(aad)},aesKey,bytes));
+  const out=new Uint8Array(12+ct.length);out.set(iv);out.set(ct,12);return out.buffer;
+}
+async function decryptBytes(packet,aad=''){
+  const bytes=packet instanceof Uint8Array?packet:new Uint8Array(packet);
+  if(bytes.byteLength<29)throw new Error('ciphertext too short');
+  const iv=bytes.slice(0,12),ct=bytes.slice(12);
+  return crypto.subtle.decrypt({name:'AES-GCM',iv,additionalData:enc.encode(aad)},aesKey,ct);
+}
+async function sealObject(obj,aad='ctrl'){return bytesToB64(new Uint8Array(await encryptBytes(enc.encode(JSON.stringify(obj)),aad)))}
+async function openObject(s,aad='ctrl'){return JSON.parse(dec.decode(await decryptBytes(b64ToBytes(s),aad)))}
+function cmpV(a,b){
+  a=a||{c:0,a:''};b=b||{c:0,a:''};
+  if(Number(a.c)!==Number(b.c))return Number(a.c)-Number(b.c);
+  return String(a.a).localeCompare(String(b.a));
+}
+function nextV(){clock=Math.max(clock,Number(doc.v?.c)||0)+1;return{c:clock,a:actor}}
+function absorbV(v){clock=Math.max(clock,Number(v?.c)||0)}
+function newMessage(type,data={}){return{v:1,mid:crypto.randomUUID(),type,actor,ts:Date.now(),...data}}
+function remember(mid){
+  if(!mid)return false;if(seenMessages.has(mid))return true;seenMessages.set(mid,Date.now());
+  if(seenMessages.size>2000){const cutoff=Date.now()-10*60*1000;for(const [k,t] of seenMessages)if(t<cutoff)seenMessages.delete(k)}return false;
+}
+function fmtBytes(n){if(n<1024)return n+' B';if(n<1048576)return(n/1024).toFixed(1)+' KB';if(n<1073741824)return(n/1048576).toFixed(1)+' MB';return(n/1073741824).toFixed(1)+' GB'}
+function safeName(s){return String(s||'file').replace(/[\u0000-\u001f]/g,'').slice(0,240)||'file'}
+
+function openDB(){return new Promise((resolve,reject)=>{
+  const req=indexedDB.open('robit-scratchpad-'+roomHash,1);
+  req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');if(!d.objectStoreNames.contains('files'))d.createObjectStore('files')};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+})}
+function idbGet(store,key){return new Promise((resolve,reject)=>{const r=db.transaction(store,'readonly').objectStore(store).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function idbPut(store,key,val){return new Promise((resolve,reject)=>{const r=db.transaction(store,'readwrite').objectStore(store).put(val,key);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
+function idbDel(store,key){return new Promise((resolve,reject)=>{const r=db.transaction(store,'readwrite').objectStore(store).delete(key);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
+async function putKV(name,value){await idbPut('kv',name,await encryptBytes(enc.encode(JSON.stringify(value)),'local:'+name))}
+async function getKV(name,fallback){try{const p=await idbGet('kv',name);if(!p)return fallback;return JSON.parse(dec.decode(await decryptBytes(p,'local:'+name)))}catch(e){console.warn('local decrypt failed',name,e);return fallback}}
+async function loadLocal(){
+  db=await openDB();
+  doc=await getKV('doc',{text:'',v:{c:0,a:''}});absorbV(doc.v);$('#scratch').value=doc.text||'';
+  const list=await getKV('assets',[]);for(const m of list||[])assets.set(m.id,m);
+  renderAssets();updateDocMeta();
+}
+async function saveDoc(){await putKV('doc',doc)}
+async function saveAssets(){await putKV('assets',[...assets.values()])}
+
+async function importStrategy(pkg){
+  const urls=[`https://esm.sh/${pkg}@${TRYSTERO_VERSION}?bundle`,`https://cdn.jsdelivr.net/npm/${pkg}@${TRYSTERO_VERSION}/+esm`,`https://esm.run/${pkg}@${TRYSTERO_VERSION}`];
+  let last;
+  for(const u of urls){try{const m=await import(u);if(!m.joinRoom)throw new Error('joinRoom export missing');return m}catch(e){last=e}}
+  throw last||new Error('unable to load '+pkg);
+}
+function routeKey(w,peerId){return w.key+'|'+peerId}
+function trackActorRoute(remoteActor,w,peerId){
+  if(!remoteActor||remoteActor===actor)return;
+  routeActors.set(routeKey(w,peerId),remoteActor);
+  let map=actorRoutes.get(remoteActor);if(!map){map=new Map();actorRoutes.set(remoteActor,map)}map.set(w.key,peerId);updatePresence();
+}
+function untrackRoute(w,peerId){
+  const k=routeKey(w,peerId),remote=routeActors.get(k);routeActors.delete(k);
+  if(remote){const map=actorRoutes.get(remote);map?.delete(w.key);if(!map?.size)actorRoutes.delete(remote)}updatePresence();
+}
+function chooseRoute(remoteActor){
+  const map=actorRoutes.get(remoteActor);if(!map)return null;
+  return [...map.entries()].map(([wk,peerId])=>({w:wrappers.get(wk),peerId})).filter(x=>x.w?.peers.has(x.peerId)).sort((a,b)=>STRATEGIES[a.w.strategy].priority-STRATEGIES[b.w.strategy].priority)[0]||null;
+}
+async function sendCtlVia(w,msg,peerId=null){
+  try{const packet=await sealObject(msg);await w.ctl.send(packet,peerId?{target:peerId}:undefined);return true}catch(e){console.warn('control send',w.strategy,e);return false}
+}
+async function sendCtlActor(remoteActor,msg){const r=chooseRoute(remoteActor);return r?sendCtlVia(r.w,msg,r.peerId):false}
+async function broadcastCtl(msg){await Promise.allSettled([...wrappers.values()].filter(w=>w.peers.size).map(w=>sendCtlVia(w,msg)))}
+async function joinStrategy(strategy){
+  const spec=STRATEGIES[strategy];
+  setTransport(strategy,'loading');
+  try{
+    const mod=await importStrategy(spec.pkg);
+    const cfg={appId:APP_ID};
+    if(strategy==='nostr'||strategy==='mqtt'||strategy==='torrent')cfg.relayConfig={redundancy:strategy==='nostr'?9:strategy==='mqtt'?5:4,warnOnRelayFailure:false};
+    cfg.trickleIce=!(strategy==='torrent'||strategy==='ipfs');
+    const roomName='scratch-v1:'+roomHash.slice(0,40);
+    const room=mod.joinRoom(cfg,roomName,{handshakeTimeoutMs:14000,onJoinError:d=>console.warn(strategy,'join error',d?.error||d)});
+    const w={strategy,key:strategy+':main',room,ctl:room.makeAction('sp-ctl'),bin:room.makeAction('sp-bin'),peers:new Set()};wrappers.set(w.key,w);
+    room.onPeerJoin=peerId=>{
+      w.peers.add(peerId);setTransport(strategy,'on');updatePresence();
+      sendCtlVia(w,newMessage('hello'),peerId);sendCtlVia(w,newMessage('state-req'),peerId);
+    };
+    room.onPeerLeave=peerId=>{w.peers.delete(peerId);untrackRoute(w,peerId);updatePresence()};
+    w.ctl.onMessage=(packet,meta)=>handleControl(packet,meta,w);
+    w.bin.onMessage=(packet,meta)=>handleBinary(packet,meta,w);
+    w.bin.onReceiveProgress=(p,{metadata})=>{if(metadata?.id){transferProgress.set(metadata.id,p);updateCardProgress(metadata.id,p)}};
+    setTransport(strategy,'on');return true;
+  }catch(e){console.warn(strategy,e);setTransport(strategy,'err');return false}
+}
+async function startMesh(){
+  const results=await Promise.allSettled([...TRYSTERO_STRATEGIES.map(joinStrategy),startNats()]);
+  networkReady=results.some(x=>x.status==='fulfilled'&&x.value);updatePresence();
+  if(!networkReady)toast('<b>Mesh unavailable.</b> Check network/CDN access and reload.','bad');
+}
+
+
+async function hmacBody(body){return bytesToB64(new Uint8Array(await crypto.subtle.sign('HMAC',macKey,enc.encode(JSON.stringify(body)))))}
+async function verifyHmacEnvelope(env){
+  if(!env?.mac)return false;const {mac,...body}=env;
+  try{return await crypto.subtle.verify('HMAC',macKey,b64ToBytes(mac),enc.encode(JSON.stringify(body)))}catch(_){return false}
+}
+async function signedEnvelope(body){return {...body,mac:await hmacBody(body)}}
+async function importNats(){
+  if(nats.module)return nats.module;let last;
+  for(const u of [`https://esm.run/@nats-io/nats-core@${NATS_VERSION}`,`https://esm.sh/@nats-io/nats-core@${NATS_VERSION}?bundle`,`https://cdn.jsdelivr.net/npm/@nats-io/nats-core@${NATS_VERSION}/+esm`]){
+    try{const m=await import(u);if(!m.wsconnect)throw new Error('wsconnect export missing');nats.module=m;return m}catch(e){last=e}
+  }
+  throw last||new Error('NATS browser module unavailable');
+}
+function natsSubjects(remote=actor){const h=roomHash.slice(0,24);return{presence:`scratch.v1.${h}.presence`,signal:`scratch.v1.${h}.signal.${remote}`}}
+async function publishNats(subject,obj){if(!nats.nc)return; nats.nc.publish(subject,enc.encode(JSON.stringify(obj)))}
+async function publishNatsPresence(){
+  if(!nats.nc)return;const body={v:1,actor,ts:Date.now(),expires:Date.now()+30000};await publishNats(natsSubjects().presence,await signedEnvelope(body));
+}
+async function consumeNats(sub,fn){try{for await(const m of sub)fn(m.data)}catch(e){if(nats.status==='on')console.warn('NATS subscription ended',e)}}
+function rtcConfig(){return{iceServers:[{urls:['stun:stun.l.google.com:19302','stun:global.stun.twilio.com:3478']}],iceCandidatePoolSize:2}}
+function waitIce(pc,timeout=7000){return new Promise(resolve=>{if(pc.iceGatheringState==='complete')return resolve();const done=()=>{clearTimeout(t);pc.removeEventListener('icegatheringstatechange',check);resolve()};const check=()=>{if(pc.iceGatheringState==='complete')done()};const t=setTimeout(done,timeout);pc.addEventListener('icegatheringstatechange',check)})}
+async function sendNatsSignal(remote,type,payload,session){
+  const body={v:1,type,from:actor,to:remote,session,ts:Date.now(),nonce:crypto.randomUUID(),payload};await publishNats(natsSubjects(remote).signal,await signedEnvelope(body));
+}
+function closeNatsSession(remote){
+  const x=nats.sessions.get(remote);if(!x)return;x.closed=true;try{x.ctrl?.close()}catch(_){}try{x.bin?.close()}catch(_){}try{x.pc?.close()}catch(_){}
+  if(x.wrapper){wrappers.delete(x.wrapper.key);untrackRoute(x.wrapper,'nats:'+remote)}nats.sessions.delete(remote);updatePresence();
+}
+function setupNatsChannels(remote,session,pc,ctrl,bin){
+  let x=nats.sessions.get(remote);if(!x){x={remote,session,pc,ctrl:null,bin:null,closed:false,wrapper:null,rx:null,sendLock:Promise.resolve()};nats.sessions.set(remote,x)}
+  if(ctrl)x.ctrl=ctrl;if(bin)x.bin=bin;
+  for(const dc of [ctrl,bin].filter(Boolean))dc.binaryType='arraybuffer';
+  const maybeOpen=()=>{
+    if(x.closed||x.wrapper||!x.ctrl||!x.bin||x.ctrl.readyState!=='open'||x.bin.readyState!=='open')return;
+    const peerId='nats:'+remote;
+    const w={strategy:'nats',key:'nats:'+remote,room:{leave:()=>closeNatsSession(remote)},peers:new Set([peerId]),ctl:{},bin:{}};
+    w.ctl.send=async(packet,opts={})=>{if(opts.target&&opts.target!==peerId)return;x.ctrl.send(JSON.stringify({t:'ctl',packet}))};
+    w.bin.send=async(packet,opts={})=>{
+      if(opts.target&&opts.target!==peerId)return;const id=opts.metadata?.id||crypto.randomUUID();const bytes=packet instanceof ArrayBuffer?new Uint8Array(packet):new Uint8Array(packet.buffer||packet);
+      x.sendLock=x.sendLock.then(async()=>{
+        x.bin.send(JSON.stringify({t:'start',id,total:bytes.byteLength}));const chunk=48*1024;
+        for(let off=0;off<bytes.length;off+=chunk){while(x.bin.bufferedAmount>2*1024*1024)await new Promise(r=>setTimeout(r,20));x.bin.send(bytes.slice(off,Math.min(bytes.length,off+chunk)));opts.onProgress?.(Math.min(1,(off+chunk)/bytes.length),{peerId})}
+        x.bin.send(JSON.stringify({t:'end',id}));
+      });return x.sendLock;
+    };
+    x.ctrl.onmessage=e=>{try{const m=JSON.parse(String(e.data));if(m.t==='ctl')handleControl(m.packet,{peerId},w)}catch(_){}};
+    x.bin.onmessage=e=>{
+      if(typeof e.data==='string'){
+        try{const m=JSON.parse(e.data);if(m.t==='start'){x.rx={id:m.id,total:m.total,got:0,parts:[]};transferProgress.set(m.id,0);updateCardProgress(m.id,0)}else if(m.t==='end'&&x.rx?.id===m.id){const all=new Uint8Array(x.rx.got);let o=0;for(const part of x.rx.parts){all.set(part,o);o+=part.length}const id=x.rx.id;x.rx=null;handleBinary(all.buffer,{peerId,metadata:{id}},w)}}catch(_){}
+      }else if(x.rx){const part=new Uint8Array(e.data);x.rx.parts.push(part);x.rx.got+=part.length;const p=Math.min(1,x.rx.got/x.rx.total);transferProgress.set(x.rx.id,p);updateCardProgress(x.rx.id,p)}
+    };
+    x.wrapper=w;wrappers.set(w.key,w);trackActorRoute(remote,w,peerId);setTransport('nats','on');updatePresence();
+    sendCtlVia(w,newMessage('hello'),peerId);sendCtlVia(w,newMessage('state-req'),peerId);
+  };
+  for(const dc of [x.ctrl,x.bin].filter(Boolean)){dc.onopen=maybeOpen;dc.onclose=()=>{if(!x.closed)closeNatsSession(remote)}}
+  maybeOpen();
+}
+async function makeNatsOffer(remote){
+  if(remote===actor||nats.sessions.has(remote))return;const session=crypto.randomUUID(),pc=new RTCPeerConnection(rtcConfig());const ctrl=pc.createDataChannel('scratch-ctl',{ordered:true}),bin=pc.createDataChannel('scratch-bin',{ordered:true});
+  nats.sessions.set(remote,{remote,session,pc,ctrl,bin,closed:false,wrapper:null,rx:null,sendLock:Promise.resolve()});setupNatsChannels(remote,session,pc,ctrl,bin);
+  pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState))closeNatsSession(remote)};
+  try{await pc.setLocalDescription(await pc.createOffer());await waitIce(pc);await sendNatsSignal(remote,'offer',{sdp:pc.localDescription.sdp},session)}catch(e){closeNatsSession(remote);console.warn('NATS offer failed',e)}
+}
+async function acceptNatsOffer(msg){
+  const remote=msg.from;if(nats.sessions.has(remote))closeNatsSession(remote);const pc=new RTCPeerConnection(rtcConfig());const x={remote,session:msg.session,pc,ctrl:null,bin:null,closed:false,wrapper:null,rx:null,sendLock:Promise.resolve()};nats.sessions.set(remote,x);
+  pc.ondatachannel=e=>{if(e.channel.label==='scratch-ctl')x.ctrl=e.channel;if(e.channel.label==='scratch-bin')x.bin=e.channel;setupNatsChannels(remote,msg.session,pc,x.ctrl,x.bin)};
+  pc.onconnectionstatechange=()=>{if(['failed','closed','disconnected'].includes(pc.connectionState))closeNatsSession(remote)};
+  try{await pc.setRemoteDescription({type:'offer',sdp:String(msg.payload?.sdp||'')});await pc.setLocalDescription(await pc.createAnswer());await waitIce(pc);await sendNatsSignal(remote,'answer',{sdp:pc.localDescription.sdp},msg.session)}catch(e){closeNatsSession(remote);console.warn('NATS answer failed',e)}
+}
+async function handleNatsPresence(raw){
+  let env;try{env=JSON.parse(dec.decode(raw))}catch(_){return}if(!await verifyHmacEnvelope(env)||env.v!==1||env.actor===actor||env.expires<Date.now())return;
+  // Lexicographically lower actor initiates; this prevents offer glare.
+  if(actor<env.actor&&!nats.sessions.has(env.actor))makeNatsOffer(env.actor);
+}
+async function handleNatsSignal(raw){
+  let msg;try{msg=JSON.parse(dec.decode(raw))}catch(_){return}if(!await verifyHmacEnvelope(msg)||msg.v!==1||msg.to!==actor||msg.from===actor||Math.abs(Date.now()-msg.ts)>90000)return;
+  if(msg.type==='offer')await acceptNatsOffer(msg);else if(msg.type==='answer'){const x=nats.sessions.get(msg.from);if(x&&x.session===msg.session)try{await x.pc.setRemoteDescription({type:'answer',sdp:String(msg.payload?.sdp||'')})}catch(e){closeNatsSession(msg.from)}}
+}
+async function startNats(){
+  setTransport('nats','loading');try{const mod=await importNats();nats.nc=await mod.wsconnect({servers:'wss://demo.nats.io:8443',reconnect:true,maxReconnectAttempts:-1,reconnectTimeWait:1500,timeout:5000});nats.presenceSub=nats.nc.subscribe(natsSubjects().presence);nats.signalSub=nats.nc.subscribe(natsSubjects().signal);consumeNats(nats.presenceSub,handleNatsPresence);consumeNats(nats.signalSub,handleNatsSignal);nats.status='on';setTransport('nats','on');await publishNatsPresence();nats.timer=setInterval(()=>publishNatsPresence().catch(()=>{}),8000);return true}catch(e){console.warn('NATS unavailable',e);nats.status='err';setTransport('nats','err');return false}
+}
+
+async function handleControl(packet,{peerId},w){
+  let msg;try{msg=await openObject(packet)}catch(e){return}
+  if(!msg||msg.v!==1||remember(msg.mid)||msg.actor===actor)return;
+  trackActorRoute(msg.actor,w,peerId);absorbV(msg.doc?.v);absorbV(msg.meta?.v);
+  switch(msg.type){
+    case 'hello':
+      if(!msg.reply)sendCtlVia(w,newMessage('hello',{reply:true}),peerId);
+      break;
+    case 'state-req':
+      await sendCtlVia(w,newMessage('state',{doc,manifest:[...assets.values()]}),peerId);
+      break;
+    case 'state':
+      mergeDoc(msg.doc);await mergeManifest(msg.manifest||[],msg.actor);break;
+    case 'doc':mergeDoc(msg.doc);break;
+    case 'asset-meta':await mergeMeta(msg.meta,msg.actor);break;
+    case 'asset-need':
+      for(const id of (msg.ids||[]).slice(0,64))sendAssetToActor(id,msg.actor).catch(()=>{});
+      break;
+  }
+}
+function mergeDoc(incoming){
+  if(!incoming?.v)return;absorbV(incoming.v);
+  if(cmpV(incoming.v,doc.v)>0){doc={text:String(incoming.text||''),v:incoming.v};if(document.activeElement!==$('#scratch'))$('#scratch').value=doc.text;else{const s=$('#scratch');const a=s.selectionStart,b=s.selectionEnd;s.value=doc.text;s.setSelectionRange(Math.min(a,s.value.length),Math.min(b,s.value.length))}saveDoc();updateDocMeta()}
+}
+async function mergeManifest(list,sourceActor){for(const m of list)await mergeMeta(m,sourceActor,false);renderAssets()}
+async function mergeMeta(m,sourceActor,rerender=true){
+  if(!m?.id||!m.v)return;absorbV(m.v);const old=assets.get(m.id);
+  if(!old||cmpV(m.v,old.v)>0){assets.set(m.id,m);if(m.deleted)await idbDel('files',m.id);await saveAssets()}
+  const cur=assets.get(m.id);
+  if(cur&&!cur.deleted&&sourceActor){const have=await idbGet('files',m.id);if(!have)sendCtlActor(sourceActor,newMessage('asset-need',{ids:[m.id]}))}
+  if(pendingBins.has(m.id)&&assets.has(m.id)){const pending=pendingBins.get(m.id);pendingBins.delete(m.id);handleBinary(pending.packet,{peerId:pending.peerId,metadata:{id:m.id}},pending.w)}
+  if(rerender)renderAssets();
+}
+async function handleBinary(packet,{peerId,metadata},w){
+  const id=metadata?.id;if(!id)return;if(!assets.has(id)){pendingBins.set(id,{packet,peerId,w,ts:Date.now()});setTimeout(()=>{const p=pendingBins.get(id);if(p&&Date.now()-p.ts>60000)pendingBins.delete(id)},65000);return}
+  try{
+    const meta=assets.get(id);const plain=await decryptBytes(packet,'file:'+id);const sha=await sha256Hex(new Uint8Array(plain));
+    if(meta.sha&&sha!==meta.sha)throw new Error('checksum mismatch');
+    await idbPut('files',id,packet);transferProgress.delete(id);renderAssets();toast('<b>Received</b> '+escapeHtml(meta.name),'good');
+  }catch(e){toast('<b>File rejected.</b> '+escapeHtml(e.message),'bad')}
+}
+async function sendAssetToActor(id,remoteActor){
+  const meta=assets.get(id);if(!meta||meta.deleted)return false;const packet=await idbGet('files',id);if(!packet)return false;const r=chooseRoute(remoteActor);if(!r)return false;
+  updateCardProgress(id,.01);
+  await r.w.bin.send(packet,{target:r.peerId,metadata:{id},onProgress:p=>updateCardProgress(id,p)});updateCardProgress(id,0);return true;
+}
+async function sendAssetToAll(id){await Promise.allSettled([...actorRoutes.keys()].map(a=>sendAssetToActor(id,a)))}
+
+async function localDocChanged(){
+  doc={text:$('#scratch').value,v:nextV()};await saveDoc();updateDocMeta();broadcastCtl(newMessage('doc',{doc}));
+}
+function updateDocMeta(){$('#docMeta').textContent='V'+(doc.v?.c||0)+' · '+(doc.text?.length||0)+' CHARS';$('#syncDot').className='dot '+(actorRoutes.size?'good':networkReady?'warn':'bad');$('#syncText').textContent=actorRoutes.size?`synced with ${actorRoutes.size} peer${actorRoutes.size===1?'':'s'}`:networkReady?'mesh online · waiting for peer':'mesh unavailable'}
+
+async function addFiles(fileList){
+  for(const file of [...fileList]){
+    if(file.size>MAX_FILE){toast('<b>Too large:</b> '+escapeHtml(file.name)+' · max 128 MB','bad');continue}
+    const id=crypto.randomUUID();
+    try{
+      toast('<b>Encrypting</b> '+escapeHtml(file.name));const plain=await file.arrayBuffer();const sha=await sha256Hex(new Uint8Array(plain));const packet=await encryptBytes(plain,'file:'+id);
+      const meta={id,name:safeName(file.name),type:file.type||'application/octet-stream',size:file.size,created:Date.now(),sha,deleted:false,v:nextV(),owner:actor};
+      assets.set(id,meta);await idbPut('files',id,packet);await saveAssets();renderAssets();
+      await broadcastCtl(newMessage('asset-meta',{meta}));sendAssetToAll(id);toast('<b>Added</b> '+escapeHtml(meta.name),'good');
+    }catch(e){toast('<b>Could not add file.</b> '+escapeHtml(e.message),'bad')}
+  }
+}
+async function removeAsset(id){
+  const m=assets.get(id);if(!m)return;m.deleted=true;m.v=nextV();assets.set(id,m);await idbDel('files',id);await saveAssets();renderAssets();broadcastCtl(newMessage('asset-meta',{meta:m}));
+}
+async function materializeAsset(id){
+  const meta=assets.get(id);if(!meta||meta.deleted)throw new Error('file unavailable');const packet=await idbGet('files',id);if(!packet)throw new Error('waiting for a peer that has this file');const plain=await decryptBytes(packet,'file:'+id);return new Blob([plain],{type:meta.type||'application/octet-stream'})
+}
+async function downloadAsset(id){
+  try{const m=assets.get(id),blob=await materializeAsset(id),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=m.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),10000)}catch(e){toast('<b>Unavailable.</b> '+escapeHtml(e.message),'bad')}
+}
+async function openAsset(id){
+  try{const m=assets.get(id),blob=await materializeAsset(id),u=URL.createObjectURL(blob);window.open(u,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(u),60000)}catch(e){toast('<b>Unavailable.</b> '+escapeHtml(e.message),'bad')}
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function renderAssets(){
+  const token=++renderToken;const box=$('#assetList');for(const u of previewUrls.values())URL.revokeObjectURL(u);previewUrls.clear();box.innerHTML='';
+  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);$('#assetMeta').textContent=visible.length+' ITEM'+(visible.length===1?'':'S');
+  if(!visible.length){box.innerHTML='<div class="empty">No shared files yet.<br>Drop files above or paste an image from the clipboard.</div>';return}
+  for(const m of visible){
+    if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;
+    card.innerHTML=`<div class="cardtop"><div><div class="fname">${escapeHtml(m.name)}</div><div class="fmeta">${escapeHtml(m.type)} · ${fmtBytes(m.size)} · ${have?'LOCAL + ENCRYPTED':'REMOTE · REQUESTING'}</div></div><div class="cardactions"><button class="mini open">OPEN</button><button class="mini down">SAVE</button><button class="mini danger del">×</button></div></div><div class="progress"><i></i></div>`;
+    card.querySelector('.open').onclick=()=>openAsset(m.id);card.querySelector('.down').onclick=()=>downloadAsset(m.id);card.querySelector('.del').onclick=()=>removeAsset(m.id);box.append(card);
+    if(have&&m.type?.startsWith('image/')&&m.size<=8*1024*1024){
+      try{const blob=await materializeAsset(m.id);if(token!==renderToken)return;const u=URL.createObjectURL(blob);previewUrls.set(m.id,u);const p=document.createElement('div');p.className='preview';p.innerHTML=`<img alt="${escapeHtml(m.name)}">`;p.querySelector('img').src=u;card.append(p)}catch(_){ }
+    }
+    if(transferProgress.has(m.id))updateCardProgress(m.id,transferProgress.get(m.id));
+  }
+}
+function updateCardProgress(id,p){const el=document.querySelector(`.card[data-id="${CSS.escape(id)}"] .progress i`);if(el)el.style.width=(Math.max(0,Math.min(1,p))*100).toFixed(1)+'%'}
+
+function setTransport(name,state){
+  let el=document.querySelector(`[data-transport="${name}"]`);if(!el){el=document.createElement('span');el.className='tag';el.dataset.transport=name;el.textContent=STRATEGIES[name].label;$('#transportBar').append(el)}
+  el.classList.toggle('on',state==='on');el.classList.toggle('err',state==='err');if(state==='loading')el.textContent=STRATEGIES[name].label+' …';else el.textContent=STRATEGIES[name].label;
+}
+function updatePresence(){
+  const n=actorRoutes.size;$('#peerPill').textContent='PEERS '+n;$('#peerPill').className='pill '+(n?'good':'');
+  const online=[...wrappers.values()].filter(w=>w.peers.size||true).length;const good=[...document.querySelectorAll('#transportBar .tag.on')].length;
+  $('#netPill').textContent=networkReady||good?`MESH ${good}/${Object.keys(STRATEGIES).length}`:'MESH STARTING';$('#netPill').className='pill '+(networkReady||good?'good':'warn');updateDocMeta();
+}
+
+$('#scratch').addEventListener('input',()=>{clearTimeout(editTimer);editTimer=setTimeout(localDocChanged,180)});
+$('#copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);toast('<b>Invite link copied.</b> Anyone with it has room access.','good')}catch(_){prompt('Copy this room link:',location.href)}};
+$('#newBtn').onclick=()=>{location.hash=randSecret();location.reload()};
+$('#chooseBtn').onclick=()=>$('#fileInput').click();$('#fileInput').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+const drop=$('#dropZone');for(const ev of ['dragenter','dragover'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')});for(const ev of ['dragleave','drop'])drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')});drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+window.addEventListener('paste',e=>{const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();addFiles(files)}});
+$('#infoBtn').onclick=()=>$('#infoModal').classList.add('show');$('#closeInfo').onclick=()=>$('#infoModal').classList.remove('show');$('#infoModal').onclick=e=>{if(e.target===$('#infoModal'))$('#infoModal').classList.remove('show')};
+window.addEventListener('hashchange',()=>location.reload());window.addEventListener('beforeunload',()=>{clearInterval(nats.timer);for(const w of wrappers.values())try{w.room.leave()}catch(_){}try{nats.nc?.close()}catch(_){}});
+
+(async()=>{
+  try{
+    for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
+    await initSecret();await loadLocal();updatePresence();await startMesh();
+    setTimeout(()=>broadcastCtl(newMessage('state-req')),900);
+  }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
+})();
+</script>
+</body>
+</html>
