@@ -4171,6 +4171,103 @@ scratchBuildPdfPageNode=function(flowHtml,setup,geom,pageIndex,totalPages,offset
 
 scratchInstallResponsivePropertiesPanel();
 
+
+/* V14. Cross-browser visual PDF fidelity: never silently degrade a rich document to plain text. */
+scratchCssTextFromComputed=function(cs){
+  if(!cs)return'';
+  let out='';
+  const seen=new Set();
+  for(let i=0;i<Number(cs.length||0);i++){
+    const prop=(typeof cs.item==='function'?cs.item(i):cs[i])||'';
+    if(!prop||seen.has(prop))continue;seen.add(prop);
+    try{const value=cs.getPropertyValue(prop),priority=cs.getPropertyPriority?.(prop);if(value!==''&&value!=null)out+=`${prop}:${value}${priority?' !'+priority:''};`}catch(_){}
+  }
+  /* Preserve custom properties too; some browsers do not expose them through indexed enumeration. */
+  try{for(const name of ['--scratch-doc-bg','--scratch-doc-fg','--sans','--mono','--accent','--line','--line2','--dim','--text']){const v=cs.getPropertyValue(name);if(v)out+=`${name}:${v};`}}catch(_){}
+  return out;
+};
+
+scratchCloneNodeForExport=function(node,{insideIframe=false}={}){
+  if(!node)return null;
+  if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.textContent||'');
+  if(node.nodeType!==Node.ELEMENT_NODE)return null;
+  const el=node;
+  if(el.classList?.contains('canvasHandle')||el.classList?.contains('canvasObjectLabel'))return null;
+  const tag=String(el.tagName||'').toLowerCase();
+  if(tag==='script'||tag==='noscript')return null;
+  if(tag==='iframe')return scratchCloneIframeExportNode(el);
+  if(tag==='video'){
+    try{
+      const c=document.createElement('canvas'),w=Math.max(1,el.videoWidth||el.clientWidth||1),h=Math.max(1,el.videoHeight||el.clientHeight||1);c.width=w;c.height=h;c.getContext('2d').drawImage(el,0,0,w,h);
+      const img=document.createElement('img');img.src=c.toDataURL('image/png');img.alt=el.getAttribute('aria-label')||el.getAttribute('title')||'video frame';img.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(el)));return img;
+    }catch(_){}
+  }
+  if(tag==='canvas'){
+    try{const img=document.createElement('img');img.src=el.toDataURL('image/png');img.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(el)));return img}catch(_){}
+  }
+  let clone;
+  try{clone=el.cloneNode(false)}catch(_){clone=document.createElement(tag||'div')}
+  try{clone.removeAttribute('id')}catch(_){}
+  try{clone.removeAttribute('contenteditable')}catch(_){}
+  try{clone.classList?.remove('selected','remote-selected','performance-culled','spline-editing','dragging','block-drag-ghost','block-reflowing','block-drop-before','block-drop-after')}catch(_){}
+  try{clone.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(el)))}catch(_){}
+  if(tag==='input'){
+    try{clone.value=el.value;clone.setAttribute('value',el.value||'');clone.checked=!!el.checked;if(el.checked)clone.setAttribute('checked','');else clone.removeAttribute('checked')}catch(_){}
+  }else if(tag==='textarea'){
+    try{clone.value=el.value;clone.textContent=el.value}catch(_){}
+  }else if(tag==='select'){
+    try{clone.value=el.value}catch(_){}
+  }
+  for(const child of Array.from(el.childNodes||[])){const cc=scratchCloneNodeForExport(child,{insideIframe});if(cc)clone.appendChild(cc)}
+  return clone;
+};
+
+/* Preserve the exact visible block geometry and styling; only editor chrome is stripped. */
+const scratchPrepareRichPdfBlockV14Base=scratchPrepareRichPdfBlock;
+scratchPrepareRichPdfBlock=function(src){
+  const clone=scratchPrepareRichPdfBlockV14Base(src);if(!clone)return null;
+  const srcRect=src.getBoundingClientRect();
+  clone.style.setProperty('box-sizing','border-box','important');
+  clone.style.setProperty('width','100%','important');
+  clone.style.setProperty('max-width','100%','important');
+  if(srcRect.height>0)clone.style.setProperty('min-height',`${srcRect.height}px`,'important');
+  clone.querySelectorAll('.blockEditable,.tableCell').forEach(x=>{x.style.setProperty('white-space','pre-wrap','important');x.style.setProperty('overflow-wrap','anywhere','important')});
+  const table=clone.querySelector('.blockTable'),srcTable=src.querySelector('.blockTable');
+  if(table&&srcTable){
+    const cells=Array.from(srcTable.rows?.[0]?.cells||[]),sw=Math.max(1,srcTable.getBoundingClientRect().width||1);
+    if(cells.length){let cg=table.querySelector('colgroup');if(!cg){cg=document.createElement('colgroup');table.insertBefore(cg,table.firstChild)}const widths=cells.map(c=>Math.max(1,c.getBoundingClientRect().width)/sw*100),sum=widths.reduce((a,b)=>a+b,0)||100;cg.innerHTML=widths.map(w=>`<col style="width:${(w/sum*100).toFixed(6)}%">`).join('')}
+    table.style.setProperty('display','table','important');table.style.setProperty('width','100%','important');table.style.setProperty('max-width','100%','important');table.style.setProperty('min-width','0','important');table.style.setProperty('table-layout','fixed','important');table.style.setProperty('border-collapse','collapse','important');
+    clone.querySelectorAll('.blockTableWrap').forEach(w=>{w.style.setProperty('width','100%','important');w.style.setProperty('max-width','100%','important');w.style.setProperty('overflow','visible','important')});
+    table.querySelectorAll('th,td').forEach(c=>{c.style.setProperty('min-width','0','important');c.style.setProperty('box-sizing','border-box','important')});
+  }
+  return clone;
+};
+
+/* Rich PDF export must stay visual. If the paginated renderer fails, use the older visual snapshot, never the plain-text PDF. */
+const scratchExportRichV14NonPdfBase=scratchExportRich;
+scratchExportRich=async function(docId,format){
+  if(format!=='pdf')return scratchExportRichV14NonPdfBase(docId,format);
+  const m=fsEntry(docId);if(!m)return;
+  if(docId!==activeDocId)throw new Error('Open the document before visual PDF export');
+  if(markdownEnabled&&markdownSourceDirty){clearTimeout(markdownSourceTimer);replaceRichDocFromMarkdown(docId,$('#scratch')?.value||'');markdownSourceDirty=false;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+  const name=(m.name||'document').replace(/\.[^.]+$/,'')+'.pdf';
+  try{
+    const bytes=await scratchRichPrintQualityPdfBytes(docId);
+    return scratchDownloadBlob(new Blob([bytes],{type:'application/pdf'}),name);
+  }catch(primary){
+    console.error('paginated rich PDF renderer failed',primary);
+    try{
+      const bytes=await scratchRichLivePdfBytes(docId);
+      scratchCompletionToast('Paginated renderer failed; exported visual-layout fallback without flattening to text',true);
+      return scratchDownloadBlob(new Blob([bytes],{type:'application/pdf'}),name);
+    }catch(secondary){
+      console.error('visual rich PDF fallback failed',secondary);
+      scratchCompletionToast('PDF export failed before rendering; no structureless fallback was generated',true);
+      throw secondary;
+    }
+  }
+};
+
 /* V7-I. Runtime assertions make startup regressions visible immediately. */
 
 function scratchRuntimeAssertions(){const failures=[];for(const [name,fn] of Object.entries({reflowScratchFrame,scratchSelectedObjects,selectionBounds,scratchAdvancedReflowFrame,scratchSanitizeSvgMarkup,scratchCanvasSvg,scratchImportFile,scratchExportRich,scratchExportCanvas}))if(typeof fn!=='function')failures.push(name);if(failures.length)throw new Error('Scratch runtime bridge missing: '+failures.join(', '));return true}
