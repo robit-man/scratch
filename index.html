@@ -294,9 +294,6 @@ body.resizing-media .assets{pointer-events:none}
       <button class="iconbtn" id="screenBtn" data-agent-action="toggle-screen" type="button" aria-label="Share screen and request system audio" title="Share screen + system audio">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M8 10l4-3 4 3M12 7v7"/></svg>
       </button>
-      <button class="iconbtn" id="markdownBtn" type="button" aria-label="Toggle Markdown formatting" title="Toggle Markdown formatting" aria-pressed="false">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v10M4 7l4 6 4-6v10M15 7v10M15 13l3 4 3-4"/></svg>
-      </button>
       <button class="iconbtn" id="qrBtn" data-agent-action="share-room-link" type="button" aria-label="Share room" title="Share room">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>
       </button>
@@ -477,6 +474,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       </div>
     </section>
     <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
+    <button class="mobileMediaScrim" id="mobileMediaScrim" type="button" aria-label="Close files, media, or properties drawer"></button>
     <section class="assets" id="mediaPanel">
       <div class="panelhead"><span class="paneltitle" id="mediaPanelTitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse files and media" title="Collapse files and media" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
       <div class="propertiesPanel" id="propertiesPanel" data-agent-id="properties-panel" aria-label="Properties inspector"></div>
@@ -1097,7 +1095,7 @@ function syncMediaSplitterAria(){const sp=$('#mediaSplitter');if(!sp)return;cons
 function applyMediaTrackWidth(px){document.querySelector('main')?.style.setProperty('--media-w',Math.max(MEDIA_COLLAPSED_W,Number(px)||MEDIA_COLLAPSED_W)+'px');syncMediaSplitterAria()}
 function updateMediaToggleUi(on){const a=on?'Expand files and media':'Collapse files and media';const exp=on?'false':'true';for(const id of ['#mediaToggle','#mobileMediaToggle']){const el=$(id);if(!el)continue;el.setAttribute('aria-expanded',exp);el.setAttribute('aria-label',a);el.setAttribute('title',a)}}
 function setMediaCollapsed(on,{persist=true}={}){closeMobileMediaPopover();
-  on=!!on;
+  on=!!on;document.body.classList.toggle('mobile-media-drawer-open',innerWidth<=820&&!on);$('#mobileMediaScrim')?.setAttribute('aria-hidden',on?'true':'false');$('#mediaPanel')?.setAttribute('aria-modal',innerWidth<=820&&!on?'true':'false');
   if(on){if(!document.body.classList.contains('media-collapsed')&&mediaWidth>=MEDIA_MIN_W)mediaExpandedWidth=mediaWidth;document.body.classList.add('media-collapsed');mediaWidth=MEDIA_COLLAPSED_W;applyMediaTrackWidth(MEDIA_COLLAPSED_W)}
   else{document.body.classList.remove('media-collapsed');mediaExpandedWidth=clampExpandedMediaWidth(mediaExpandedWidth);mediaWidth=mediaExpandedWidth;applyMediaTrackWidth(mediaWidth)}
   updateMediaToggleUi(on);if(persist)try{localStorage.setItem('scratch-media-collapsed',on?'1':'0')}catch(_){}updateCollapsedMediaSummary();requestAnimationFrame(renderRemoteCursors);scheduleAgentStateRefresh('layout')
@@ -2120,10 +2118,10 @@ $('#scratch').addEventListener('focus',()=>{markdownEditing=true;updateMarkdownM
 $('#scratch').addEventListener('blur',()=>{commitHistory();queuePresence(true);markdownEditing=false;setTimeout(updateMarkdownMode,0)});
 $('#scratch').addEventListener('scroll',()=>requestAnimationFrame(renderRemoteCursors));
 window.addEventListener('resize',()=>{if(innerWidth>820){if(document.body.classList.contains('media-collapsed'))applyMediaTrackWidth(MEDIA_COLLAPSED_W);else setMediaWidth(mediaExpandedWidth,{persist:false})}else{document.querySelector('main')?.style.setProperty('--media-w','100%')}requestAnimationFrame(renderRemoteCursors)});
-$('#markdownBtn').onclick=()=>setMarkdownEnabled(!markdownEnabled);
+$('#markdownBtn')?.addEventListener('click',()=>setMarkdownEnabled(!markdownEnabled));
 $('#markdownView').addEventListener('click',e=>{if(e.target.closest('a'))return;markdownEditing=true;updateMarkdownMode();const s=$('#scratch');s.focus({preventScroll:true});try{s.setSelectionRange(s.selectionStart,s.selectionEnd)}catch(_){}});
 $('#historyRailToggle').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#historyRailClose').onclick=()=>setHistoryOpen(false);
-$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));$('#mobileMediaToggle').onclick=()=>setMediaCollapsed(false);
+$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));$('#mobileMediaToggle').onclick=()=>setMediaCollapsed(false);$('#mobileMediaScrim').onclick=()=>setMediaCollapsed(true);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820&&!document.body.classList.contains('media-collapsed'))setMediaCollapsed(true)},{capture:true});
 const blockZoomGesture=e=>{if(e.cancelable)e.preventDefault()};
 for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,blockZoomGesture,{passive:false,capture:true});
 for(const ev of ['touchstart','touchmove'])document.addEventListener(ev,e=>{if(e.target?.closest?.('#canvasSurface'))return;if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault()},{passive:false,capture:true});
@@ -4438,6 +4436,46 @@ bindCanvasPresenceTracking();
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;setInitialSyncGate('INITIALIZATION FAILED',e.message,'error');const ga=$('#syncGateActions'),off=$('#syncGateOffline');if(ga)ga.hidden=false;if(off)off.hidden=true;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
 })();
+
+
+/* V18. Mobile secondary-surface arbitration. */
+function scratchCloseMobileSecondarySurfaces(except=''){
+  if(innerWidth>820)return;
+  if(except!=='media'&&!document.body.classList.contains('media-collapsed'))setMediaCollapsed(true);
+  if(except!=='history'&&document.body.classList.contains('history-open'))setHistoryOpen(false);
+  if(except!=='left')document.body.classList.remove('left-mobile-open');
+  if(except!=='shelf')document.body.classList.remove('context-shelf-open');
+  if(except!=='inspector'){
+    $('#workspaceInspector')?.classList.remove('open');
+    document.body.classList.remove('mobile-inspector-open');
+    if(except!=='inspector')workspaceInspectorMode=null;
+  }
+  if(except!=='agent')document.body.classList.remove('agent-mode');
+}
+const scratchOpenWorkspaceInspectorV18Base=openWorkspaceInspector;
+openWorkspaceInspector=function(mode){
+  if(innerWidth<=820){scratchCloseMobileSecondarySurfaces('inspector');document.body.classList.add('mobile-inspector-open')}
+  return scratchOpenWorkspaceInspectorV18Base(mode);
+};
+const scratchCloseWorkspaceInspectorV18Base=closeWorkspaceInspector;
+closeWorkspaceInspector=function(){document.body.classList.remove('mobile-inspector-open');return scratchCloseWorkspaceInspectorV18Base()};
+const scratchSetMediaCollapsedV18Base=setMediaCollapsed;
+setMediaCollapsed=function(on,opts={}){
+  if(innerWidth<=820&&!on)scratchCloseMobileSecondarySurfaces('media');
+  return scratchSetMediaCollapsedV18Base(on,opts);
+};
+const scratchSetHistoryOpenV18Base=setHistoryOpen;
+setHistoryOpen=function(on){
+  if(innerWidth<=820&&on){scratchCloseMobileSecondarySurfaces('history');document.body.classList.add('left-mobile-open')}
+  const r=scratchSetHistoryOpenV18Base(on);
+  if(innerWidth<=820&&!on)document.body.classList.remove('left-mobile-open');
+  return r;
+};
+const scratchSetAgentOpenV18Base=setAgentOpen;
+setAgentOpen=function(on){if(innerWidth<=820&&on)scratchCloseMobileSecondarySurfaces('agent');return scratchSetAgentOpenV18Base(on)};
+$('#mobileMediaScrim')?.addEventListener('click',()=>{if(innerWidth<=820)scratchCloseMobileSecondarySurfaces('')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820)scratchCloseMobileSecondarySurfaces('')},{capture:true});
+window.addEventListener('resize',()=>{if(innerWidth>820){document.body.classList.remove('mobile-inspector-open','left-mobile-open')}},{passive:true});
 </script>
 
   <div class="workspaceToolTooltip" id="workspaceToolTooltip" role="tooltip" aria-hidden="true"></div>
@@ -4566,6 +4604,145 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
 /* V13 document paper + responsive properties */
 .assets.properties-mode.properties-narrow>.propertiesPanel{display:none!important}.assets.properties-mode.properties-narrow>.mediaCollapsed{display:flex!important}.assets.properties-mode.properties-narrow>.liveSection,.assets.properties-mode.properties-narrow>.drop,.assets.properties-mode.properties-narrow>.assetlist,.assets.properties-mode.properties-narrow>.transport{display:none!important}.assets.properties-mode.properties-narrow>.panelhead .paneltitle,.assets.properties-mode.properties-narrow>.panelhead .panelmeta{display:none}.assets.properties-mode.properties-narrow>.panelhead{padding-inline:4px;justify-content:center}
 #blockDoc{background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important}.blockDoc.pageless-mode{box-sizing:border-box;padding:36px 44px 120px;background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important;border:1px solid #d9dde1;box-shadow:0 8px 28px rgba(0,0,0,.18)}#blockDoc.page-mode{background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important;border-color:#cfd4d8}.structuredEditor{background:#2b2f33}.blockEditable,.tableCell{color:inherit}.blockTableWrap{max-width:100%;box-sizing:border-box}.blockTable{width:100%;max-width:100%;box-sizing:border-box}.blockTable th,.blockTable td{box-sizing:border-box}.blockTable th{background:color-mix(in srgb,currentColor 5%,transparent)}
+
+/* V17. Mobile Files / Media / Properties drawer ------------------------- */
+.mobileMediaScrim{display:none}
+@media(max-width:820px){
+  main{isolation:isolate}
+  .mobileMediaScrim{display:block;position:absolute;inset:0;z-index:39;border:0;padding:0;background:rgba(0,0,0,.42);opacity:1;pointer-events:auto;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);transition:opacity .16s ease}
+  body.media-collapsed .mobileMediaScrim{opacity:0;pointer-events:none}
+  .assets,body:not(.media-collapsed) .assets{
+    order:3;position:absolute;left:auto;right:0;top:0;bottom:0;inset-inline-start:auto;z-index:40;
+    width:min(92vw,420px);height:100%;min-height:0;max-height:none;
+    border-left:1px solid var(--line2);border-top:0;background:#0a0c0e;
+    box-shadow:-18px 0 48px rgba(0,0,0,.5);overflow:hidden;
+    transform:translateX(0);transition:transform .18s ease,box-shadow .18s ease;
+  }
+  body.media-collapsed .assets{
+    position:relative;left:auto;right:auto;top:auto;bottom:auto;inset:auto;z-index:20;
+    width:100%;max-width:none;flex:0 0 48px;height:48px;min-height:48px;max-height:48px;
+    border-left:0;border-top:1px solid var(--line);box-shadow:none;overflow:visible;transform:none;
+  }
+  body:not(.media-collapsed) .assets>.panelhead{height:50px;flex:0 0 50px;padding:0 10px 0 14px;background:#0b0e11}
+  body:not(.media-collapsed) .assets>.panelhead .paneltitle{display:block!important;overflow:hidden;text-overflow:ellipsis}
+  body:not(.media-collapsed) .assets>.panelhead .panelmeta{display:inline!important}
+  body:not(.media-collapsed) #mediaToggle{width:34px;height:34px;flex-basis:34px;margin-left:4px}
+  body:not(.media-collapsed) #mediaToggle svg{transform:none}
+  body.media-collapsed .mobileMediaDock{height:47px;padding:5px 7px;grid-template-columns:auto minmax(0,1fr) 36px}
+  body.media-collapsed .assets{flex-basis:48px;height:48px;min-height:48px;max-height:48px}
+  #mobileMediaToggle{width:34px;height:34px}
+  .assets>.propertiesPanel{padding:10px 10px 24px;overscroll-behavior:contain}
+  .assets.properties-mode>.propertiesPanel{display:block!important}
+  .assets.properties-mode.properties-narrow>.propertiesPanel{display:block!important}
+  .assets.properties-mode.properties-narrow>.mediaCollapsed{display:none!important}
+  .assets.properties-mode.properties-narrow>.panelhead .paneltitle{display:block!important}
+  .assets.properties-mode.properties-narrow>.panelhead .panelmeta{display:inline!important}
+  .assets.properties-mode.properties-narrow>.panelhead{padding:0 10px 0 14px!important;justify-content:flex-start!important}
+  .propertiesPanel .propGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .propertiesPanel .propInput,.propertiesPanel .propSelect,.propertiesPanel .propColor{min-height:34px;height:34px}
+  .propertiesPanel .propTextarea{min-height:76px}
+  .propertiesPanel .propButton{min-height:32px}
+  .assetlist{padding:0 10px 14px}
+  .liveGrid{grid-template-columns:repeat(2,minmax(0,1fr));max-height:min(38dvh,320px)}
+  .drop{margin:8px 10px;height:46px;min-height:46px;max-height:46px;flex-basis:46px}
+  .transport{padding-inline:10px}
+  .mobileMediaPopover{position:fixed;left:10px;right:10px;bottom:58px;z-index:75}
+}
+@media(max-width:480px){
+  .assets,body:not(.media-collapsed) .assets{width:min(94vw,390px)}
+  .propertiesPanel .propGrid{grid-template-columns:1fr}
+  .propField.wide{grid-column:auto}
+  .liveGrid{grid-template-columns:1fr}
+}
+
+
+/* V18. Mobile editor-first workspace: all secondary surfaces are overlays. */
+@media(max-width:820px){
+  main,body.agent-open main{
+    position:relative!important;display:block!important;overflow:hidden!important;
+    --history-w:0px!important;--media-w:0px!important;--splitter-w:0px!important;
+  }
+  .pad{
+    position:absolute!important;inset:0!important;z-index:1!important;
+    width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+    max-width:none!important;max-height:none!important;display:flex!important;flex-direction:column!important;
+  }
+
+  /* Left workspace / edit history drawer. */
+  .historyRail.workspaceNavRail{
+    display:none!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;right:auto!important;
+    z-index:60!important;width:min(92vw,400px)!important;height:100%!important;max-height:none!important;min-height:0!important;
+    border-right:1px solid var(--line2)!important;border-bottom:0!important;background:#090b0d!important;
+    box-shadow:18px 0 48px rgba(0,0,0,.52)!important;overflow:hidden!important;
+  }
+  body.left-mobile-open .historyRail.workspaceNavRail,
+  body.history-open .historyRail.workspaceNavRail{display:flex!important}
+  body.history-open .workspaceNavTabs,
+  body.history-open .workspaceNavPane{display:none!important}
+  body.history-open .workspaceHistoryDock{display:flex!important;flex:1!important;min-height:0!important;flex-direction:column!important;border-top:0!important}
+  body.history-open .workspaceHistoryToggle{flex:0 0 40px!important;height:40px!important}
+  body.history-open .workspaceHistoryDrawer{display:flex!important;flex:1!important;min-height:0!important;max-height:none!important}
+  body.history-open .workspaceHistoryDrawer>.historylist{flex:1!important;min-height:0!important;max-height:none!important;overflow:auto!important}
+
+  /* Search/comments/activity/outline shelf becomes a right drawer. */
+  .contextShelf,
+  body.context-shelf-open .contextShelf{
+    position:absolute!important;left:auto!important;right:0!important;top:0!important;bottom:0!important;
+    width:min(94vw,420px)!important;height:100%!important;max-height:none!important;min-height:0!important;
+    z-index:61!important;border-top:0!important;border-left:1px solid var(--line2)!important;
+    background:#090b0d!important;box-shadow:-18px 0 48px rgba(0,0,0,.52)!important;
+  }
+
+  /* Properties/comments/version inspector is also a drawer. */
+  .workspaceInspector{
+    position:absolute!important;left:auto!important;right:0!important;top:0!important;bottom:0!important;
+    width:min(94vw,420px)!important;height:100%!important;max-width:none!important;max-height:none!important;
+    z-index:62!important;border-left:1px solid var(--line2)!important;box-shadow:-18px 0 48px rgba(0,0,0,.52)!important;
+  }
+
+  /* Files / Media / Properties never reserve a row. */
+  .assets,body:not(.media-collapsed) .assets{
+    position:absolute!important;left:auto!important;right:0!important;top:0!important;bottom:0!important;
+    z-index:63!important;width:min(94vw,420px)!important;height:100%!important;max-height:none!important;
+    flex:none!important;order:initial!important;
+  }
+  body.media-collapsed .assets{
+    position:absolute!important;left:auto!important;right:10px!important;top:auto!important;bottom:10px!important;
+    z-index:30!important;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important;
+    max-width:46px!important;max-height:46px!important;flex:none!important;border:0!important;background:transparent!important;
+    box-shadow:none!important;overflow:visible!important;
+  }
+  body.media-collapsed .mobileMediaDock{
+    display:grid!important;width:46px!important;height:46px!important;padding:5px!important;
+    grid-template-columns:36px!important;gap:0!important;border:1px solid var(--line2)!important;
+    background:#0b0e11!important;box-shadow:0 8px 24px rgba(0,0,0,.42)!important;
+  }
+  body.media-collapsed .mobileMediaDockTitle,
+  body.media-collapsed .mobileMediaDockIcons{display:none!important}
+  body.media-collapsed #mobileMediaToggle{width:34px!important;height:34px!important;justify-self:center!important}
+
+  /* Raw agent guidance is an overlay too, never a header-height tax. */
+  body.agent-mode .agentInstructions{
+    display:block!important;position:fixed!important;right:0!important;top:0!important;bottom:0!important;left:auto!important;
+    z-index:64!important;width:min(94vw,420px)!important;height:100dvh!important;max-height:none!important;margin:0!important;
+    border-left:1px solid var(--line2)!important;border-bottom:0!important;box-shadow:-18px 0 48px rgba(0,0,0,.52)!important;
+    overflow:auto!important;padding:14px!important;
+  }
+
+  /* One scrim for every secondary mobile surface. */
+  .mobileMediaScrim{
+    display:block!important;position:absolute!important;inset:0!important;z-index:55!important;
+    background:rgba(0,0,0,.44)!important;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);
+    opacity:1!important;pointer-events:auto!important;
+  }
+  body.media-collapsed:not(.left-mobile-open):not(.history-open):not(.context-shelf-open):not(.mobile-inspector-open):not(.agent-mode) .mobileMediaScrim{
+    opacity:0!important;pointer-events:none!important;
+  }
+}
+@media(max-width:480px){
+  .historyRail.workspaceNavRail{width:min(94vw,390px)!important}
+  .contextShelf,body.context-shelf-open .contextShelf,.workspaceInspector,.assets,body:not(.media-collapsed) .assets,body.agent-mode .agentInstructions{width:min(96vw,390px)!important}
+}
 </style>
 
 
