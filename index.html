@@ -3935,14 +3935,29 @@ function scratchPrepareRichPdfBlock(src){
   return clone;
 }
 function scratchRichExportSegments(docId=activeDocId){
-  const tabId=scratchActiveTab(docId),rows=scratchDocAllBlocks(docId).filter(b=>!b.deleted&&(b.tabId||scratchTabsForDoc(docId)[0]?.id)===tabId),base=scratchPageSetup(docId),segments=[];let setup={...base},ids=[];
-  const flush=force=>{if(ids.length||force){segments.push({setup:{...setup},ids});ids=[]}};
+  const all=scratchDocAllBlocks(docId).filter(b=>!b.deleted),tabs=scratchTabsForDoc(docId),base=scratchPageSetup(docId),segments=[];let rows=all;
+  if(tabs.length){
+    let tabId=scratchActiveTabs.get(docId);if(!tabId){try{tabId=localStorage.getItem('scratch-tab:'+docId)}catch(_){}}
+    if(!tabs.some(t=>t.id===tabId))tabId=tabs[0].id;
+    const fallback=tabs[0]?.id;rows=all.filter(b=>(b.tabId||fallback)===tabId);
+  }else{
+    /* Migrated/legacy rich documents can have real blocks without ytabs metadata. */
+    const blockTabs=[...new Set(all.map(b=>b.tabId).filter(Boolean))];
+    if(blockTabs.length){let tabId=scratchActiveTabs.get(docId);if(!blockTabs.includes(tabId))tabId=blockTabs[0];rows=all.filter(b=>(b.tabId||blockTabs[0])===tabId)}
+  }
+  let setup={...base},ids=[];
+  const flush=force=>{if(ids.length||force){segments.push({setup:{...setup},ids:[...ids]});ids=[]}};
   for(const b of rows){
-    if(b.type==='sectionbreak'){flush(true);setup={...setup,...scratchClone(b.attrs?.section||{})};continue}
+    if(b.type==='sectionbreak'){flush(ids.length>0);setup={...setup,...scratchClone(b.attrs?.section||{})};continue}
     if(b.type==='pagebreak'){flush(true);continue}
     ids.push(b.id);
   }
   flush(segments.length===0||ids.length>0);
+  /* Never silently emit an empty PDF when the document model has exportable blocks. */
+  if(!segments.some(seg=>seg.ids.length)&&all.some(b=>!['pagebreak','sectionbreak'].includes(b.type))){
+    const fallbackIds=all.filter(b=>!['pagebreak','sectionbreak'].includes(b.type)).map(b=>b.id);
+    return[{setup:{...base},ids:fallbackIds}];
+  }
   return segments;
 }
 function scratchRichPdfPaperStyle(){const src=$('#blockDoc'),cs=src?getComputedStyle(src):null;return{background:cs?.backgroundColor&&cs.backgroundColor!=='rgba(0, 0, 0, 0)'?cs.backgroundColor:'#ffffff',color:cs?.color||'#111111',fontFamily:cs?.fontFamily||'system-ui,sans-serif'}}
@@ -4357,14 +4372,24 @@ function scratchResolveRichDocumentId(requestedId=activeDocId){
 async function scratchRichNativePdfBytes(docId=activeDocId){
   const resolvedDocId=scratchResolveRichDocumentId(docId);if(!resolvedDocId){const meta=docId!=null?fsEntry(String(docId)):null;throw new Error(`Rich document not found (${String(docId??'none')}; type=${meta?.type||'missing'}; kind=${meta?docKind(meta):'missing'})`)}docId=resolvedDocId;
   const meta=fsEntry(docId);
-  const colors=scratchPdfDocColors(docId),segments=scratchRichExportSegments(docId),images=new Map(),pages=[];let listIndex=0;
+  /* Export may be invoked from the navigator before this document has ever been opened. Ensure the legacy Y.Text is materialized into rich blocks first. */
+  if(meta?.type==='doc'&&docKind(meta)!=='canvas'&&!scratchDocAllBlocks(docId).length){try{ensureStructuredDoc(meta)}catch(err){console.warn('PDF export legacy block migration failed',err)}}
+  let segments=scratchRichExportSegments(docId);let modelBlocks=scratchDocAllBlocks(docId).filter(b=>!b.deleted),exportableModelBlocks=modelBlocks.filter(b=>!['pagebreak','sectionbreak'].includes(b.type));
+  /* Final non-destructive bridge for very old documents whose metadata cannot be migrated in-place. */
+  let legacyText='';if(!exportableModelBlocks.length){try{legacyText=docTextFor(meta)?.toString?.()||((docId===activeDocId&&ytext)?ytext.toString():'')}catch(_){legacyText=''}}
+  if(!segments.some(seg=>seg.ids?.length)&&exportableModelBlocks.length)segments=[{setup:{...scratchPageSetup(docId)},ids:exportableModelBlocks.map(b=>b.id)}];
+  const colors=scratchPdfDocColors(docId),images=new Map(),pages=[];let listIndex=0,renderedBlockCount=0;
   const newPage=(setup)=>{const geom=scratchPdfPageGeometry(setup),p={setup:{...setup},geom,ops:[],images:new Set(),cursorY:geom.mt,column:0};p.ops.push(scratchPdfRectOp(0,0,geom.w,geom.h,geom.h,{fill:setup.background||colors.background}));pages.push(p);return p};
   let page=null;
   const ensurePage=setup=>{if(!page)page=newPage(setup);return page};
   const columnMetrics=p=>{const cols=Math.max(1,p.geom.columns),cw=(p.geom.contentW-p.geom.gap*(cols-1))/cols,x=p.geom.ml+p.column*(cw+p.geom.gap);return{x,width:cw,bottom:p.geom.h-p.geom.mb}};
   const advancePageOrColumn=setup=>{if(page&&page.column+1<page.geom.columns){page.column++;page.cursorY=page.geom.mt}else page=newPage(setup)};
   const requireHeight=(setup,h)=>{let p=ensurePage(setup),cm=columnMetrics(p);if(p.cursorY+h>cm.bottom&&p.cursorY>p.geom.mt+1){advancePageOrColumn(setup);p=page;cm=columnMetrics(p)}return{p,cm}};
-  for(const seg of segments){page=newPage(seg.setup);listIndex=0;for(const id of seg.ids){const m=blockMeta(id);if(!m)continue;const a=m.attrs||{};
+  if(!exportableModelBlocks.length&&legacyText){
+    const setup=scratchPageSetup(docId),p=newPage(setup),cm=columnMetrics(p),style={fontSize:14,fontFamily:'Arial, sans-serif',fontWeight:400,bold:false,italic:false,mono:false,lineHeight:1.62,letterSpacing:0,color:colors.text,align:'left'},paras=String(legacyText).replace(/\r\n?/g,'\n').split('\n');
+    for(const para of paras){const runs=[{text:para||' ',style}],lines=scratchPdfWrapRuns(runs,cm.width-10),h=Math.max(30,lines.reduce((sum,l)=>sum+Math.max(8,l.maxSize*style.lineHeight),0)+10),slot=requireHeight(setup,h+5);scratchPdfDrawWrappedRuns(slot.p.ops,runs,{x:slot.cm.x+5,y:slot.p.cursorY+5,width:slot.cm.width-10,pageH:slot.p.geom.h,align:'left',lineHeight:style.lineHeight});slot.p.cursorY+=h+5}renderedBlockCount=1;
+  }
+  for(const seg of exportableModelBlocks.length?segments:[]){page=newPage(seg.setup);listIndex=0;for(const id of seg.ids){const m=blockMeta(id);if(!m)continue;const a=m.attrs||{};renderedBlockCount++;
       if(m.type==='divider'){const {p,cm}=requireHeight(seg.setup,18);p.ops.push(scratchPdfLineOp(cm.x,p.cursorY+8,cm.x+cm.width,p.cursorY+8,p.geom.h,a.gridColor||'#c7cdd3',1));p.cursorY+=18;continue}
       if(m.type==='table'){
         const rows=Math.max(1,Number(a.rows)||3),cols=Math.max(1,Number(a.cols)||3),fracs=scratchPdfTableColumnFractions(m,cols),headerRows=Math.max(0,Math.min(rows,Number(a.headerRows)||0)),grid=a.gridColor||'#bfc5ca',cellBg=a.cellBackground||'#ffffff',align=Array.isArray(a.columnAlign)?a.columnAlign:[];
@@ -4384,6 +4409,7 @@ async function scratchRichNativePdfBytes(docId=activeDocId){
         if(a.background)p.ops.push(scratchPdfRectOp(cm.x,p.cursorY,cm.width,blockH,p.geom.h,{fill:a.background}));if(m.type==='callout')p.ops.push(scratchPdfRectOp(cm.x,p.cursorY,cm.width,blockH,p.geom.h,{fill:a.background||'#f7f9fa',stroke:'#b8c0c7'}));if(m.type==='quote')p.ops.push(scratchPdfLineOp(cm.x+1,p.cursorY+2,cm.x+1,p.cursorY+blockH-2,p.geom.h,'#737d86',2));if(m.type==='footnote')p.ops.push(scratchPdfLineOp(cm.x,p.cursorY,cm.x+cm.width,p.cursorY,p.geom.h,'#c8cdd2',1));scratchPdfDrawWrappedRuns(p.ops,runs,{x,y,width:Math.max(20,cm.width-padding*2-indent),pageH:p.geom.h,align:base.align,lineHeight:base.lineHeight});p.cursorY+=need;continue
       }
     }}
+  if(exportableModelBlocks.length&&renderedBlockCount===0)throw new Error(`PDF renderer found ${exportableModelBlocks.length} document blocks but rendered none`);
   for(let i=0;i<pages.length;i++)scratchPdfPageHeaderFooter(pages[i].ops,pages[i].setup,pages[i].geom,i,pages.length,colors);
   const objects=[];objects.push('<< /Type /Catalog /Pages 2 0 R >>');const fontIds={F1:3,F2:4,F3:5,F4:6,F5:7};const imageList=[...images.values()],imageIds=new Map();imageList.forEach((im,i)=>imageIds.set(im.name,8+i));const pageBase=8+imageList.length,kids=pages.map((_,i)=>`${pageBase+i*2} 0 R`).join(' ');objects.push(`<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`);objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-BoldOblique >>','<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>');
   for(const im of imageList){const head=enc.encode(`<< /Type /XObject /Subtype /Image /Width ${im.w} /Height ${im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${im.bytes.length} >>\nstream\n`),tail=enc.encode('\nendstream');objects.push(scratchPdfConcat([head,im.bytes,tail]))}
