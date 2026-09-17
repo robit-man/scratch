@@ -223,7 +223,7 @@ body.resizing-media .assets{pointer-events:none}
 .workspaceToolbar{flex:0 0 36px;min-height:36px;display:flex;align-items:center;gap:4px;padding:3px 7px;border-bottom:1px solid var(--line);background:#090b0d;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;z-index:8}.workspaceToolbar::-webkit-scrollbar{display:none}.workspaceToolbar .toolSep{width:1px;height:20px;flex:0 0 1px;background:var(--line);margin:0 2px}.workspaceToolbar .toolBtn,.workspaceToolbar select,.workspaceToolbar input[type=color]{height:28px;min-width:28px;border:1px solid var(--line);background:#0f1215;color:var(--muted);font:800 8px var(--mono);display:inline-flex;align-items:center;justify-content:center;padding:0 7px;white-space:nowrap}.workspaceToolbar .toolBtn:hover,.workspaceToolbar .toolBtn.active{color:var(--text);border-color:var(--line2);background:#171b20}.workspaceToolbar .toolBtn.active{color:var(--accent);border-color:#66521f}.workspaceToolbar select{max-width:116px}.workspaceToolbar input[type=color]{width:30px;padding:4px}.workspaceToolbar .toolSpacer{flex:1 1 auto;min-width:8px}.workspaceToolbar svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .structuredEditor{position:absolute;inset:0;display:none;overflow:auto;padding:18px max(18px,calc((100% - 860px)/2));background:#0a0c0e}.editorwrap.structured-rich .structuredEditor{display:block}.editorwrap.structured-rich #scratch,.editorwrap.structured-rich .markdownView,.editorwrap.structured-rich .cursorlayer{display:none}.editorwrap.structured-source #scratch{display:block;visibility:visible!important;pointer-events:auto!important}.editorwrap.structured-source .structuredEditor{display:none}.editorwrap.structured-canvas #scratch,.editorwrap.structured-canvas .markdownView,.editorwrap.structured-canvas .cursorlayer,.editorwrap.structured-canvas .structuredEditor{display:none}
 .blockDoc{max-width:860px;margin:0 auto;padding-bottom:160px}.docBlock{position:relative;margin:0 0 5px;border:1px solid transparent;border-radius:3px;min-height:32px}.docBlock:hover{border-color:#1b2025}.docBlock.selected{border-color:#3a424b}.docBlock.dragging{opacity:.45}.blockGrip{position:absolute;left:-28px;top:4px;width:24px;height:28px;border:0;background:transparent;color:#444d55;display:flex;align-items:center;justify-content:center;opacity:0;cursor:grab}.docBlock:hover .blockGrip,.docBlock.selected .blockGrip{opacity:1}.blockGrip:active{cursor:grabbing}.blockGrip svg{width:13px;height:13px;fill:currentColor}.blockEditable{outline:0;min-height:30px;padding:5px 7px;font:14px/1.62 var(--sans);white-space:pre-wrap;overflow-wrap:anywhere;caret-color:var(--accent)}.blockEditable:empty:before{content:attr(data-placeholder);color:#3f474f;pointer-events:none}.docBlock.heading .blockEditable{font-weight:760;font-size:24px;line-height:1.25;padding-top:9px;padding-bottom:9px}.docBlock.quote{border-left:2px solid #5d6670}.docBlock.quote .blockEditable{color:#b9c0c6;font-style:italic}.docBlock.code .blockEditable{font-family:var(--mono);font-size:12px;background:#07090b;border:1px solid var(--line);padding:10px;white-space:pre;overflow:auto}.docBlock.callout{background:#0e1316;border:1px solid #26323b}.docBlock.callout .blockEditable{padding:10px}.docBlock.checklist{display:grid;grid-template-columns:26px minmax(0,1fr);align-items:start}.checkToggle{margin:10px 0 0 6px;accent-color:var(--accent)}.docBlock[data-align="center"] .blockEditable{text-align:center}.docBlock[data-align="right"] .blockEditable{text-align:right}.docBlock[data-indent="1"] .blockEditable{padding-left:31px}.docBlock[data-indent="2"] .blockEditable{padding-left:55px}.docBlock[data-indent="3"] .blockEditable{padding-left:79px}.docBlock[data-list="bullet"] .blockEditable:before{content:'• ';color:var(--dim)}.docBlock[data-list="number"]{counter-increment:docnum}.docBlock[data-list="number"] .blockEditable:before{content:counter(docnum) '. ';color:var(--dim)}
-.blockDivider{height:33px;display:flex;align-items:center;padding:0 7px}.blockDivider:after{content:'';height:1px;width:100%;background:var(--line2)}.blockAsset{border:1px solid var(--line);background:#090b0d;padding:9px;display:flex;gap:10px;align-items:center;min-height:54px}.blockAsset img{max-width:260px;max-height:180px;object-fit:contain;border:1px solid var(--line)}.blockAssetInfo{min-width:0;flex:1}.blockAssetName{font:800 10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.blockAssetMeta{margin-top:4px;color:var(--dim);font:8px var(--mono)}.blockEmbed{border:1px solid var(--line);background:#090b0d;overflow:hidden}.blockEmbedFrameWrap{position:relative;width:100%;min-height:220px;aspect-ratio:16/9;background:#060708}.blockEmbedFrame{display:block;width:100%;height:100%;min-height:220px;border:0;background:#fff}.blockEmbedFoot{min-height:31px;display:flex;align-items:center;gap:8px;padding:5px 8px;border-top:1px solid var(--line);background:#0a0c0e}.blockEmbedFoot a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8fc0ff;text-decoration:none;font:8px var(--mono)}.blockEmbedFoot .mini{margin-left:auto;flex:0 0 auto}.embedFallback{padding:12px;color:var(--dim);font:9px/1.45 var(--mono)}.blockCanvasLink{padding:10px;border:1px dashed #46515c;background:#0a0d10;display:flex;align-items:center;justify-content:space-between;gap:8px}.blockCanvasLink strong{font:800 10px var(--mono)}
+.blockDivider{height:33px;display:flex;align-items:center;padding:0 7px}.blockDivider:after{content:'';height:1px;width:100%;background:var(--line2)}.blockAsset{border:1px solid var(--line);background:#090b0d;padding:9px;display:flex;gap:10px;align-items:center;min-height:54px}.blockAsset img{max-width:260px;max-height:180px;object-fit:contain;border:1px solid var(--line)}.blockAssetInfo{min-width:0;flex:1}.blockAssetName{font:800 10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.blockAssetMeta{margin-top:4px;color:var(--dim);font:8px var(--mono)}.blockEmbed{border:1px solid var(--line);background:#090b0d;overflow:hidden}.blockEmbedFrameWrap{position:relative;width:100%;min-height:220px;aspect-ratio:16/9;background:#060708}.blockEmbedFrame{display:block;width:100%;height:100%;min-height:220px;border:0;background:#fff}.blockEmbedFoot{min-height:31px;display:flex;align-items:center;gap:8px;padding:5px 8px;border-top:1px solid var(--line);background:#0a0c0e}.blockEmbedFoot a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8fc0ff;text-decoration:none;font:8px var(--mono)}.blockEmbedFoot .mini{margin-left:auto;flex:0 0 auto}.embedFallback{padding:12px;color:var(--dim);font:9px/1.45 var(--mono)}.embedNativeMedia{display:block;width:100%;height:100%;min-height:220px;background:#060708;object-fit:contain}.embedAudioWrap{min-height:110px;display:flex;align-items:center;padding:14px;background:#07090b}.embedAudio{width:100%}.embedExternalCard{min-height:110px;padding:12px;display:flex;align-items:center;gap:10px;background:#080a0c}.embedExternalMark{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line2);background:#0e1114;color:var(--text);font:900 7px var(--mono);flex:0 0 auto}.embedExternalCopy{min-width:0;flex:1}.embedExternalCopy strong{display:block;font:900 9px var(--mono);letter-spacing:.08em}.embedExternalCopy span{display:block;margin-top:5px;color:var(--dim);font:8px/1.35 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.canvasEmbedWrap>.embedNativeMedia{min-height:0;width:100%;height:100%}.canvasEmbedWrap>.embedAudioWrap{height:100%;min-height:0}.canvasEmbedWrap>.embedExternalCard{height:100%;min-height:0}.canvasEmbedWrap>.embedExternalCard .mini{pointer-events:auto}.blockCanvasLink{padding:10px;border:1px dashed #46515c;background:#0a0d10;display:flex;align-items:center;justify-content:space-between;gap:8px}.blockCanvasLink strong{font:800 10px var(--mono)}
 .blockTableWrap{overflow:auto;border:1px solid var(--line)}.blockTable{border-collapse:collapse;min-width:100%;table-layout:fixed}.blockTable td{border:1px solid var(--line);min-width:100px;vertical-align:top}.tableCell{min-height:34px;padding:7px;outline:0;font:12px/1.45 var(--sans);white-space:pre-wrap}.tableCell:focus{background:#10151a;box-shadow:inset 0 0 0 1px #46515c}.blockHint{padding:9px;color:var(--dim);font:9px/1.5 var(--mono);border:1px dashed var(--line)}
 .richRemoteFlag{position:absolute;right:4px;top:-12px;z-index:5;padding:2px 5px;background:var(--remote,#666);color:#08090a;font:800 7px var(--mono);pointer-events:none}.richRemoteSelection{background:color-mix(in srgb,var(--remote,#fff) 22%,transparent)}
 .workspaceInspector{display:none;position:absolute;right:0;top:0;bottom:0;width:min(340px,88%);z-index:22;border-left:1px solid var(--line2);background:#0b0d0f;box-shadow:-14px 0 30px rgba(0,0,0,.32);flex-direction:column}.workspaceInspector.open{display:flex}.workspaceInspectorHead{height:38px;flex:0 0 38px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 8px}.workspaceInspectorTitle{font:800 9px var(--mono);letter-spacing:.1em;text-transform:uppercase}.workspaceInspectorBody{flex:1;min-height:0;overflow:auto;padding:8px}.inspectCard{border:1px solid var(--line);background:#0e1114;margin-bottom:7px;padding:8px}.inspectTop{display:flex;align-items:center;gap:6px;font:800 8px var(--mono)}.inspectTop time{margin-left:auto;color:var(--dim);font-weight:500}.inspectBody{margin-top:6px;color:#c6ccd1;font:11px/1.5 var(--sans);white-space:pre-wrap;overflow-wrap:anywhere}.inspectMeta{margin-top:5px;color:var(--dim);font:8px/1.4 var(--mono)}.inspectActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.inspectInput{width:100%;min-height:56px;border:1px solid var(--line2);background:#090b0d;color:var(--text);padding:7px;font:11px/1.4 var(--sans);resize:vertical;outline:0}.unreadDot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}.suggestGhost{margin:5px 7px;padding:6px;border-left:2px solid var(--accent);background:#16140d;color:#d5c48f;font:10px/1.45 var(--mono);white-space:pre-wrap}.commentAnchor{box-shadow:inset 0 -2px rgba(241,187,55,.55)}
@@ -778,36 +778,123 @@ function extractEmbedSource(raw){
   const m=value.match(/<iframe\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/i);if(m)value=m[1].trim();
   return value;
 }
-function normalizeEmbedUrl(raw){
-  const source=extractEmbedSource(raw),href=safeLinkHref(source);if(!href)return null;
-  let u;try{u=new URL(href)}catch(_){return null}
-  if(!/^https?:$/.test(u.protocol))return null;
-  const host=u.hostname.toLowerCase().replace(/^www\./,'');
-  let m;
-  // YouTube watch/share/short/live URLs -> privacy-enhanced player URL.
-  if(host==='youtu.be'){const id=u.pathname.split('/').filter(Boolean)[0];if(id)return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}${u.searchParams.get('t')?`?start=${parseInt(u.searchParams.get('t'),10)||0}`:''}`}
-  if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'){
-    let id=u.searchParams.get('v');if(!id&&(m=u.pathname.match(/^\/(?:shorts|live|embed)\/([^/?#]+)/)))id=m[1];
-    if(id)return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`;
-  }
-  // Vimeo.
-  if(host==='vimeo.com'||host==='player.vimeo.com'){if((m=u.pathname.match(/(?:video\/)?(\d+)/)))return `https://player.vimeo.com/video/${m[1]}`}
-  // Loom.
-  if(host==='loom.com'&&(m=u.pathname.match(/^\/(?:share|embed)\/([^/?#]+)/)))return `https://www.loom.com/embed/${encodeURIComponent(m[1])}`;
-  // Spotify.
-  if((host==='open.spotify.com'||host==='spotify.com')&&(m=u.pathname.match(/^\/(?:embed\/)?(track|album|playlist|episode|show)\/([^/?#]+)/)))return `https://open.spotify.com/embed/${m[1]}/${encodeURIComponent(m[2])}`;
-  // Google Docs/Sheets/Slides and Drive file preview.
-  if(host==='docs.google.com'&&(m=u.pathname.match(/^\/(document|spreadsheets|presentation)\/d\/([^/]+)/)))return `https://docs.google.com/${m[1]}/d/${encodeURIComponent(m[2])}/preview`;
-  if(host==='drive.google.com'&&(m=u.pathname.match(/^\/file\/d\/([^/]+)/)))return `https://drive.google.com/file/d/${encodeURIComponent(m[1])}/preview`;
-  // Figma provides an official generic embed endpoint around its share URL.
-  if(host==='figma.com'||host==='www.figma.com')return `https://www.figma.com/embed?embed_host=scratchpad&url=${encodeURIComponent(href)}`;
-  // CodePen pen URLs.
-  if(host==='codepen.io'&&(m=u.pathname.match(/^\/([^/]+)\/pen\/([^/?#]+)/)))return `https://codepen.io/${encodeURIComponent(m[1])}/embed/${encodeURIComponent(m[2])}?default-tab=result`;
-  // Already-embeddable or arbitrary HTTPS URL. Some origins may refuse framing via X-Frame-Options/CSP;
-  // the renderer keeps an external-open fallback for those cases.
-  return href;
+const EMBED_DIRECT_BLOCKED_HOSTS=new Set([
+  'arxiv.org','github.com','linkedin.com','www.linkedin.com','x.com','twitter.com','www.twitter.com',
+  'notion.so','www.notion.so','medium.com','www.medium.com'
+]);
+const EMBED_IMAGE_RE=/\.(?:png|jpe?g|gif|webp|avif|svg)(?:$|[?#])/i;
+const EMBED_VIDEO_RE=/\.(?:mp4|webm|ogv|m4v)(?:$|[?#])/i;
+const EMBED_AUDIO_RE=/\.(?:mp3|wav|ogg|oga|m4a|aac|flac)(?:$|[?#])/i;
+const EMBED_PDF_RE=/\.pdf(?:$|[?#])/i;
+const EMBED_OFFICE_RE=/\.(?:docx?|xlsx?|pptx?|odt|ods|odp)(?:$|[?#])/i;
+function embedProviderLabel(host){return String(host||'').replace(/^www\./,'').split('.')[0].toUpperCase()||'WEB'}
+function embedSrcdoc(body,title='Embedded content'){
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#0b0d0f;color:#d8dde2;font:14px system-ui,sans-serif}body{padding:12px}a{color:#9bc6ff}</style></head><body aria-label="${String(title).replace(/"/g,'&quot;')}">${body}</body></html>`;
 }
-function embedAllowAttr(){return 'autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen; web-share'}
+function resolveEmbed(raw){
+  const source=extractEmbedSource(raw),href=safeLinkHref(source);if(!href)return{kind:'invalid',href:null,provider:'WEB',label:'INVALID URL'};
+  let u;try{u=new URL(href)}catch(_){return{kind:'invalid',href,provider:'WEB',label:'INVALID URL'}}
+  if(!/^https?:$/.test(u.protocol))return{kind:'external',href,provider:embedProviderLabel(u.hostname),label:'OPEN EXTERNALLY'};
+  const host=u.hostname.toLowerCase().replace(/^www\./,''),path=u.pathname,provider=embedProviderLabel(host);let m;
+  const out=(kind,src=href,extra={})=>({kind,src,href,provider,...extra});
+
+  // Native media gets the browser's own renderer and avoids iframe policy entirely.
+  if(EMBED_IMAGE_RE.test(path))return out('image',href,{label:'IMAGE'});
+  if(EMBED_VIDEO_RE.test(path))return out('video',href,{label:'VIDEO'});
+  if(EMBED_AUDIO_RE.test(path))return out('audio',href,{label:'AUDIO'});
+  if(EMBED_PDF_RE.test(path))return out('pdf',href,{label:'PDF'});
+  if(EMBED_OFFICE_RE.test(path))return out('iframe',`https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(href)}`,{provider:'GOOGLE',label:'DOCUMENT VIEWER'});
+
+  // arXiv article pages intentionally refuse framing; render the paper PDF instead.
+  if(host==='arxiv.org'){
+    m=path.match(/^\/(?:abs|html|pdf)\/([^/?#]+?)(?:\.pdf)?$/i);
+    if(m)return out('pdf',`https://arxiv.org/pdf/${encodeURIComponent(m[1])}.pdf`,{provider:'ARXIV',label:'PAPER PDF'});
+    return out('external',href,{provider:'ARXIV',label:'ARXIV'});
+  }
+
+  // GitHub: raw-render viewable files; use a srcdoc wrapper for Gists; repositories themselves stay external.
+  if(host==='gist.github.com'&&(m=path.match(/^\/([^/]+)\/([a-f0-9]+)/i))){
+    const script=`https://gist.github.com/${encodeURIComponent(m[1])}/${encodeURIComponent(m[2])}.js`;
+    return out('srcdoc',href,{provider:'GITHUB',label:'GIST',srcdoc:embedSrcdoc(`<script src="${script}"><\/script>`,'GitHub Gist')});
+  }
+  if(host==='github.com'&&(m=path.match(/^\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/))){
+    const rawUrl=`https://raw.githubusercontent.com/${encodeURIComponent(m[1])}/${encodeURIComponent(m[2])}/${encodeURIComponent(m[3])}/${m[4].split('/').map(encodeURIComponent).join('/')}`;
+    if(EMBED_IMAGE_RE.test(m[4]))return out('image',rawUrl,{provider:'GITHUB',label:'IMAGE'});
+    if(EMBED_VIDEO_RE.test(m[4]))return out('video',rawUrl,{provider:'GITHUB',label:'VIDEO'});
+    if(EMBED_AUDIO_RE.test(m[4]))return out('audio',rawUrl,{provider:'GITHUB',label:'AUDIO'});
+    if(EMBED_PDF_RE.test(m[4]))return out('pdf',rawUrl,{provider:'GITHUB',label:'PDF'});
+    return out('iframe',rawUrl,{provider:'GITHUB',label:'RAW FILE'});
+  }
+
+  // YouTube videos / shorts / live / playlists.
+  if(host==='youtu.be'){
+    const id=path.split('/').filter(Boolean)[0];if(id)return out('iframe',`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}${u.searchParams.get('t')?`?start=${parseInt(u.searchParams.get('t'),10)||0}`:''}`,{provider:'YOUTUBE',label:'VIDEO'});
+  }
+  if(host==='youtube.com'||host==='m.youtube.com'||host==='music.youtube.com'){
+    let id=u.searchParams.get('v');if(!id&&(m=path.match(/^\/(?:shorts|live|embed)\/([^/?#]+)/)))id=m[1];
+    if(id)return out('iframe',`https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}`,{provider:'YOUTUBE',label:'VIDEO'});
+    const list=u.searchParams.get('list');if(list)return out('iframe',`https://www.youtube-nocookie.com/embed?listType=playlist&list=${encodeURIComponent(list)}`,{provider:'YOUTUBE',label:'PLAYLIST'});
+  }
+  if(host==='vimeo.com'||host==='player.vimeo.com'){if((m=path.match(/(?:video\/)?(\d+)/)))return out('iframe',`https://player.vimeo.com/video/${m[1]}`,{provider:'VIMEO',label:'VIDEO'})}
+  if(host==='loom.com'&&(m=path.match(/^\/(?:share|embed)\/([^/?#]+)/)))return out('iframe',`https://www.loom.com/embed/${encodeURIComponent(m[1])}`,{provider:'LOOM',label:'VIDEO'});
+  if((host==='open.spotify.com'||host==='spotify.com')&&(m=path.match(/^\/(?:embed\/)?(track|album|playlist|episode|show)\/([^/?#]+)/)))return out('iframe',`https://open.spotify.com/embed/${m[1]}/${encodeURIComponent(m[2])}`,{provider:'SPOTIFY',label:m[1].toUpperCase()});
+  if(host==='soundcloud.com')return out('iframe',`https://w.soundcloud.com/player/?url=${encodeURIComponent(href)}&auto_play=false&show_artwork=true`,{provider:'SOUNDCLOUD',label:'AUDIO'});
+  if((host==='tiktok.com'||host==='www.tiktok.com')&&(m=path.match(/\/video\/(\d+)/)))return out('iframe',`https://www.tiktok.com/player/v1/${m[1]}?controls=1&description=1`,{provider:'TIKTOK',label:'VIDEO'});
+  if((host==='dailymotion.com'||host==='dai.ly')&&(m=(host==='dai.ly'?path.match(/^\/([^/?#]+)/):path.match(/\/video\/([^/?#_]+)/))))return out('iframe',`https://www.dailymotion.com/embed/video/${encodeURIComponent(m[1])}`,{provider:'DAILYMOTION',label:'VIDEO'});
+
+  // Twitch requires the embedding hostname as parent.
+  if(host==='twitch.tv'||host==='m.twitch.tv'){
+    const parent=location.hostname||'localhost';
+    if((m=path.match(/^\/videos\/(\d+)/)))return out('iframe',`https://player.twitch.tv/?video=v${m[1]}&parent=${encodeURIComponent(parent)}&autoplay=false`,{provider:'TWITCH',label:'VIDEO'});
+    const channel=path.split('/').filter(Boolean)[0];if(channel)return out('iframe',`https://player.twitch.tv/?channel=${encodeURIComponent(channel)}&parent=${encodeURIComponent(parent)}&autoplay=false`,{provider:'TWITCH',label:'STREAM'});
+  }
+  if(host==='clips.twitch.tv'){
+    const slug=path.split('/').filter(Boolean)[0],parent=location.hostname||'localhost';if(slug)return out('iframe',`https://clips.twitch.tv/embed?clip=${encodeURIComponent(slug)}&parent=${encodeURIComponent(parent)}&autoplay=false`,{provider:'TWITCH',label:'CLIP'});
+  }
+
+  // Google workspace / Drive.
+  if(host==='docs.google.com'&&(m=path.match(/^\/(document|spreadsheets|presentation)\/d\/([^/]+)/)))return out('iframe',`https://docs.google.com/${m[1]}/d/${encodeURIComponent(m[2])}/preview`,{provider:'GOOGLE',label:m[1].toUpperCase()});
+  if(host==='drive.google.com'&&(m=path.match(/^\/file\/d\/([^/]+)/)))return out('iframe',`https://drive.google.com/file/d/${encodeURIComponent(m[1])}/preview`,{provider:'GOOGLE',label:'DRIVE FILE'});
+  if((host==='maps.google.com'||host==='google.com')&&path.startsWith('/maps')&&u.searchParams.get('q'))return out('iframe',`https://www.google.com/maps?q=${encodeURIComponent(u.searchParams.get('q'))}&output=embed`,{provider:'GOOGLE',label:'MAP'});
+
+  // Design / coding / notebook providers with documented or stable embed endpoints.
+  if(host==='figma.com')return out('iframe',`https://www.figma.com/embed?embed_host=scratchpad&url=${encodeURIComponent(href)}`,{provider:'FIGMA',label:'DESIGN'});
+  if(host==='codepen.io'&&(m=path.match(/^\/([^/]+)\/pen\/([^/?#]+)/)))return out('iframe',`https://codepen.io/${encodeURIComponent(m[1])}/embed/${encodeURIComponent(m[2])}?default-tab=result`,{provider:'CODEPEN',label:'PEN'});
+  if(host==='codesandbox.io'&&(m=path.match(/^\/(?:s|p\/sandbox)\/([^/?#]+)/)))return out('iframe',`https://codesandbox.io/embed/${encodeURIComponent(m[1])}?view=preview`,{provider:'CODESANDBOX',label:'SANDBOX'});
+  if(host==='stackblitz.com'&&(m=path.match(/^\/edit\/([^/?#]+)/)))return out('iframe',`https://stackblitz.com/edit/${encodeURIComponent(m[1])}?embed=1&view=preview`,{provider:'STACKBLITZ',label:'PROJECT'});
+  if(host==='observablehq.com'&&(m=path.match(/^\/@([^/]+)\/([^/?#]+)/)))return out('iframe',`https://observablehq.com/embed/@${encodeURIComponent(m[1])}/${encodeURIComponent(m[2])}?cells=*`,{provider:'OBSERVABLE',label:'NOTEBOOK'});
+  if(host==='canva.com'&&/\/design\//.test(path)){const sep=href.includes('?')?'&':'?';return out('iframe',href+sep+'embed',{provider:'CANVA',label:'DESIGN'})}
+
+  // Social provider-native frames.
+  if((host==='instagram.com'||host==='www.instagram.com')&&(m=path.match(/^\/(p|reel|tv)\/([^/?#]+)/)))return out('iframe',`https://www.instagram.com/${m[1]}/${encodeURIComponent(m[2])}/embed/`,{provider:'INSTAGRAM',label:m[1].toUpperCase()});
+  if((host==='reddit.com'||host==='www.reddit.com'||host==='old.reddit.com')&&/^\/r\//.test(path))return out('iframe',`https://embed.reddit.com${path}${u.search||''}${u.search?'&':'?'}theme=dark`,{provider:'REDDIT',label:'POST'});
+  if(host==='x.com'||host==='twitter.com'){
+    const q=JSON.stringify(href);return out('srcdoc',href,{provider:'X',label:'POST',srcdoc:embedSrcdoc(`<blockquote class="twitter-tweet"><a href=${q}></a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"><\/script>`,'X post')});
+  }
+  if((host==='facebook.com'||host==='www.facebook.com')&&/\/videos\//.test(path))return out('iframe',`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(href)}&show_text=false`,{provider:'FACEBOOK',label:'VIDEO'});
+  if((host==='facebook.com'||host==='www.facebook.com'))return out('iframe',`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(href)}&show_text=true`,{provider:'FACEBOOK',label:'POST'});
+
+  // Exact iframe embed URLs pasted by users should be honored when they already point at an embed/player surface.
+  if(/(?:^|\/)(?:embed|player|preview|widget)(?:\/|$)/i.test(path)||/\bembed(?:ded)?=1\b/i.test(u.search))return out('iframe',href,{provider,label:'EMBED'});
+
+  // Do not hammer known anti-framing top-level sites. Present a clean card instead.
+  if(EMBED_DIRECT_BLOCKED_HOSTS.has(host))return out('external',href,{provider,label:'EXTERNAL'});
+
+  // Best-effort direct frame for the long tail. Sites that disallow framing still get an OPEN fallback.
+  return out('iframe',href,{provider,label:'WEB'});
+}
+function normalizeEmbedUrl(raw){const d=resolveEmbed(raw);return ['iframe','pdf'].includes(d.kind)?d.src:null}
+function embedAllowAttr(){return 'autoplay; clipboard-read; clipboard-write; encrypted-media; picture-in-picture; fullscreen; web-share; accelerometer; gyroscope'}
+function embedMediaHtml(desc,cls='blockEmbedFrame',interactive=true){
+  const href=escapeHtml(desc.href||desc.src||''),src=escapeHtml(desc.src||'');
+  if(desc.kind==='image')return `<img class="embedNativeMedia embedImage" src="${src}" alt="Embedded image" loading="lazy">`;
+  if(desc.kind==='video')return `<video class="embedNativeMedia embedVideo" src="${src}" controls playsinline preload="metadata"></video>`;
+  if(desc.kind==='audio')return `<div class="embedAudioWrap"><audio class="embedAudio" src="${src}" controls preload="metadata"></audio></div>`;
+  if(desc.kind==='srcdoc')return `<iframe class="${cls}" srcdoc="${escapeHtml(desc.srcdoc||'')}" title="${escapeHtml(desc.provider||'Embedded content')}" loading="lazy" allow="${escapeHtml(embedAllowAttr())}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  if(desc.kind==='iframe'||desc.kind==='pdf')return `<iframe class="${cls}" src="${src}" title="${escapeHtml(desc.provider||'Embedded content')}" loading="lazy" allow="${escapeHtml(embedAllowAttr())}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  return `<div class="embedExternalCard"><div class="embedExternalMark">${escapeHtml(desc.provider||'WEB')}</div><div class="embedExternalCopy"><strong>${escapeHtml(desc.label||'EXTERNAL')}</strong><span>${href}</span></div><a class="mini" href="${href}" target="_blank" rel="noopener noreferrer">OPEN</a></div>`;
+}
+
 function renderMarkdownInline(raw){
   const stash=[];const hold=html=>`\uE000${stash.push(html)-1}\uE001`;let s=String(raw||'');
   s=s.replace(/`([^`\n]+)`/g,(_,x)=>hold('<code>'+escapeHtml(x)+'</code>'));
@@ -1537,8 +1624,11 @@ function renderTextBlock(m){const y=blockText(m.id),a=m.attrs||{},check=m.type==
 function renderTableBlock(m){const a=m.attrs||{},rows=Math.max(1,Number(a.rows)||3),cols=Math.max(1,Number(a.cols)||3);let body='';for(let r=0;r<rows;r++){body+='<tr>';for(let c=0;c<cols;c++)body+=`<td><div class="tableCell" contenteditable="${canEditDocument(m.docId)?'true':'false'}" data-block-id="${escapeHtml(m.id)}" data-row="${r}" data-col="${c}">${richDeltaHtml(tableCellText(m.id,r,c).toDelta())}</div></td>`;body+='</tr>'}return `<div class="docBlock table ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1" aria-label="Drag block">⋮⋮</button><div class="blockTableWrap"><table class="blockTable"><tbody>${body}</tbody></table></div></div>`}
 function assetForBlock(m){return assets.get(m.attrs?.assetId)||null}
 function renderAssetBlock(m){const a=assetForBlock(m),kind=m.type;return `<div class="docBlock ${kind} ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1" aria-label="Drag block">⋮⋮</button><div class="blockAsset"><div class="blockAssetInfo"><div class="blockAssetName">${escapeHtml(a?.name||'Missing asset')}</div><div class="blockAssetMeta">${escapeHtml(a?.type||kind.toUpperCase())}${a?' · '+fmtBytes(a.size):''}</div><div class="inspectActions">${a?`<button class="mini" data-block-action="openasset" data-asset="${escapeHtml(a.id)}">OPEN</button><button class="mini" data-block-action="saveasset" data-asset="${escapeHtml(a.id)}">SAVE</button>`:''}</div></div></div></div>`}
-function renderEmbedBlock(m){const raw=blockText(m.id).toString(),href=safeLinkHref(extractEmbedSource(raw)),src=normalizeEmbedUrl(raw);const content=src?`<div class="blockEmbedFrameWrap"><iframe class="blockEmbedFrame" src="${escapeHtml(src)}" title="Embedded content" loading="lazy" allow="${escapeHtml(embedAllowAttr())}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="blockEmbedFoot"><a href="${escapeHtml(href||src)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(href||src)}">${escapeHtml(href||src)}</a><button class="mini" type="button" data-embed-edit="${escapeHtml(m.id)}">EDIT URL</button></div>`:`<div class="embedFallback">Set an HTTPS URL or paste iframe embed code.</div>`;return `<div class="docBlock embed ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1">⋮⋮</button><div class="blockEmbed">${content}</div></div>`}
-function renderCanvasLinkBlock(m){const d=fsEntry(m.attrs?.canvasDocId);return `<div class="docBlock canvas ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1">⋮⋮</button><div class="blockCanvasLink"><strong>${escapeHtml(d?.name||'Canvas')}</strong>${d?`<button class="mini" data-block-action="opencanvas" data-doc="${escapeHtml(d.id)}">OPEN CANVAS</button>`:''}</div></div>`}
+function renderEmbedBlock(m){
+  const raw=blockText(m.id).toString(),desc=resolveEmbed(raw),href=desc.href||safeLinkHref(extractEmbedSource(raw));
+  const playable=!['invalid'].includes(desc.kind),content=playable?`<div class="blockEmbedFrameWrap" data-embed-kind="${escapeHtml(desc.kind)}" data-embed-provider="${escapeHtml(desc.provider||'WEB')}">${embedMediaHtml(desc,'blockEmbedFrame')}</div><div class="blockEmbedFoot"><span class="embedKind">${escapeHtml((desc.provider||'WEB')+' · '+(desc.label||desc.kind||'EMBED'))}</span>${href?`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(href)}">${escapeHtml(href)}</a>`:''}<button class="mini" type="button" data-embed-edit="${escapeHtml(m.id)}">EDIT URL</button></div>`:`<div class="embedFallback">Set an HTTPS URL or paste iframe embed code.</div>`;
+  return `<div class="docBlock embed ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1">⋮⋮</button><div class="blockEmbed">${content}</div></div>`
+}
 function renderBlockHtml(m){if(V3_TEXT_TYPES.has(m.type))return renderTextBlock(m);if(m.type==='table')return renderTableBlock(m);if(m.type==='image'||m.type==='file')return renderAssetBlock(m);if(m.type==='embed')return renderEmbedBlock(m);if(m.type==='divider')return `<div class="docBlock divider ${m.id===activeBlockId?'selected':''}" draggable="true" data-block-id="${escapeHtml(m.id)}"><button class="blockGrip" type="button" tabindex="-1">⋮⋮</button><div class="blockDivider"></div></div>`;if(m.type==='canvas')return renderCanvasLinkBlock(m);return `<div class="docBlock"><div class="blockHint">Unsupported block: ${escapeHtml(m.type)}</div></div>`}
 function serializeRichDocMarkdown(docId=activeDocId){const rows=blocksForDoc(docId),out=[];for(const m of rows){const t=V3_TEXT_TYPES.has(m.type)||m.type==='embed'?blockText(m.id).toString():'';const a=m.attrs||{};if(m.type==='paragraph')out.push((a.list==='bullet'?'- ':a.list==='number'?'1. ':'')+t);else if(m.type==='heading')out.push('# '+t);else if(m.type==='checklist')out.push(`- [${a.checked?'x':' '}] ${t}`);else if(m.type==='quote')out.push('> '+t);else if(m.type==='code')out.push('```\n'+t+'\n```');else if(m.type==='callout')out.push('> [!NOTE]\n> '+t);else if(m.type==='divider')out.push('---');else if(m.type==='embed')out.push(t);else if(m.type==='image'||m.type==='file'){const x=assetForBlock(m);if(x)out.push(m.type==='image'?`![${x.name}](asset:${x.id})`:`[${x.name}](asset:${x.id})`)}else if(m.type==='table'){const r=Number(a.rows)||3,c=Number(a.cols)||3;for(let y=0;y<r;y++){out.push('| '+Array.from({length:c},(_,x)=>tableCellText(m.id,y,x).toString()).join(' | ')+' |');if(y===0)out.push('| '+Array.from({length:c},()=> '---').join(' | ')+' |')}}else if(m.type==='canvas'){const d=fsEntry(a.canvasDocId);out.push(`[Canvas: ${d?.name||'Canvas'}](doc:${a.canvasDocId||''})`)}out.push('')}return out.join('\n').replace(/\n{3,}/g,'\n\n').trim()}
 function parseMarkdownBlocks(src){const lines=String(src||'').replace(/\r/g,'').split('\n'),out=[];let code=false,buf=[];const push=(type,text='',attrs={})=>out.push({type,text,attrs});for(let i=0;i<lines.length;i++){const line=lines[i];if(/^```/.test(line)){if(code){push('code',buf.join('\n'));buf=[];code=false}else code=true;continue}if(code){buf.push(line);continue}let m;if(!line.trim()){continue}else if((m=line.match(/^#\s+(.+)$/)))push('heading',m[1]);else if((m=line.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/)))push('checklist',m[2],{checked:m[1].toLowerCase()==='x'});else if((m=line.match(/^>\s+(.+)$/)))push('quote',m[1]);else if(/^---+$/.test(line.trim()))push('divider');else if((m=line.match(/^[-*]\s+(.+)$/)))push('paragraph',m[1],{list:'bullet'});else if((m=line.match(/^\d+[.)]\s+(.+)$/)))push('paragraph',m[1],{list:'number'});else if(/^https?:\/\//i.test(line.trim()))push('embed',line.trim());else push('paragraph',line)}if(code)push('code',buf.join('\n'));return out.length?out:[{type:'paragraph',text:'',attrs:{}}]}
@@ -1857,9 +1947,14 @@ function stageToObjectLocal(e,o){const p=stagePoint(e),cx=(Number(o.x)||0)+(Numb
 function updateSplineDom(objEl,o){const svg=objEl.querySelector('.splineSvg');if(!svg)return;const path=splinePathD(o);svg.querySelectorAll('.splinePath,.splineHit').forEach(x=>x.setAttribute('d',path));const pts=splinePoints(o);svg.querySelectorAll('.splineGuide').forEach((g,i)=>{const p=pts[Math.floor(i/2)];if(!p)return;const to=i%2?{x:p.outX,y:p.outY}:{x:p.inX,y:p.inY};g.setAttribute('x1',p.x);g.setAttribute('y1',p.y);g.setAttribute('x2',to.x);g.setAttribute('y2',to.y)});svg.querySelectorAll('[data-node-index]').forEach(n=>{const p=pts[Number(n.dataset.nodeIndex)];if(!p)return;const h=n.dataset.handle,kx=h==='in'?'inX':h==='out'?'outX':'x',ky=h==='in'?'inY':h==='out'?'outY':'y';n.setAttribute('cx',p[kx]);n.setAttribute('cy',p[ky])})}
 const interactiveCanvasEmbeds=new Set();
 function canvasEmbedObjectHtml(o){
-  const raw=String(o.url||''),href=safeLinkHref(extractEmbedSource(raw)),src=normalizeEmbedUrl(raw),interactive=interactiveCanvasEmbeds.has(o.id);
+  const raw=String(o.url||''),desc=resolveEmbed(raw),href=desc.href||safeLinkHref(extractEmbedSource(raw)),interactive=interactiveCanvasEmbeds.has(o.id);
   const style=`left:${o.x||0}px;top:${o.y||0}px;width:${Math.max(80,o.w||320)}px;height:${Math.max(60,o.h||180)}px;transform:rotate(${Number(o.rotation)||0}deg);z-index:${Number(o.z)||1}`;
-  const body=src?`<div class="canvasBody"><div class="canvasEmbedWrap"><iframe class="canvasEmbedFrame" src="${escapeHtml(src)}" title="Embedded content" loading="lazy" allow="${escapeHtml(embedAllowAttr())}" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><div class="canvasEmbedChrome"><button type="button" data-canvas-embed-interact="${escapeHtml(o.id)}">${interactive?'DONE':'INTERACT'}</button>${href?`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">OPEN</a>`:''}</div></div></div>`:`<div class="canvasBody"><div class="canvasEmbedBlocked">Set an HTTPS URL or iframe embed code.</div></div>`;
+  let payload;
+  if(desc.kind==='invalid')payload='<div class="canvasEmbedBlocked">Set an HTTPS URL or iframe embed code.</div>';
+  else payload=embedMediaHtml(desc,'canvasEmbedFrame',interactive);
+  const canInteract=['iframe','pdf','srcdoc','video','audio'].includes(desc.kind);
+  const chrome=`<div class="canvasEmbedChrome">${canInteract?`<button type="button" data-canvas-embed-interact="${escapeHtml(o.id)}">${interactive?'DONE':'INTERACT'}</button>`:''}${href?`<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">OPEN</a>`:''}</div>`;
+  const body=`<div class="canvasBody"><div class="canvasEmbedWrap" data-embed-kind="${escapeHtml(desc.kind||'invalid')}" data-embed-provider="${escapeHtml(desc.provider||'WEB')}">${payload}${chrome}</div></div>`;
   const flags=`${o.locked?' locked':''}${o.hidden?' hidden-object':''}${interactive?' embed-interactive':''}`;
   return `<div class="canvasObject embed ${o.id===selectedCanvasObjectId?'selected':''}${flags}" data-object-id="${escapeHtml(o.id)}" data-parent-id="${escapeHtml(o.parentId||'')}" data-label="${escapeHtml(o.name||'EMBED')}" style="${style}"><span class="canvasObjectLabel">${escapeHtml(o.name||'EMBED')}</span>${body}<span class="canvasHandle br" title="Drag to resize · Shift-drag or right-drag to rotate"></span></div>`;
 }
