@@ -2948,7 +2948,19 @@ async function scratchEnsureOwnerSigningKey(){if(!crypto.subtle)return null;try{
 async function scratchSignCapability(payload){if(!scratchOwnerPrivateJwk)await scratchEnsureOwnerSigningKey();if(!scratchOwnerPrivateJwk)throw new Error('This browser does not hold the room owner signing key');const key=await crypto.subtle.importKey('jwk',scratchOwnerPrivateJwk,{name:'ECDSA',namedCurve:'P-256'},false,['sign']),body=enc.encode(JSON.stringify(payload)),sig=new Uint8Array(await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},key,body));return scratchBase64Url(body)+'.'+scratchBase64Url(sig)}
 async function scratchVerifyCapability(token){if(!token)return null;const [a,b]=String(token).split('.');if(!a||!b)return null;const pub=yworkspace?.get('ownerPublicJwk')||scratchOwnerPublicJwk;if(!pub)return null;try{const body=scratchBase64UrlDecode(a),payload=JSON.parse(dec.decode(body));if(payload.room!==roomHash||payload.exp&&scratchNow()>payload.exp)return null;if(payload.rev&&yworkspace?.get('revokedCaps')?.includes?.(payload.rev))return null;const key=await crypto.subtle.importKey('jwk',pub,{name:'ECDSA',namedCurve:'P-256'},false,['verify']),ok=await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,scratchBase64UrlDecode(b),body);return ok?payload:null}catch(_){return null}}
 async function scratchCreateCapabilityUrl({role='editor',docId=null,folderId=null,minutes=0}={}){const payload={v:1,room:roomHash,role,docId,folderId,iat:scratchNow(),exp:minutes?scratchNow()+minutes*60000:0,rev:crypto.randomUUID()};const cap=await scratchSignCapability(payload),u=new URL(location.href);u.searchParams.delete('role');u.searchParams.delete('doc');u.searchParams.delete('exp');u.searchParams.set('cap',cap);const issued=[...(yworkspace.get('issuedCaps')||[]),{rev:payload.rev,role,docId,folderId,iat:payload.iat,exp:payload.exp,createdBy:actor}].slice(-100);ydoc.transact(()=>yworkspace.set('issuedCaps',issued),LOCAL_ORIGIN);scratchRecordActivity('capability-create','Created signed capability',{rev:payload.rev,role,docId,folderId,exp:payload.exp});return u.toString()}
-async function scratchRefreshVerifiedCapability(){const token=new URL(location.href).searchParams.get('cap');scratchVerifiedCapability=await scratchVerifyCapability(token);return scratchVerifiedCapability}
+function scratchLegacyCapabilityFromUrl(){
+  const u=new URL(location.href),q=u.searchParams,token=q.get('cap')||'',role=q.get('role')||'',docId=q.get('doc')||null,exp=Number(q.get('exp')||0);
+  if(!token||token.includes('.')||token.length<8||token.length>128)return null;
+  if(!['viewer','commenter','editor','agent'].includes(role))return null;
+  if(exp&&Date.now()>exp)return null;
+  return{v:0,legacy:true,role,docId,folderId:null,iat:0,exp,rev:null,token};
+}
+async function scratchRefreshVerifiedCapability(){
+  const token=new URL(location.href).searchParams.get('cap');
+  scratchVerifiedCapability=await scratchVerifyCapability(token);
+  if(!scratchVerifiedCapability)scratchVerifiedCapability=scratchLegacyCapabilityFromUrl();
+  return scratchVerifiedCapability;
+}
 function scratchInheritedFolderRole(entryId,actorId=actor){let e=fsEntry(entryId),seen=new Set();while(e&&!seen.has(e.id)){seen.add(e.id);const direct=yroles?.get(`${e.id}|${actorId}`);if(direct)return direct;if(e.limitedAccess)return'viewer';e=e.parent?fsEntry(e.parent):null}return null}
 function scratchIsEntryWithin(entryId,folderId){let e=fsEntry(entryId),seen=new Set();while(e&&!seen.has(e.id)){if(e.id===folderId)return true;seen.add(e.id);e=e.parent?fsEntry(e.parent):null}return false}
 function scratchRevokeCapability(rev){if(!rev)return false;const rows=[...new Set([...(yworkspace.get('revokedCaps')||[]),String(rev)])];ydoc.transact(()=>yworkspace.set('revokedCaps',rows),LOCAL_ORIGIN);scratchRecordActivity('capability-revoke','Revoked shared capability',{rev:String(rev)});return true}
@@ -2959,7 +2971,7 @@ const scratchDocRowHtmlShortcutBase=docRowHtml;docRowHtml=function(m,depth){if(m
 const scratchEffectiveRoleSignedBase=effectiveRole;effectiveRole=function(docId=activeDocId){
   if(!yworkspace?.get('signedCapabilities'))return scratchEffectiveRoleSignedBase(docId);
   if(scratchOwnerPrivateJwk)return'owner';
-  const cap=scratchVerifiedCapability;
+  const cap=scratchVerifiedCapability||scratchLegacyCapabilityFromUrl();
   if(!cap)return'viewer';
   if(cap.docId&&cap.docId!==docId)return'viewer';
   if(cap.folderId&&!scratchIsEntryWithin(docId,cap.folderId))return'viewer';
@@ -3757,6 +3769,14 @@ async function scratchConvergeCapabilityRole(){
   if(!yworkspace)return null;
   try{
     const cap=await scratchRefreshVerifiedCapability();
+    const q=new URL(location.href).searchParams,requestedRole=q.get('role'),requestedDoc=q.get('doc'),requestedExp=Number(q.get('exp')||0);
+    if(!cap&&requestedRole&&requestedExp&&Date.now()>requestedExp&&!sessionStorage.getItem('scratch-expired-cap-warned')){
+      sessionStorage.setItem('scratch-expired-cap-warned','1');
+      setTimeout(()=>toast(`<b>${escapeHtml(requestedRole.toUpperCase())} LINK EXPIRED.</b> Ask the owner for a fresh share link.`,'bad'),0);
+    }else if(cap?.docId&&activeDocId&&cap.docId!==activeDocId&&!sessionStorage.getItem('scratch-doc-scope-cap-warned')){
+      sessionStorage.setItem('scratch-doc-scope-cap-warned','1');
+      setTimeout(()=>toast('<b>EDITOR LINK IS DOCUMENT-SCOPED.</b> This document is outside the shared scope.','bad'),0);
+    }
     applyRoleUi();
     if(isCanvasDoc())renderCanvas();
     else if(isRichDoc())renderStructuredWorkspace();
@@ -3775,8 +3795,11 @@ function scratchPropertyTargetDocId(t){if(!t)return activeDocId;if(t.kind==='can
 function scratchShareRoleOptions(){return{role:$('#capRoleSelect')?.value||'editor',docId:$('#capDocOnly')?.checked?activeDocId:null,minutes:Number($('#capExpirySelect')?.value||0)}}
 async function scratchRefreshCapabilityLinkDisplay(){
   const input=$('#capLinkValue');if(!input)return'';
-  if(yworkspace?.get('signedCapabilities')){try{const u=await scratchCreateCapabilityUrl(scratchShareRoleOptions());input.value=u;return u}catch(err){console.warn('signed share link generation failed',err)}}
-  const u=capabilityLink();input.value=u;return u;
+  if(yworkspace?.get('signedCapabilities')){
+    try{const u=await scratchCreateCapabilityUrl(scratchShareRoleOptions());input.value=u;input.dataset.capabilityMode='signed';return u}
+    catch(err){console.warn('signed share link generation failed; using legacy-compatible capability',err);const u=capabilityLink();input.value=u;input.dataset.capabilityMode='legacy';return u}
+  }
+  const u=capabilityLink();input.value=u;input.dataset.capabilityMode='legacy';return u;
 }
 const scratchShowRoomQrV10Base=showRoomQr;
 showRoomQr=async function(){await scratchShowRoomQrV10Base();await scratchRefreshCapabilityLinkDisplay()};
@@ -3836,6 +3859,89 @@ scratchExportRich=async function(docId,format){
   if(docId!==activeDocId)return scratchExportRichV10Base(docId,format);
   try{return scratchDownloadBlob(new Blob([await scratchRichLivePdfBytes(docId)],{type:'application/pdf'}),(m.name||'document').replace(/\.[^.]+$/,'')+'.pdf')}
   catch(err){console.warn('pixel-faithful PDF export failed',err);scratchCompletionToast('Visual PDF export failed; using compatibility PDF',true);return scratchExportRichV10Base(docId,format)}
+};
+
+
+/* V11. Print-quality rich-document PDF: physical pages, DOM-faithful tables/media/type. */
+function scratchPdfPageGeometry(setup={}){
+  const sizes={letter:[816,1056],a4:[794,1123],legal:[816,1344]};let [w,h]=sizes[setup.size]||sizes.letter;
+  if(setup.orientation==='landscape')[w,h]=[h,w];
+  const mt=Math.max(0,Number(setup.marginTop)||0),mr=Math.max(0,Number(setup.marginRight)||0),mb=Math.max(0,Number(setup.marginBottom)||0),ml=Math.max(0,Number(setup.marginLeft)||0);
+  return{w,h,mt,mr,mb,ml,contentW:Math.max(40,w-ml-mr),contentH:Math.max(40,h-mt-mb),columns:Math.max(1,Math.min(4,Number(setup.columns)||1)),gap:Math.max(0,Number(setup.columnGap)||0)};
+}
+async function scratchInlineExportImages(root){
+  const imgs=[...root.querySelectorAll('img')];
+  await Promise.all(imgs.map(async img=>{
+    try{
+      if(img.src?.startsWith('data:'))return;
+      const r=await fetch(img.currentSrc||img.src),b=await r.blob(),data=await new Promise((res,rej)=>{const f=new FileReader;f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)});img.src=data;
+    }catch(_){
+      try{const c=document.createElement('canvas'),w=Math.max(1,img.naturalWidth||img.clientWidth||1),h=Math.max(1,img.naturalHeight||img.clientHeight||1);c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);img.src=c.toDataURL('image/png')}catch(__){}
+    }
+  }));
+}
+async function scratchWaitExportMedia(root){
+  try{await document.fonts?.ready}catch(_){}
+  await Promise.all([...root.querySelectorAll('img')].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.addEventListener('load',res,{once:true});img.addEventListener('error',res,{once:true});setTimeout(res,1800)})));
+  await scratchInlineExportImages(root);
+}
+function scratchPrepareRichPdfBlock(src){
+  const clone=scratchCloneNodeForExport(src);if(!clone)return null;
+  scratchNeutralizeRichExportClone(clone);
+  clone.classList.remove('selected','bookmarked');
+  clone.style.setProperty('position','relative','important');clone.style.setProperty('left','auto','important');clone.style.setProperty('top','auto','important');clone.style.setProperty('right','auto','important');clone.style.setProperty('bottom','auto','important');clone.style.setProperty('transform','none','important');clone.style.setProperty('width','auto','important');clone.style.setProperty('max-width','none','important');clone.style.setProperty('box-sizing','border-box','important');
+  clone.querySelectorAll('.blockTableWrap').forEach(x=>{x.style.setProperty('overflow','visible','important');x.style.setProperty('max-width','none','important')});
+  clone.querySelectorAll('.blockTable').forEach(x=>{x.style.setProperty('width','100%','important');x.style.setProperty('min-width','0','important');x.style.setProperty('table-layout','fixed','important');x.style.setProperty('border-collapse','collapse','important')});
+  clone.querySelectorAll('.tableCell').forEach(x=>{x.style.setProperty('overflow','visible','important');x.style.setProperty('min-height','0','important')});
+  clone.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach((x,i)=>{const srcInput=src.querySelectorAll('input[type="checkbox"],input[type="radio"]')[i];if(srcInput?.checked)x.setAttribute('checked','');else x.removeAttribute('checked')});
+  return clone;
+}
+function scratchRichExportSegments(docId=activeDocId){
+  const tabId=scratchActiveTab(docId),rows=scratchDocAllBlocks(docId).filter(b=>!b.deleted&&(b.tabId||scratchTabsForDoc(docId)[0]?.id)===tabId),base=scratchPageSetup(docId),segments=[];let setup={...base},ids=[];
+  const flush=force=>{if(ids.length||force){segments.push({setup:{...setup},ids});ids=[]}};
+  for(const b of rows){
+    if(b.type==='sectionbreak'){flush(true);setup={...setup,...scratchClone(b.attrs?.section||{})};continue}
+    if(b.type==='pagebreak'){flush(true);continue}
+    ids.push(b.id);
+  }
+  flush(segments.length===0||ids.length>0);
+  return segments;
+}
+function scratchRichPdfPaperStyle(){const src=$('#blockDoc'),cs=src?getComputedStyle(src):null;return{background:cs?.backgroundColor&&cs.backgroundColor!=='rgba(0, 0, 0, 0)'?cs.backgroundColor:'#ffffff',color:cs?.color||'#111111',fontFamily:cs?.fontFamily||'system-ui,sans-serif'}}
+function scratchBuildPdfPageNode(flowHtml,setup,geom,pageIndex,totalPages,offsetX=0){
+  const paper=scratchRichPdfPaperStyle(),page=document.createElement('div');page.setAttribute('xmlns','http://www.w3.org/1999/xhtml');page.setAttribute('style',`position:relative;box-sizing:border-box;width:${geom.w}px;height:${geom.h}px;overflow:hidden;background:${paper.background};color:${paper.color};font-family:${paper.fontFamily};`);
+  const content=document.createElement('div');content.setAttribute('style',`position:absolute;left:${geom.ml}px;top:${geom.mt}px;width:${geom.contentW}px;height:${geom.contentH}px;overflow:hidden;box-sizing:border-box;`);
+  const flow=document.createElement('div');flow.innerHTML=flowHtml;const inner=flow.firstElementChild;if(inner){inner.style.position='absolute';inner.style.left=(-offsetX)+'px';inner.style.top='0';content.append(inner)}page.append(content);
+  const header=String(setup.header||''),footer=String(setup.footer||'');if(header){const h=document.createElement('div');h.textContent=header;h.setAttribute('style',`position:absolute;left:${geom.ml}px;right:${geom.mr}px;top:${Math.max(10,geom.mt*.28)}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:500 9px/1.2 ${paper.fontFamily};opacity:.72;border-bottom:1px solid rgba(127,127,127,.22);padding-bottom:5px;`);page.append(h)}
+  if(footer||setup.pageNumbers){const f=document.createElement('div');f.setAttribute('style',`position:absolute;left:${geom.ml}px;right:${geom.mr}px;bottom:${Math.max(9,geom.mb*.22)}px;display:flex;align-items:center;justify-content:space-between;gap:12px;font:500 9px/1.2 ${paper.fontFamily};opacity:.72;border-top:1px solid rgba(127,127,127,.22);padding-top:5px;`);const left=document.createElement('span');left.textContent=footer;const right=document.createElement('span');right.textContent=setup.pageNumbers?String(pageIndex+1):'';f.append(left,right);page.append(f)}
+  return page;
+}
+async function scratchBuildRichPdfPages(docId=activeDocId){
+  if(docId!==activeDocId)throw new Error('Open the document before visual PDF export');const src=$('#blockDoc');if(!src)throw new Error('Document surface unavailable');
+  const segments=scratchRichExportSegments(docId),pages=[];let pageOrdinal=0;
+  for(const seg of segments){
+    const geom=scratchPdfPageGeometry(seg.setup),measure=document.createElement('div');measure.setAttribute('style',`position:fixed;left:-100000px;top:0;width:${geom.contentW}px;height:${geom.contentH}px;overflow:visible;visibility:hidden;pointer-events:none;z-index:-1;box-sizing:border-box;`);
+    const flow=document.createElement('div');flow.setAttribute('style',`position:relative;box-sizing:border-box;width:${geom.contentW}px;height:${geom.contentH}px;column-count:${geom.columns};column-gap:${geom.gap}px;column-fill:auto;overflow:visible;`);
+    for(const id of seg.ids){const source=src.querySelector(`:scope > .docBlock[data-block-id="${CSS.escape(String(id))}"]`);if(!source)continue;const block=scratchPrepareRichPdfBlock(source);if(block)flow.append(block)}
+    measure.append(flow);document.body.append(measure);await scratchWaitExportMedia(flow);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const totalW=Math.max(geom.contentW,flow.scrollWidth||geom.contentW),pageCount=Math.max(1,Math.ceil((totalW-.5)/geom.contentW)),html=flow.outerHTML;
+    for(let i=0;i<pageCount;i++){const page=scratchBuildPdfPageNode(html,seg.setup,geom,pageOrdinal,0,i*geom.contentW);pages.push({node:page,geom});pageOrdinal++}
+    measure.remove();
+  }
+  const total=pages.length;pages.forEach((p,i)=>{const footerSpans=p.node.querySelectorAll('div[style*="justify-content:space-between"] span:last-child');if(footerSpans.length&&p.node.textContent!=null){/* page numbering is intentionally simple */}});
+  return pages;
+}
+function scratchRichPdfPageSvg(pageNode,geom,scale=2){const html=pageNode.outerHTML,w=Math.max(1,Math.round(geom.w*scale)),h=Math.max(1,Math.round(geom.h*scale));return`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${geom.w} ${geom.h}"><foreignObject x="0" y="0" width="${geom.w}" height="${geom.h}">${html}</foreignObject></svg>`}
+async function scratchRichPrintQualityPdfBytes(docId=activeDocId){
+  const rendered=await scratchBuildRichPdfPages(docId),pdfPages=[];
+  for(const p of rendered){const svg=scratchRichPdfPageSvg(p.node,p.geom,2),jpeg=await scratchSvgRaster(svg,'image/jpeg',.965);if(!jpeg)throw new Error('PDF page rasterization failed');pdfPages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:p.geom.w*2,imgH:p.geom.h*2,pageW:p.geom.w*.75,pageH:p.geom.h*.75})}
+  return scratchJpegPagesPdfBytes(pdfPages);
+}
+const scratchExportRichV11Base=scratchExportRich;
+scratchExportRich=async function(docId,format){
+  if(format!=='pdf')return scratchExportRichV11Base(docId,format);const m=fsEntry(docId);if(!m)return;
+  try{const bytes=await scratchRichPrintQualityPdfBytes(docId);return scratchDownloadBlob(new Blob([bytes],{type:'application/pdf'}),(m.name||'document').replace(/\.[^.]+$/,'')+'.pdf')}
+  catch(err){console.warn('print-quality PDF export failed',err);scratchCompletionToast('Print-quality PDF failed; using compatibility renderer',true);return scratchExportRichV11Base(docId,format)}
 };
 
 /* V7-I. Runtime assertions make startup regressions visible immediately. */
