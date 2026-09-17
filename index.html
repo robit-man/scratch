@@ -3570,6 +3570,125 @@ const scratchHandoffPackageV7Base=scratchHandoffPackage;
 scratchHandoffPackage=function(id=selectedCanvasObjectId){const pkg=scratchHandoffPackageV7Base(id),o=id&&ycanvas.get(String(id));if(!pkg||!o)return pkg;pkg.tokens={fill:o.fillToken||null,stroke:o.strokeToken||null,text:o.textToken||null,opacity:o.opacityToken||null,radius:o.radiusToken||null,spacing:o.spacingToken||null,size:o.sizeToken||null,number:o.numberToken||null,modes:o.tokenModes||{}};pkg.appearance={...pkg.appearance,text:o.textToken?scratchResolveToken(o.textToken,o.color||null,o):(o.color||null),opacity:o.opacityToken?scratchResolveToken(o.opacityToken,o.opacity??1,o):(o.opacity??1),radius:o.radiusToken?scratchResolveToken(o.radiusToken,o.borderRadius||0,o):(o.borderRadius||0),spacing:o.spacingToken?scratchResolveToken(o.spacingToken,o.gap??o.padding??null,o):(o.gap??o.padding??null),size:o.sizeToken?scratchResolveToken(o.sizeToken,o.fontSize??null,o):(o.fontSize??null)};pkg.layout={...pkg.layout,wrap:!!o.wrap,justify:o.justifyContent||'start',align:o.alignItems||'start',primarySizing:o.primarySizing||'fixed',counterSizing:o.counterSizing||'fixed',breakpoint:o.layoutBreakpoint||null,belowBreakpointAxis:o.belowBreakpointAxis||null,minW:o.minW??null,maxW:o.maxW??null,minH:o.minH??null,maxH:o.maxH??null};return pkg};
 
 
+
+/* V9. Export fidelity: live DOM snapshot for wrapped text and embeds. */
+function scratchCssTextFromComputed(cs){let out='';for(const prop of cs){try{out+=`${prop}:${cs.getPropertyValue(prop)};`}catch(_){}}return out}
+function scratchExportCopyAttr(from,to,name){const v=from.getAttribute?.(name);if(v!=null)to.setAttribute(name,v)}
+function scratchCloneIframeExportNode(src){
+  const shell=document.createElement('div');
+  shell.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(src))+'overflow:hidden;position:relative;');
+  scratchExportCopyAttr(src,shell,'title');
+  try{
+    const doc=src.contentDocument,win=src.contentWindow;
+    if(doc&&doc.documentElement){
+      const wrap=document.createElement('div');
+      wrap.setAttribute('style','position:absolute;inset:0;overflow:hidden;background:#fff;');
+      const root=scratchCloneNodeForExport(doc.body||doc.documentElement,{insideIframe:true});
+      if(root){
+        const sx=Number(win?.scrollX)||0,sy=Number(win?.scrollY)||0;
+        const prior=root.getAttribute('style')||'';
+        root.setAttribute('style',prior+`;margin:0;transform:translate(${-sx}px,${-sy}px);transform-origin:top left;`);
+        wrap.append(root);
+      }
+      shell.append(wrap);
+      return shell;
+    }
+  }catch(_){ }
+  const fallback=document.createElement('div');
+  fallback.setAttribute('style','position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#060708;color:#c6d0d9;font:800 9px/1.4 var(--mono,monospace);text-align:center;white-space:pre-wrap;');
+  let label='LIVE WEBSITE\nExport of cross-origin iframe content is browser-restricted.';
+  try{label+=`\n${src.src||''}`}catch(_){ }
+  fallback.textContent=label;
+  shell.append(fallback);
+  return shell;
+}
+function scratchCloneNodeForExport(node,{insideIframe=false}={}){
+  if(!node)return null;
+  if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.textContent||'');
+  if(node.nodeType!==Node.ELEMENT_NODE)return null;
+  const el=node;
+  if(el.closest?.('.canvasHandle'))return null;
+  if(el.classList?.contains('canvasHandle'))return null;
+  if(el.classList?.contains('canvasObjectLabel'))return null;
+  const tag=el.tagName.toLowerCase();
+  if(tag==='script')return null;
+  if(tag==='iframe')return scratchCloneIframeExportNode(el);
+  if(tag==='video'){
+    try{
+      const c=document.createElement('canvas');
+      c.width=Math.max(1,el.videoWidth||el.clientWidth||1);c.height=Math.max(1,el.videoHeight||el.clientHeight||1);
+      c.getContext('2d').drawImage(el,0,0,c.width,c.height);
+      const img=document.createElement('img');
+      img.src=c.toDataURL('image/png');
+      img.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(el)));
+      img.alt=el.getAttribute('aria-label')||el.getAttribute('title')||'video frame';
+      return img;
+    }catch(_){ }
+  }
+  const clone=document.createElement(tag);
+  for(const a of [...el.attributes]){
+    if(a.name==='style')continue;
+    if(a.name==='id')continue;
+    if(a.name==='contenteditable'){clone.setAttribute('contenteditable','false');continue}
+    if(tag==='iframe'&&a.name==='srcdoc')continue;
+    clone.setAttribute(a.name,a.value);
+  }
+  const classes=[...(el.classList||[])].filter(x=>!['selected','remote-selected','performance-culled','spline-editing'].includes(x));
+  if(classes.length)clone.setAttribute('class',classes.join(' ')); else clone.removeAttribute('class');
+  clone.setAttribute('style',scratchCssTextFromComputed(getComputedStyle(el)));
+  if(tag==='input'||tag==='textarea'||tag==='select'){try{clone.setAttribute('value',el.value||'')}catch(_){}}
+  if(el.classList?.contains('canvasTextEdit'))clone.setAttribute('contenteditable','false');
+  if(tag==='svg'||el instanceof SVGElement){
+    clone.innerHTML=el.innerHTML;
+    return clone;
+  }
+  for(const child of [...el.childNodes]){const cc=scratchCloneNodeForExport(child,{insideIframe});if(cc)clone.append(cc)}
+  return clone;
+}
+async function scratchBuildLiveCanvasExportSnapshot(objectId=null,pageId=activeCanvasPageId){
+  const stage=scratchStage?.()||$('#canvasStage');
+  const rows=scratchExportScope(objectId,pageId).filter(o=>!o.hidden);
+  const bounds=scratchScopeBounds(rows);
+  const root=document.createElement('div');
+  root.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  root.setAttribute('style',`position:relative;width:${bounds.w}px;height:${bounds.h}px;overflow:hidden;background:transparent;`);
+  if(!stage)return{width:bounds.w,height:bounds.h,html:root.outerHTML,bounds};
+  const ordered=[...rows].sort((a,b)=>((Number(a.z)||0)-(Number(b.z)||0))||String(a.id).localeCompare(String(b.id)));
+  for(const o of ordered){
+    const src=stage.querySelector(`:scope > .canvasObject[data-object-id="${CSS.escape(String(o.id))}"]`);
+    if(!src)continue;
+    const clone=scratchCloneNodeForExport(src);
+    if(!clone)continue;
+    const prior=clone.getAttribute('style')||'';
+    clone.setAttribute('style',prior+`;position:absolute;left:${(Number(o.x)||0)-bounds.x}px;top:${(Number(o.y)||0)-bounds.y}px;transform:rotate(${Number(o.rotation)||0}deg);transform-origin:center center;z-index:${Number(o.z)||1};`);
+    root.append(clone);
+  }
+  return{width:Math.max(1,Math.ceil(bounds.w)),height:Math.max(1,Math.ceil(bounds.h)),html:root.outerHTML,bounds};
+}
+async function scratchLiveCanvasSvg(objectId=null,pageId=activeCanvasPageId){
+  const snap=await scratchBuildLiveCanvasExportSnapshot(objectId,pageId);
+  return`<svg xmlns="http://www.w3.org/2000/svg" width="${snap.width}" height="${snap.height}" viewBox="0 0 ${snap.width} ${snap.height}"><foreignObject x="0" y="0" width="100%" height="100%">${snap.html}</foreignObject></svg>`;
+}
+const scratchExportCanvasV9Base=scratchExportCanvas;
+scratchExportCanvas=async function(objectId,format,pageId=activeCanvasPageId){
+  if(!['png','jpeg','webp','svg','pdf'].includes(format))return scratchExportCanvasV9Base(objectId,format,pageId);
+  const doc=fsEntry(activeDocId),stem=safeName((objectId?ycanvas.get(objectId)?.name:ypages.get(pageId)?.name)||doc?.name||'canvas');
+  try{
+    const svg=await scratchLiveCanvasSvg(objectId,pageId);
+    if(format==='svg')return scratchDownloadBlob(new Blob([svg],{type:'image/svg+xml'}),stem+'.svg');
+    if(['png','jpeg','webp'].includes(format)){
+      const type=format==='jpeg'?'image/jpeg':`image/${format}`;
+      const blob=await scratchSvgRaster(svg,type,.94);
+      return scratchDownloadBlob(blob,stem+'.'+(format==='jpeg'?'jpg':format));
+    }
+    if(format==='pdf'){
+      const jpeg=await scratchSvgRaster(svg,'image/jpeg',.94),bytes=new Uint8Array(await jpeg.arrayBuffer()),rows=scratchExportScope(objectId,pageId),b=scratchScopeBounds(rows);
+      return scratchDownloadBlob(new Blob([scratchJpegPdfBytes(bytes,b.w,b.h)],{type:'application/pdf'}),stem+'.pdf');
+    }
+  }catch(err){console.warn('live canvas export fell back',err);scratchCompletionToast('Live export fallback used: '+(err?.message||err),true)}
+  return scratchExportCanvasV9Base(objectId,format,pageId);
+};
+
 /* V8. Final data-integrity closure: DOCX packaging + version/table fidelity. */
 
 /* Fix token option filtering so tuple ids, not token payloads, drive scope checks. */
@@ -3631,6 +3750,94 @@ scratchImportDocxZip=async function(file,parent=activeFolderId){
 function scratchXlsxColumnIndex(ref){const m=String(ref||'').match(/^([A-Z]+)/i);if(!m)return null;let n=0;for(const ch of m[1].toUpperCase())n=n*26+(ch.charCodeAt(0)-64);return n-1}
 scratchImportXlsxZip=async function(file,parent=activeFolderId){const z=await scratchZipRead(file),raw=z.get('xl/worksheets/sheet1.xml');if(!raw)throw new Error('XLSX sheet1 missing');const ssRaw=z.get('xl/sharedStrings.xml'),shared=ssRaw?[...new DOMParser().parseFromString(dec.decode(ssRaw),'application/xml').getElementsByTagNameNS('*','si')].map(si=>si.textContent||''):[],doc=new DOMParser().parseFromString(dec.decode(raw),'application/xml'),rows=[];for(const row of doc.getElementsByTagNameNS('*','row')){const ri=Math.max(0,(Number(row.getAttribute('r'))||rows.length+1)-1),out=rows[ri]||(rows[ri]=[]);for(const c of [...row.children].filter(x=>x.localName==='c')){const ci=scratchXlsxColumnIndex(c.getAttribute('r'))??out.length,t=c.getAttribute('t'),v=[...c.getElementsByTagNameNS('*','v')][0]?.textContent||'',inline=[...c.getElementsByTagNameNS('*','t')][0]?.textContent;out[ci]=t==='s'?shared[Number(v)]||'':inline??v}}for(let i=0;i<rows.length;i++)if(!rows[i])rows[i]=[];const id=createDocument(parent,safeName(file.name.replace(/\.xlsx$/i,'')),'');scratchClearImportedDoc(id);const cols=Math.max(1,...rows.map(r=>r.length)),bid=createBlock(id,'table',0,{rows:Math.max(1,rows.length),cols});ydoc.transact(()=>rows.forEach((r,ri)=>{for(let ci=0;ci<cols;ci++){const v=r[ci]??'';if(v!=='')tableCellText(bid,ri,ci).insert(0,String(v))}}),LOCAL_ORIGIN);selectDocument(id,{focus:false});return{kind:'document',id}}
 
+
+/* V10. Role convergence + pixel-faithful rich-document PDF export. */
+let scratchCapabilityReverifyTimer=null,scratchCapabilityObserverInstalled=false;
+async function scratchConvergeCapabilityRole(){
+  if(!yworkspace)return null;
+  try{
+    const cap=await scratchRefreshVerifiedCapability();
+    applyRoleUi();
+    if(isCanvasDoc())renderCanvas();
+    else if(isRichDoc())renderStructuredWorkspace();
+    window.__scratchRenderCompletionSurface?.();
+    return cap;
+  }catch(err){console.warn('capability role convergence failed',err);return null}
+}
+function scratchScheduleCapabilityReverify(delay=40){clearTimeout(scratchCapabilityReverifyTimer);scratchCapabilityReverifyTimer=setTimeout(()=>scratchConvergeCapabilityRole(),delay)}
+function scratchInstallCapabilityReverification(){
+  if(scratchCapabilityObserverInstalled||!yworkspace)return;scratchCapabilityObserverInstalled=true;
+  yworkspace.observe(ev=>{const keys=new Set(ev.keysChanged||[]);if(keys.has('ownerPublicJwk')||keys.has('signedCapabilities')||keys.has('revokedCaps'))scratchScheduleCapabilityReverify(0)});
+  yroles?.observe(()=>scratchScheduleCapabilityReverify(0));
+  let tries=0;const retry=()=>{if(++tries>40||scratchVerifiedCapability||scratchOwnerPrivateJwk)return;scratchScheduleCapabilityReverify(0);setTimeout(retry,250)};retry();
+}
+function scratchPropertyTargetDocId(t){if(!t)return activeDocId;if(t.kind==='canvas')return t.data?.docId||activeDocId;if(t.kind==='block')return t.data?.docId||activeDocId;return activeDocId}
+function scratchShareRoleOptions(){return{role:$('#capRoleSelect')?.value||'editor',docId:$('#capDocOnly')?.checked?activeDocId:null,minutes:Number($('#capExpirySelect')?.value||0)}}
+async function scratchRefreshCapabilityLinkDisplay(){
+  const input=$('#capLinkValue');if(!input)return'';
+  if(yworkspace?.get('signedCapabilities')){try{const u=await scratchCreateCapabilityUrl(scratchShareRoleOptions());input.value=u;return u}catch(err){console.warn('signed share link generation failed',err)}}
+  const u=capabilityLink();input.value=u;return u;
+}
+const scratchShowRoomQrV10Base=showRoomQr;
+showRoomQr=async function(){await scratchShowRoomQrV10Base();await scratchRefreshCapabilityLinkDisplay()};
+for(const id of ['capRoleSelect','capExpirySelect','capDocOnly'])$('#'+id)?.addEventListener('change',()=>{if(yworkspace?.get('signedCapabilities'))scratchRefreshCapabilityLinkDisplay()},true);
+$('#copyCapLink')?.addEventListener('click',async e=>{if(!yworkspace?.get('signedCapabilities'))return;e.preventDefault();e.stopImmediatePropagation();const u=await scratchRefreshCapabilityLinkDisplay();try{await navigator.clipboard.writeText(u);toast('<b>Signed capability link copied.</b>','good')}catch(_){prompt('Copy capability link:',u)}},true);
+const scratchEffectiveRoleV10Base=effectiveRole;
+effectiveRole=function(docId=activeDocId){const assigned=yroles?.get(`${docId}|${actor}`);if(assigned)return assigned;return scratchEffectiveRoleV10Base(docId)};
+const scratchHandlePropertyChangeV10Base=handlePropertyChange;
+handlePropertyChange=function(el){const t=propertyTarget(),docId=scratchPropertyTargetDocId(t);if(!canEditDocument(docId)){scratchCompletionToast?.('This link is read-only for document changes',true);updatePropertiesPanel();return false}return scratchHandlePropertyChangeV10Base(el)};
+const scratchHandlePropertyActionV10Base=handlePropertyAction;
+handlePropertyAction=function(action){const t=propertyTarget(),docId=scratchPropertyTargetDocId(t);if(!canEditDocument(docId)){scratchCompletionToast?.('This link is read-only for document changes',true);return false}return scratchHandlePropertyActionV10Base(action)};
+const scratchApplyInlinePropertyFormatV10Base=applyInlinePropertyFormat;
+applyInlinePropertyFormat=function(attr,value=true){const t=propertyTarget(),docId=scratchPropertyTargetDocId(t);if(!canEditDocument(docId))return false;return scratchApplyInlinePropertyFormatV10Base(attr,value)};
+
+function scratchNeutralizeRichExportClone(root){
+  root.querySelectorAll('.blockGrip,.inspectActions,.footnoteDelete,[data-embed-edit]').forEach(n=>n.remove());
+  root.querySelectorAll('[contenteditable]').forEach(n=>n.setAttribute('contenteditable','false'));
+  root.querySelectorAll('.docBlock').forEach(n=>{n.classList.remove('selected','dragging','block-drag-ghost','block-reflowing','block-drop-before','block-drop-after');n.style.borderColor='transparent';n.style.boxShadow=n.classList.contains('bookmarked')?n.style.boxShadow:'none'});
+  root.querySelectorAll('.tableCell').forEach(n=>{n.style.outline='none';n.style.boxShadow='none'});
+  root.querySelectorAll('button').forEach(n=>{if(n.classList.contains('checkToggle'))return;n.remove()});
+  return root;
+}
+async function scratchBuildRichLiveExportSnapshot(docId=activeDocId){
+  if(docId!==activeDocId)throw new Error('Pixel-faithful PDF export requires the document to be open');
+  if(!isRichDoc(fsEntry(docId)))throw new Error('Open a rich document first');
+  const src=$('#blockDoc');if(!src)throw new Error('Document surface unavailable');
+  const rect=src.getBoundingClientRect(),last=[...src.children].filter(n=>n.matches?.('.docBlock')).at(-1),srcTop=rect.top,lastRect=last?.getBoundingClientRect(),isPages=currentDocMeta()?.pageMode==='pages';
+  const width=Math.max(1,Math.ceil(rect.width||src.scrollWidth||816));
+  let height=isPages?Math.max(src.clientHeight||0,src.scrollHeight||0):Math.max(1,Math.ceil((lastRect?lastRect.bottom-srcTop:src.scrollHeight||0)+24));
+  height=Math.max(1,Math.ceil(height));
+  const clone=scratchCloneNodeForExport(src);if(!clone)throw new Error('Unable to clone document layout');
+  scratchNeutralizeRichExportClone(clone);clone.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+  const prior=clone.getAttribute('style')||'';clone.setAttribute('style',prior+`;box-sizing:border-box;margin:0!important;max-width:none!important;width:${width}px!important;height:${height}px!important;min-height:${height}px!important;overflow:hidden!important;`);
+  if(isPages){const header=src.dataset.pageHeader||'',footer=src.dataset.pageFooter||'',setup=scratchPageSetup(docId);if(header){const h=document.createElement('div');h.textContent=header;h.setAttribute('style',`position:absolute;z-index:10;top:18px;left:${Math.max(0,Number(setup.marginLeft)||0)}px;right:${Math.max(0,Number(setup.marginRight)||0)}px;height:22px;color:#626d76;font:7px var(--mono,monospace);border-bottom:1px solid #171b1f;pointer-events:none;`);clone.prepend(h)}if(footer){const f=document.createElement('div');f.textContent=footer;f.setAttribute('style',`position:absolute;z-index:10;bottom:16px;left:${Math.max(0,Number(setup.marginLeft)||0)}px;right:${Math.max(0,Number(setup.marginRight)||0)}px;height:22px;color:#626d76;font:7px var(--mono,monospace);border-top:1px solid #171b1f;padding-top:6px;pointer-events:none;`);clone.append(f)}}
+  return{width,height,html:clone.outerHTML};
+}
+function scratchRichSnapshotSvg(snap,offsetY=0,sliceHeight=snap.height){
+  const inner=`<div xmlns="http://www.w3.org/1999/xhtml" style="position:relative;width:${snap.width}px;height:${sliceHeight}px;overflow:hidden;"><div style="position:absolute;left:0;top:${-offsetY}px;width:${snap.width}px;height:${snap.height}px;">${snap.html}</div></div>`;
+  return`<svg xmlns="http://www.w3.org/2000/svg" width="${snap.width}" height="${sliceHeight}" viewBox="0 0 ${snap.width} ${sliceHeight}"><foreignObject x="0" y="0" width="${snap.width}" height="${sliceHeight}">${inner}</foreignObject></svg>`;
+}
+function scratchJpegPagesPdfBytes(pages){
+  const E=x=>enc.encode(x),objects=[],kids=[];objects.push('<< /Type /Catalog /Pages 2 0 R >>');
+  for(let i=0;i<pages.length;i++)kids.push(`${3+i*3} 0 R`);
+  objects.push(`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${pages.length} >>`);
+  pages.forEach((p,i)=>{const pageId=3+i*3,imgId=pageId+1,contentId=pageId+2,content=`q\n${p.pageW} 0 0 ${p.pageH} 0 0 cm\n/Im0 Do\nQ`,head=E(`<< /Type /XObject /Subtype /Image /Width ${p.imgW} /Height ${p.imgH} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${p.bytes.length} >>\nstream\n`),tail=E('\nendstream');objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${p.pageW} ${p.pageH}] /Resources << /XObject << /Im0 ${imgId} 0 R >> >> /Contents ${contentId} 0 R >>`);objects.push(scratchPdfConcat([head,p.bytes,tail]));objects.push(`<< /Length ${E(content).length} >>\nstream\n${content}\nendstream`)});
+  return scratchPdfBuild(objects);
+}
+async function scratchRichLivePdfBytes(docId=activeDocId){
+  const snap=await scratchBuildRichLiveExportSnapshot(docId),maxSlice=12000,pages=[];
+  for(let y=0;y<snap.height;y+=maxSlice){const h=Math.min(maxSlice,snap.height-y),svg=scratchRichSnapshotSvg(snap,y,h),jpeg=await scratchSvgRaster(svg,'image/jpeg',.97);if(!jpeg)throw new Error('Document rasterization failed');pages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:snap.width,imgH:h,pageW:Math.max(1,snap.width*.75),pageH:Math.max(1,h*.75)})}
+  return scratchJpegPagesPdfBytes(pages);
+}
+const scratchExportRichV10Base=scratchExportRich;
+scratchExportRich=async function(docId,format){
+  if(format!=='pdf')return scratchExportRichV10Base(docId,format);
+  const m=fsEntry(docId);if(!m)return;
+  if(docId!==activeDocId)return scratchExportRichV10Base(docId,format);
+  try{return scratchDownloadBlob(new Blob([await scratchRichLivePdfBytes(docId)],{type:'application/pdf'}),(m.name||'document').replace(/\.[^.]+$/,'')+'.pdf')}
+  catch(err){console.warn('pixel-faithful PDF export failed',err);scratchCompletionToast('Visual PDF export failed; using compatibility PDF',true);return scratchExportRichV10Base(docId,format)}
+};
+
 /* V7-I. Runtime assertions make startup regressions visible immediately. */
 
 function scratchRuntimeAssertions(){const failures=[];for(const [name,fn] of Object.entries({reflowScratchFrame,scratchSelectedObjects,selectionBounds,scratchAdvancedReflowFrame,scratchSanitizeSvgMarkup,scratchCanvasSvg,scratchImportFile,scratchExportRich,scratchExportCanvas}))if(typeof fn!=='function')failures.push(name);if(failures.length)throw new Error('Scratch runtime bridge missing: '+failures.join(', '));return true}
@@ -3645,7 +3852,7 @@ bindCanvasPresenceTracking();
 (async()=>{
   try{
     for(const name of Object.keys(STRATEGIES))setTransport(name,'loading');
-    await initSecret();await importYjs();setupYDoc();await loadLocal();scratchInitCompletion();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();startInitialSyncGate();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
+    await initSecret();await importYjs();setupYDoc();await loadLocal();scratchInitCompletion();scratchInstallCapabilityReverification();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();startInitialSyncGate();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
   }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;setInitialSyncGate('INITIALIZATION FAILED',e.message,'error');const ga=$('#syncGateActions'),off=$('#syncGateOffline');if(ga)ga.hidden=false;if(off)off.hidden=true;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
