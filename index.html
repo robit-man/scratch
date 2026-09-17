@@ -4083,6 +4083,94 @@ scratchExportRich=async function(docId,format){
   return scratchExportRichV12Base(docId,format);
 };
 
+
+/* V13. Document appearance, responsive properties, and PDF table parity. */
+const scratchPageSetupV13Base=scratchPageSetup;
+scratchPageSetup=function(docId=activeDocId){return{background:'#ffffff',textColor:'#111111',...scratchPageSetupV13Base(docId)}};
+
+const scratchApplyPageSetupV13Base=scratchApplyPageSetup;
+scratchApplyPageSetup=function(){
+  scratchApplyPageSetupV13Base();
+  const doc=$('#blockDoc'),ed=$('#structuredEditor'),m=currentDocMeta();
+  if(!doc||!m||!isRichDoc(m))return;
+  const s=scratchPageSetup(m.id),bg=propColor(s.background,'#ffffff'),fg=propColor(s.textColor,'#111111');
+  doc.style.setProperty('background',bg,'important');
+  doc.style.setProperty('color',fg,'important');
+  doc.style.setProperty('--scratch-doc-bg',bg);
+  doc.style.setProperty('--scratch-doc-fg',fg);
+  if(ed){ed.style.setProperty('--scratch-paper-bg',bg);ed.style.setProperty('--scratch-paper-fg',fg)}
+};
+
+function scratchDocumentAppearancePropertiesHtml(){
+  const s=scratchPageSetup(activeDocId);
+  return propSection('Document appearance',`<div class="propGrid">${propColorField('Background','background',s.background||'#ffffff','document')}${propColorField('Text','textColor',s.textColor||'#111111','document')}</div><div class="propHint">These are document colors, not application theme colors. PDF export uses these exact values.</div>`);
+}
+const updatePropertiesPanelV13Base=updatePropertiesPanel;
+updatePropertiesPanel=function(){
+  updatePropertiesPanelV13Base();
+  const panel=$('#mediaPanel'),box=$('#propertiesPanel');
+  if(!panel||!box||!isRichDoc()||!panel.classList.contains('properties-mode'))return;
+  if(!box.querySelector('[data-doc-appearance-section]')){
+    const wrap=document.createElement('div');wrap.dataset.docAppearanceSection='1';wrap.innerHTML=scratchDocumentAppearancePropertiesHtml();box.prepend(wrap);
+  }
+};
+
+const handlePropertyChangeV13Base=handlePropertyChange;
+handlePropertyChange=function(el){
+  if(el?.dataset?.propScope==='document'){
+    const key=el.dataset.propKey;if(!key)return;
+    const value=normalizePropertyValue(el,el.value);
+    scratchSetPageSetup({[key]:value});
+    scratchApplyPageSetup();
+    return;
+  }
+  return handlePropertyChangeV13Base(el);
+};
+
+function scratchInstallResponsivePropertiesPanel(){
+  const panel=$('#mediaPanel');if(!panel||panel.dataset.propertiesResizeBound==='1')return;
+  panel.dataset.propertiesResizeBound='1';
+  const sync=()=>{const w=panel.getBoundingClientRect().width,narrow=w>0&&w<230;panel.classList.toggle('properties-narrow',narrow);if(narrow&&panel.classList.contains('properties-mode'))updateCollapsedMediaSummary()};
+  if(typeof ResizeObserver==='function'){const ro=new ResizeObserver(sync);ro.observe(panel);window.__scratchPropertiesResizeObserver=ro}else window.addEventListener('resize',sync,{passive:true});
+  sync();
+}
+
+const scratchPrepareRichPdfBlockV13Base=scratchPrepareRichPdfBlock;
+scratchPrepareRichPdfBlock=function(src){
+  const clone=scratchPrepareRichPdfBlockV13Base(src);if(!clone)return null;
+  if(!clone.classList.contains('table'))return clone;
+  clone.style.setProperty('display','block','important');
+  clone.style.setProperty('width','100%','important');
+  clone.style.setProperty('max-width','100%','important');
+  clone.style.setProperty('overflow','visible','important');
+  const wrap=clone.querySelector('.blockTableWrap'),table=clone.querySelector('.blockTable'),sourceTable=src.querySelector('.blockTable');
+  if(wrap){wrap.style.setProperty('width','100%','important');wrap.style.setProperty('max-width','100%','important');wrap.style.setProperty('overflow','visible','important');wrap.style.setProperty('border','0','important');wrap.style.setProperty('box-sizing','border-box','important')}
+  if(table){
+    table.style.setProperty('display','table','important');table.style.setProperty('width','100%','important');table.style.setProperty('min-width','100%','important');table.style.setProperty('max-width','100%','important');table.style.setProperty('table-layout','fixed','important');table.style.setProperty('border-collapse','collapse','important');table.style.setProperty('border-spacing','0','important');table.style.setProperty('box-sizing','border-box','important');table.style.setProperty('margin','0','important');
+    const sourceCells=[...(sourceTable?.rows?.[0]?.cells||[])],cols=Math.max(1,sourceCells.length||table.rows?.[0]?.cells?.length||1),sourceW=Math.max(1,sourceTable?.getBoundingClientRect?.().width||1);
+    let widths=sourceCells.map(c=>Math.max(1,c.getBoundingClientRect().width)/sourceW*100);
+    if(widths.length!==cols||!widths.every(Number.isFinite))widths=Array.from({length:cols},()=>100/cols);
+    const total=widths.reduce((a,b)=>a+b,0)||100;widths=widths.map(x=>x/total*100);
+    let cg=table.querySelector('colgroup');if(!cg){cg=document.createElement('colgroup');table.insertBefore(cg,table.firstChild)}cg.innerHTML=widths.map(w=>`<col style="width:${w.toFixed(5)}%">`).join('');
+    table.querySelectorAll('th,td').forEach(cell=>{cell.style.setProperty('min-width','0','important');cell.style.setProperty('width','auto','important');cell.style.setProperty('max-width','none','important');cell.style.setProperty('box-sizing','border-box','important');cell.style.setProperty('overflow','hidden','important');});
+    table.querySelectorAll('.tableCell').forEach(cell=>{cell.style.setProperty('width','100%','important');cell.style.setProperty('box-sizing','border-box','important');cell.style.setProperty('overflow-wrap','anywhere','important');cell.style.setProperty('word-break','normal','important')});
+  }
+  return clone;
+};
+
+scratchRichPdfPaperStyle=function(){const s=scratchPageSetup(activeDocId),src=$('#blockDoc'),cs=src?getComputedStyle(src):null;return{background:propColor(s.background,'#ffffff'),color:propColor(s.textColor,'#111111'),fontFamily:cs?.fontFamily||'system-ui,sans-serif'}};
+
+const scratchBuildPdfPageNodeV13Base=scratchBuildPdfPageNode;
+scratchBuildPdfPageNode=function(flowHtml,setup,geom,pageIndex,totalPages,offsetX=0){
+  const page=scratchBuildPdfPageNodeV13Base(flowHtml,setup,geom,pageIndex,totalPages,offsetX),bg=propColor(setup?.background,scratchPageSetup(activeDocId).background||'#ffffff'),fg=propColor(setup?.textColor,scratchPageSetup(activeDocId).textColor||'#111111');
+  page.style.setProperty('background',bg,'important');page.style.setProperty('color',fg,'important');
+  page.querySelectorAll('.blockTableWrap').forEach(x=>x.style.setProperty('border','0','important'));
+  page.querySelectorAll('.blockTable').forEach(x=>{x.style.setProperty('width','100%','important');x.style.setProperty('min-width','100%','important');x.style.setProperty('max-width','100%','important');x.style.setProperty('border-spacing','0','important')});
+  return page;
+};
+
+scratchInstallResponsivePropertiesPanel();
+
 /* V7-I. Runtime assertions make startup regressions visible immediately. */
 
 function scratchRuntimeAssertions(){const failures=[];for(const [name,fn] of Object.entries({reflowScratchFrame,scratchSelectedObjects,selectionBounds,scratchAdvancedReflowFrame,scratchSanitizeSvgMarkup,scratchCanvasSvg,scratchImportFile,scratchExportRich,scratchExportCanvas}))if(typeof fn!=='function')failures.push(name);if(failures.length)throw new Error('Scratch runtime bridge missing: '+failures.join(', '));return true}
@@ -4226,6 +4314,10 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
 /* Scratch professional hardening v6 */
 .docBlock.footnote{margin-top:8px;border-top:1px solid #20262c;background:#0b0e10}.docBlock.footnote .blockEditable{padding-left:30px;font-size:11px;line-height:1.5;color:#aeb7be}.footnoteNumber{position:absolute;left:7px;top:8px;color:#77838d;font:800 8px var(--mono)}.footnoteDelete{position:absolute;right:4px;top:4px;width:22px;height:22px;border:0;background:transparent;color:#59636b;opacity:0;cursor:pointer}.docBlock.footnote:hover .footnoteDelete,.docBlock.footnote.selected .footnoteDelete{opacity:1}.footnoteRef{padding:0 .26em;min-height:1.2em;font-size:.72em;vertical-align:super;cursor:pointer}.docBlock.sectionbreak{min-height:36px}.docBlock.sectionbreak .pageBreakLine{color:#7c8790}.canvasObject.vector>.canvasBody,.vectorBody{padding:0!important;overflow:hidden}.vectorBody>svg{display:block;width:100%;height:100%;overflow:visible}.canvasObject.vector .canvasObjectLabel{z-index:2}.scratchPrototypeOverlayHost{position:absolute;inset:0;z-index:100010;display:grid;place-items:center;pointer-events:auto}.scratchPrototypeOverlayHost[hidden]{display:none!important}.scratchPrototypeOverlayBackdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}.scratchPrototypeOverlayCard{position:relative;z-index:1;max-width:min(88%,960px);max-height:88%;overflow:auto;background:#0a0d0f;border:1px solid #434d56;box-shadow:0 24px 80px rgba(0,0,0,.66)}.scratchPrototypeOverlayCard>svg{display:block;max-width:100%;height:auto}.completionConflict{border-left:2px solid #8e6f43}.instanceOverrideMark{position:absolute;right:4px;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--accent);pointer-events:none}.canvasObject[data-instance-root-id]{--instance-outline:#303941}.canvasObject[data-instance-root-id].selected{outline-color:#596a79}.devHandoffPackage{max-height:360px;overflow:auto;white-space:pre-wrap;word-break:break-word}.offlineJournalEncrypted:before{content:'ENCRYPTED';font:700 6px var(--mono);letter-spacing:.08em;color:#75818a}.completionForm select[data-instance-variant]{min-width:150px}
 .tokenScopeGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 8px;margin:7px 0;font:700 7px var(--mono);color:#8d98a1}.tokenScopeGrid label{display:flex;align-items:center;gap:5px;min-width:0}.tokenScopeGrid input{margin:0}
+
+/* V13 document paper + responsive properties */
+.assets.properties-mode.properties-narrow>.propertiesPanel{display:none!important}.assets.properties-mode.properties-narrow>.mediaCollapsed{display:flex!important}.assets.properties-mode.properties-narrow>.liveSection,.assets.properties-mode.properties-narrow>.drop,.assets.properties-mode.properties-narrow>.assetlist,.assets.properties-mode.properties-narrow>.transport{display:none!important}.assets.properties-mode.properties-narrow>.panelhead .paneltitle,.assets.properties-mode.properties-narrow>.panelhead .panelmeta{display:none}.assets.properties-mode.properties-narrow>.panelhead{padding-inline:4px;justify-content:center}
+#blockDoc{background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important}.blockDoc.pageless-mode{box-sizing:border-box;padding:36px 44px 120px;background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important;border:1px solid #d9dde1;box-shadow:0 8px 28px rgba(0,0,0,.18)}#blockDoc.page-mode{background:var(--scratch-doc-bg,#fff)!important;color:var(--scratch-doc-fg,#111)!important;border-color:#cfd4d8}.structuredEditor{background:#2b2f33}.blockEditable,.tableCell{color:inherit}.blockTableWrap{max-width:100%;box-sizing:border-box}.blockTable{width:100%;max-width:100%;box-sizing:border-box}.blockTable th,.blockTable td{box-sizing:border-box}.blockTable th{background:color-mix(in srgb,currentColor 5%,transparent)}
 </style>
 
 
