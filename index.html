@@ -1884,7 +1884,8 @@ function bindCanvasViewport(){
      if(empty){e.preventDefault();surface.setPointerCapture?.(e.pointerId);const v=canvasView();pan={pointerId:e.pointerId,x:e.clientX,y:e.clientY,vx:v.x,vy:v.y};deselect();surface.classList.add('is-panning')}
      return;
    }
-   if((e.button===0&&empty)||e.button===1){e.preventDefault();if(empty)deselect();const v=canvasView();pan={pointerId:e.pointerId,x:e.clientX,y:e.clientY,vx:v.x,vy:v.y};surface.setPointerCapture?.(e.pointerId);surface.classList.add('is-panning')}
+   const wantsMousePan=e.button===1||(e.button===0&&empty&&!scratchDrawTool&&!(e.shiftKey&&canvasMode!=='hand'));
+   if(wantsMousePan){e.preventDefault();if(empty&&!e.shiftKey)deselect();const v=canvasView();pan={pointerId:e.pointerId,x:e.clientX,y:e.clientY,vx:v.x,vy:v.y};surface.setPointerCapture?.(e.pointerId);surface.classList.add('is-panning')}
  },true);
  surface.addEventListener('pointermove',e=>{
    if(e.pointerType==='touch'&&pointers.has(e.pointerId)){
@@ -2559,7 +2560,7 @@ const agentInstructionsV4=$('#agentInstructions');if(agentInstructionsV4)agentIn
      if(scratchDrawTool==='pen'){const s=scratchPenSession||(scratchPenSession={points:[],hover:null,pointerId:null});if(s.points.length>=3&&Math.hypot(p.x-s.points[0].x,p.y-s.points[0].y)<10/canvasView().scale){finishPen(true);return}const q={x:p.x,y:p.y,inX:p.x,inY:p.y,outX:p.x,outY:p.y,smooth:true};s.points.push(q);s.pointerId=e.pointerId;s.anchor={...p};updatePenOverlay();return}
      if(scratchDrawTool==='pencil'||scratchDrawTool==='brush'){scratchPencilSession={pointerId:e.pointerId,points:[p],kind:scratchDrawTool};updatePencilOverlay();return}
      scratchDragCreate={pointerId:e.pointerId,tool:scratchDrawTool,a:p,b:p,mods:{shiftKey:e.shiftKey,altKey:e.altKey}};if(['line','arrow'].includes(scratchDrawTool))drawPreviewLine(p,p);else drawPreviewRect(p,p,scratchDrawTool,{shiftKey:e.shiftKey,altKey:e.altKey});return}
-     if(canvasMode==='move'&&!obj&&e.pointerType!=='touch'){e.preventDefault();e.stopImmediatePropagation();beginMarquee(e);return}
+     if(!scratchDrawTool&&canvasMode!=='hand'&&e.shiftKey&&!obj&&e.pointerType!=='touch'){e.preventDefault();e.stopImmediatePropagation();beginMarquee(e);return}
      if(obj&&!e.shiftKey){setTimeout(()=>{scratchMultiSelection.clear();scratchMultiSelection.add(obj.dataset.objectId);syncScratchSelection(obj.dataset.objectId)},0)}
    },true);
    surface.addEventListener('pointermove',e=>{if(scratchPenSession){const p=stagePoint(e);if(scratchPenSession.pointerId===e.pointerId&&scratchPenSession.anchor){const q=scratchPenSession.points.at(-1),a=scratchPenSession.anchor;q.outX=p.x;q.outY=p.y;q.inX=2*a.x-p.x;q.inY=2*a.y-p.y}else scratchPenSession.hover=p;updatePenOverlay();e.preventDefault();e.stopImmediatePropagation();return}if(scratchPencilSession?.pointerId===e.pointerId){const p=stagePoint(e),last=scratchPencilSession.points.at(-1);if(Math.hypot(p.x-last.x,p.y-last.y)>1.5/canvasView().scale)scratchPencilSession.points.push(p);updatePencilOverlay();e.preventDefault();e.stopImmediatePropagation();return}if(scratchDragCreate?.pointerId===e.pointerId){const p=stagePoint(e);scratchDragCreate.b=p;scratchDragCreate.mods={shiftKey:e.shiftKey,altKey:e.altKey};if(['line','arrow'].includes(scratchDragCreate.tool))drawPreviewLine(scratchDragCreate.a,p);else drawPreviewRect(scratchDragCreate.a,p,scratchDragCreate.tool,scratchDragCreate.mods);e.preventDefault();e.stopImmediatePropagation();return}if(scratchMarquee?.id===e.pointerId){updateMarquee(stagePoint(e));e.preventDefault();e.stopImmediatePropagation()}},true);
