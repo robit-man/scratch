@@ -3823,8 +3823,9 @@ function scratchNeutralizeRichExportClone(root){
   return root;
 }
 async function scratchBuildRichLiveExportSnapshot(docId=activeDocId){
-  if(docId!==activeDocId)throw new Error('Pixel-faithful PDF export requires the document to be open');
-  if(!isRichDoc(fsEntry(docId)))throw new Error('Open a rich document first');
+  const targetId=String(docId||activeDocId||'');
+  if(targetId!==String(activeDocId||''))throw new Error('Pixel-faithful PDF export requires the requested document to be open');
+  const meta=fsEntry(targetId);if(!meta||meta.type!=='doc'||docKind(meta)!=='rich')throw new Error('Requested document is not an open rich document');
   const src=$('#blockDoc');if(!src)throw new Error('Document surface unavailable');
   const rect=src.getBoundingClientRect(),last=[...src.children].filter(n=>n.matches?.('.docBlock')).at(-1),srcTop=rect.top,lastRect=last?.getBoundingClientRect(),isPages=currentDocMeta()?.pageMode==='pages';
   const width=Math.max(1,Math.ceil(rect.width||src.scrollWidth||816));
@@ -3833,6 +3834,7 @@ async function scratchBuildRichLiveExportSnapshot(docId=activeDocId){
   const clone=scratchCloneNodeForExport(src);if(!clone)throw new Error('Unable to clone document layout');
   scratchNeutralizeRichExportClone(clone);clone.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
   const prior=clone.getAttribute('style')||'';clone.setAttribute('style',prior+`;box-sizing:border-box;margin:0!important;max-width:none!important;width:${width}px!important;height:${height}px!important;min-height:${height}px!important;overflow:hidden!important;`);
+  await scratchWaitExportMedia(clone);
   if(isPages){const header=src.dataset.pageHeader||'',footer=src.dataset.pageFooter||'',setup=scratchPageSetup(docId);if(header){const h=document.createElement('div');h.textContent=header;h.setAttribute('style',`position:absolute;z-index:10;top:18px;left:${Math.max(0,Number(setup.marginLeft)||0)}px;right:${Math.max(0,Number(setup.marginRight)||0)}px;height:22px;color:#626d76;font:7px var(--mono,monospace);border-bottom:1px solid #171b1f;pointer-events:none;`);clone.prepend(h)}if(footer){const f=document.createElement('div');f.textContent=footer;f.setAttribute('style',`position:absolute;z-index:10;bottom:16px;left:${Math.max(0,Number(setup.marginLeft)||0)}px;right:${Math.max(0,Number(setup.marginRight)||0)}px;height:22px;color:#626d76;font:7px var(--mono,monospace);border-top:1px solid #171b1f;padding-top:6px;pointer-events:none;`);clone.append(f)}}
   return{width,height,html:clone.outerHTML};
 }
@@ -3849,7 +3851,7 @@ function scratchJpegPagesPdfBytes(pages){
 }
 async function scratchRichLivePdfBytes(docId=activeDocId){
   const snap=await scratchBuildRichLiveExportSnapshot(docId),maxSlice=12000,pages=[];
-  for(let y=0;y<snap.height;y+=maxSlice){const h=Math.min(maxSlice,snap.height-y),svg=scratchRichSnapshotSvg(snap,y,h),jpeg=await scratchSvgRaster(svg,'image/jpeg',.97);if(!jpeg)throw new Error('Document rasterization failed');pages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:snap.width,imgH:h,pageW:Math.max(1,snap.width*.75),pageH:Math.max(1,h*.75)})}
+  for(let y=0;y<snap.height;y+=maxSlice){const h=Math.min(maxSlice,snap.height-y),svg=scratchRichSnapshotSvg(snap,y,h);scratchAssertRasterMarkupSelfContained(svg);const jpeg=await scratchSvgRaster(svg,'image/jpeg',.97);if(!jpeg)throw new Error('Document rasterization failed');pages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:snap.width,imgH:h,pageW:Math.max(1,snap.width*.75),pageH:Math.max(1,h*.75)})}
   return scratchJpegPagesPdfBytes(pages);
 }
 const scratchExportRichV10Base=scratchExportRich;
@@ -3869,21 +3871,57 @@ function scratchPdfPageGeometry(setup={}){
   const mt=Math.max(0,Number(setup.marginTop)||0),mr=Math.max(0,Number(setup.marginRight)||0),mb=Math.max(0,Number(setup.marginBottom)||0),ml=Math.max(0,Number(setup.marginLeft)||0);
   return{w,h,mt,mr,mb,ml,contentW:Math.max(40,w-ml-mr),contentH:Math.max(40,h-mt-mb),columns:Math.max(1,Math.min(4,Number(setup.columns)||1)),gap:Math.max(0,Number(setup.columnGap)||0)};
 }
-async function scratchInlineExportImages(root){
-  const imgs=[...root.querySelectorAll('img')];
-  await Promise.all(imgs.map(async img=>{
-    try{
-      if(img.src?.startsWith('data:'))return;
-      const r=await fetch(img.currentSrc||img.src),b=await r.blob(),data=await new Promise((res,rej)=>{const f=new FileReader;f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)});img.src=data;
-    }catch(_){
-      try{const c=document.createElement('canvas'),w=Math.max(1,img.naturalWidth||img.clientWidth||1),h=Math.max(1,img.naturalHeight||img.clientHeight||1);c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);img.src=c.toDataURL('image/png')}catch(__){}
-    }
-  }));
+function scratchExportPlaceholderDataUrl(w=320,h=180,label='External image unavailable in browser PDF export'){
+  w=Math.max(1,Math.round(Number(w)||320));h=Math.max(1,Math.round(Number(h)||180));
+  const safe=String(label||'Image unavailable').replace(/[<&>]/g,' '),svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="100%" height="100%" fill="#eef1f4"/><rect x=".5" y=".5" width="${Math.max(0,w-1)}" height="${Math.max(0,h-1)}" fill="none" stroke="#c7cdd3"/><text x="${Math.max(8,Math.round(w*.04))}" y="${Math.max(18,Math.round(h*.5))}" fill="#626b73" font-family="Arial,sans-serif" font-size="${Math.max(10,Math.min(16,Math.round(Math.min(w,h)*.08)))}">${safe.slice(0,72)}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
+function scratchBlobToDataUrl(blob){return new Promise((res,rej)=>{const f=new FileReader;f.onload=()=>res(String(f.result||''));f.onerror=()=>rej(f.error||new Error('Unable to encode export resource'));f.readAsDataURL(blob)})}
+async function scratchExportResourceDataUrl(raw){
+  const url=String(raw||'').trim();if(!url||url.startsWith('#')||url.startsWith('data:'))return url;
+  let abs;try{abs=new URL(url,location.href)}catch(_){throw new Error('Invalid export resource URL')}
+  if(!['http:','https:','blob:'].includes(abs.protocol))throw new Error('Unsupported export resource protocol');
+  const same=abs.protocol==='blob:'||abs.origin===location.origin,opts=same?{credentials:'same-origin'}:{mode:'cors',credentials:'omit'};
+  const r=await fetch(abs.href,opts);if(!r.ok)throw new Error(`HTTP ${r.status}`);return scratchBlobToDataUrl(await r.blob());
+}
+async function scratchInlineCssUrls(el){
+  const style=el?.style;if(!style)return;
+  for(let i=0;i<style.length;i++){
+    const prop=style.item(i),val=style.getPropertyValue(prop);if(!val||!/url\s*\(/i.test(val))continue;
+    const matches=[...val.matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/gi)];let next=val;
+    for(const m of matches){const raw=String(m[2]||'').trim();if(!raw||raw.startsWith('#')||raw.startsWith('data:'))continue;try{const data=await scratchExportResourceDataUrl(raw);next=next.replace(m[0],`url("${data.replace(/"/g,'%22')}")`)}catch(_){next=next.replace(m[0],'none')}}
+    style.setProperty(prop,next,style.getPropertyPriority(prop));
+  }
+}
+async function scratchSanitizeExportResources(root){
+  if(!root)return root;
+  const all=[root,...root.querySelectorAll('*')];
+  for(const el of all)await scratchInlineCssUrls(el);
+  for(const img of [...root.querySelectorAll('img')]){
+    const src=img.currentSrc||img.getAttribute('src')||'';img.removeAttribute('srcset');img.removeAttribute('crossorigin');
+    const picture=img.closest('picture');picture?.querySelectorAll('source').forEach(s=>{s.removeAttribute('src');s.removeAttribute('srcset')});
+    if(!src||src.startsWith('data:'))continue;
+    try{img.src=await scratchExportResourceDataUrl(src)}catch(_){const r=img.getBoundingClientRect?.()||{},cs=getComputedStyle(img),w=r.width||parseFloat(cs.width)||img.naturalWidth||320,h=r.height||parseFloat(cs.height)||img.naturalHeight||180;img.src=scratchExportPlaceholderDataUrl(w,h,img.alt||'External image unavailable')}
+  }
+  for(const image of [...root.querySelectorAll('svg image,image')]){
+    const raw=image.getAttribute('href')||image.getAttributeNS?.('http://www.w3.org/1999/xlink','href')||image.getAttribute('xlink:href')||'';if(!raw||raw.startsWith('#')||raw.startsWith('data:'))continue;
+    try{const data=await scratchExportResourceDataUrl(raw);image.setAttribute('href',data);image.removeAttribute('xlink:href')}catch(_){image.removeAttribute('href');image.removeAttribute('xlink:href')}
+  }
+  root.querySelectorAll('source').forEach(s=>{s.removeAttribute('src');s.removeAttribute('srcset')});
+  root.querySelectorAll('audio,object,embed').forEach(el=>{el.removeAttribute('src');el.removeAttribute('data')});
+  root.querySelectorAll('video').forEach(el=>{el.removeAttribute('src');el.removeAttribute('poster')});
+  return root;
+}
+function scratchAssertRasterMarkupSelfContained(svg){
+  const s=String(svg||'');const bad=/<(?:img|source|video|audio|object|embed)\b[^>]*(?:src|srcset|poster|data)\s*=\s*["']\s*(?:https?:|blob:|\/\/)/i.test(s)||/<image\b[^>]*(?:href|xlink:href)\s*=\s*["']\s*(?:https?:|blob:|\/\/)/i.test(s)||/url\(\s*["']?\s*(?:https?:|blob:|\/\/)/i.test(s);if(bad)throw new Error('PDF raster markup still contains an external resource');return true;
+}
+async function scratchInlineExportImages(root){return scratchSanitizeExportResources(root)}
+
 async function scratchWaitExportMedia(root){
   try{await document.fonts?.ready}catch(_){}
+  await scratchSanitizeExportResources(root);
   await Promise.all([...root.querySelectorAll('img')].map(img=>img.complete?Promise.resolve():new Promise(res=>{img.addEventListener('load',res,{once:true});img.addEventListener('error',res,{once:true});setTimeout(res,1800)})));
-  await scratchInlineExportImages(root);
+  await scratchSanitizeExportResources(root);
 }
 function scratchPrepareRichPdfBlock(src){
   const clone=scratchCloneNodeForExport(src);if(!clone)return null;
@@ -3934,7 +3972,7 @@ async function scratchBuildRichPdfPages(docId=activeDocId){
 function scratchRichPdfPageSvg(pageNode,geom,scale=2){const html=pageNode.outerHTML,w=Math.max(1,Math.round(geom.w*scale)),h=Math.max(1,Math.round(geom.h*scale));return`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${geom.w} ${geom.h}"><foreignObject x="0" y="0" width="${geom.w}" height="${geom.h}">${html}</foreignObject></svg>`}
 async function scratchRichPrintQualityPdfBytes(docId=activeDocId){
   const rendered=await scratchBuildRichPdfPages(docId),pdfPages=[];
-  for(const p of rendered){const svg=scratchRichPdfPageSvg(p.node,p.geom,2),jpeg=await scratchSvgRaster(svg,'image/jpeg',.965);if(!jpeg)throw new Error('PDF page rasterization failed');pdfPages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:p.geom.w*2,imgH:p.geom.h*2,pageW:p.geom.w*.75,pageH:p.geom.h*.75})}
+  for(const p of rendered){await scratchSanitizeExportResources(p.node);const svg=scratchRichPdfPageSvg(p.node,p.geom,2);scratchAssertRasterMarkupSelfContained(svg);const jpeg=await scratchSvgRaster(svg,'image/jpeg',.965);if(!jpeg)throw new Error('PDF page rasterization failed');pdfPages.push({bytes:new Uint8Array(await jpeg.arrayBuffer()),imgW:p.geom.w*2,imgH:p.geom.h*2,pageW:p.geom.w*.75,pageH:p.geom.h*.75})}
   return scratchJpegPagesPdfBytes(pdfPages);
 }
 const scratchExportRichV11Base=scratchExportRich;
