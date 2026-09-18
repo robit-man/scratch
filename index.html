@@ -5906,6 +5906,7 @@ function scratchPlaceResponsiveChrome(){
 }
 window.addEventListener('resize',scratchPlaceResponsiveChrome,{passive:true});
 queueMicrotask(scratchPlaceResponsiveChrome);
+let scratchInferenceDraftState=null,scratchInferenceDraftRaf=0;
 /* V20. Unified right drawer: Media / Properties / Search / Activity / Comments / Outline. */
 const scratchRightPanelState={tab:'media',page:{search:0,activity:0,comments:0,outline:0},pageSize:18,searchResults:[],searchQuery:''};
 function scratchRightPanelTitle(tab=scratchRightPanelState.tab){return({media:'Files + media',properties:'Properties',search:'Search',activity:'Activity',comments:'Comments',outline:'Outline',inference:'Inference'})[tab]||'Right drawer'}
@@ -6055,7 +6056,6 @@ document.addEventListener('contextmenu',e=>{
 
 
 /* V22-native. Document block inference workflow backed by the native shadow-mounted OIM runtime. */
-let scratchInferenceDraftState=null,scratchInferenceDraftRaf=0;
 function scratchInferenceSetStatus(text,bad=false){const el=$('#scratchInferenceBridgeStatus');if(el){el.textContent=String(text||'');el.dataset.bad=bad?'1':'0'}}
 async function scratchInferenceApi(timeout=60000){
   const deadline=Date.now()+timeout;
