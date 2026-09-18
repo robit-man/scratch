@@ -460,12 +460,13 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
     <section class="assets right-tab-media" id="mediaPanel" data-right-tab-active="media">
       <div class="panelhead"><span class="paneltitle" id="mediaPanelTitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse right drawer" title="Collapse right drawer" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
       <div class="rightPanelTabs" id="rightPanelTabs" role="tablist" aria-label="Right drawer sections">
-        <button class="rightPanelTab active" data-right-tab="media" type="button">MEDIA</button>
-        <button class="rightPanelTab" data-right-tab="properties" type="button">PROPERTIES</button>
-        <button class="rightPanelTab" data-right-tab="search" type="button">SEARCH</button>
-        <button class="rightPanelTab" data-right-tab="activity" type="button">ACTIVITY</button>
-        <button class="rightPanelTab" data-right-tab="comments" type="button">COMMENTS</button>
-        <button class="rightPanelTab" data-right-tab="outline" type="button">OUTLINE</button>
+        <button class="rightPanelTab active" data-right-tab="media" type="button" aria-label="Media" title="Media" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="properties" type="button" aria-label="Properties" title="Properties" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="search" type="button" aria-label="Search" title="Search" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="activity" type="button" aria-label="Activity" title="Activity" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-6 4 12 2-6h6"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="comments" type="button" aria-label="Comments" title="Comments" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="outline" type="button" aria-label="Outline" title="Outline" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
+        <button class="rightPanelTab" data-right-tab="inference" type="button" aria-label="Inference" title="Inference" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/><circle cx="12" cy="12" r="4"/></svg></button>
       </div>
       <div class="propertiesPanel" id="propertiesPanel" data-agent-id="properties-panel" aria-label="Properties inspector"></div>
       <section class="rightAuxPane" data-right-pane="search" aria-label="Workspace search">
@@ -474,7 +475,11 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       </section>
       <section class="rightAuxPane" data-right-pane="activity" aria-label="Workspace activity"><div id="contextShelfActivity" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="activity"></div></section>
       <section class="rightAuxPane" data-right-pane="comments" aria-label="Comments"><div id="contextShelfComments" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="comments"></div></section>
-      <section class="rightAuxPane" data-right-pane="outline" aria-label="Outline"><div id="contextShelfOutline" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="outline"></div></section>
+      <section class="rightAuxPane inferencePane" data-right-pane="inference" aria-label="Inference">
+        <div class="scratchInferenceDraft" id="scratchInferenceDraft" hidden></div>
+        <div class="scratchInferenceBridgeBar"><span id="scratchInferenceBridgeStatus">INFERENCE RUNTIME · NOT LOADED</span><button type="button" id="scratchInferenceOpenFull">OPEN FULL</button></div>
+        <iframe id="scratchInferenceFrame" class="scratchInferenceFrame" title="Open Inference Mesh" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </section>
       <div class="mobileMediaPopover" id="mobileMediaPopover" role="dialog" aria-live="polite"></div>
       <div class="mediaCollapsed" id="mediaCollapsed" aria-label="Collapsed media summary"><div id="mediaCollapsedStack"></div></div>
       <div class="liveSection" id="liveSection">
@@ -4489,7 +4494,7 @@ window.addEventListener('resize',scratchPlaceResponsiveChrome,{passive:true});
 queueMicrotask(scratchPlaceResponsiveChrome);
 /* V20. Unified right drawer: Media / Properties / Search / Activity / Comments / Outline. */
 const scratchRightPanelState={tab:'media',page:{search:0,activity:0,comments:0,outline:0},pageSize:18,searchResults:[],searchQuery:''};
-function scratchRightPanelTitle(tab=scratchRightPanelState.tab){return({media:'Files + media',properties:'Properties',search:'Search',activity:'Activity',comments:'Comments',outline:'Outline'})[tab]||'Right drawer'}
+function scratchRightPanelTitle(tab=scratchRightPanelState.tab){return({media:'Files + media',properties:'Properties',search:'Search',activity:'Activity',comments:'Comments',outline:'Outline',inference:'Inference'})[tab]||'Right drawer'}
 function scratchRightPanelRows(tab){
   if(tab==='search')return scratchRightPanelState.searchResults||[];
   if(tab==='activity')return (yhistory?.toArray?.()||[]).slice().reverse();
@@ -4510,6 +4515,7 @@ function scratchRenderRightAux(tab=scratchRightPanelState.tab){
   const title=$('#mediaPanelTitle'),meta=$('#assetMeta');if(title)title.textContent=scratchRightPanelTitle(tab);
   if(tab==='media'){const n=[...assets.values()].filter(x=>!x.deleted).length;if(meta)meta.textContent=n+' ITEM'+(n===1?'':'S');return}
   if(tab==='properties'){const t=propertyTarget?.();if(meta)meta.textContent=t?String(t.data?.type||t.kind||'selection').toUpperCase():'NO SELECTION';if(!t&&$('#propertiesPanel'))$('#propertiesPanel').innerHTML='<div class="rightPaneEmpty">Select a document block or canvas object to inspect its properties.</div>';return}
+  if(tab==='inference'){if(meta)meta.textContent=scratchInferenceDraftState?.status==='running'?'RUNNING':'OIM';scratchEnsureInferenceFrame();scratchRenderInferenceDraft();return}
   const rows=scratchRightPanelRows(tab),view=scratchRightPanelSlice(tab,rows);if(meta)meta.textContent=rows.length+' ITEM'+(rows.length===1?'':'S');
   if(tab==='activity'){
     const box=$('#contextShelfActivity');if(box)box.innerHTML=view.length?view.map(h=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(h.actorName||h.actor||'Peer')} · ${escapeHtml(h.type||'edit')}</strong><span>${escapeHtml(h.description||h.desc||h.docName||'Workspace change')}</span></div><time>${new Date(h.ts||h.time||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time></div>`).join(''):'<div class="rightPaneEmpty">No activity yet.</div>';
@@ -4521,7 +4527,7 @@ function scratchRenderRightAux(tab=scratchRightPanelState.tab){
 }
 async function scratchRightPanelSearch(q){q=String(q||'').trim();scratchRightPanelState.searchQuery=q;scratchRightPanelState.page.search=0;if(!q){scratchRightPanelState.searchResults=[];scratchRenderRightSearchResults();return}let rows=[];try{rows=await ScratchpadAgent.search(q)}catch(_){const l=q.toLowerCase();rows=fsEntries().filter(x=>String(x.name||'').toLowerCase().includes(l)).map(x=>({type:x.type,id:x.id,name:x.name}))}if(!Array.isArray(rows))rows=rows?.results||[];scratchRightPanelState.searchResults=rows;scratchRenderRightSearchResults()}
 function setRightPanelTab(tab,{open=true,focus=false}={}){
-  const allowed=['media','properties','search','activity','comments','outline'];if(!allowed.includes(tab))tab='media';scratchRightPanelState.tab=tab;if(['search','activity','comments','outline'].includes(tab))shelfTab=tab;
+  const allowed=['media','properties','search','activity','comments','outline','inference'];if(!allowed.includes(tab))tab='media';scratchRightPanelState.tab=tab;if(['search','activity','comments','outline'].includes(tab))shelfTab=tab;
   const panel=$('#mediaPanel');if(!panel)return;panel.dataset.rightTabActive=tab;for(const n of allowed)panel.classList.toggle('right-tab-'+n,n===tab);
   panel.querySelectorAll('[data-right-tab]').forEach(b=>{const on=b.dataset.rightTab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false')});
   if(open)setMediaCollapsed(false);scratchRenderRightAux(tab);try{localStorage.setItem('scratch-right-tab',tab)}catch(_){}
@@ -4538,7 +4544,7 @@ updatePropertiesPanel=function(){scratchUpdatePropertiesPanelV20Base();const t=p
   panel.querySelector('#rightPanelTabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-right-tab]');if(b)setRightPanelTab(b.dataset.rightTab,{open:true,focus:b.dataset.rightTab==='search'})});
   let timer=0;$('#contextShelfSearch')?.addEventListener('input',e=>{clearTimeout(timer);timer=setTimeout(()=>scratchRightPanelSearch(e.target.value),120)});
   panel.addEventListener('click',e=>{const pg=e.target.closest('[data-right-page]');if(pg){const tab=pg.dataset.rightPageTab,dir=pg.dataset.rightPage==='next'?1:-1;scratchRightPanelState.page[tab]=Math.max(0,(scratchRightPanelState.page[tab]||0)+dir);scratchRenderRightAux(tab);return}const s=e.target.closest('[data-right-search-open]');if(s){const id=s.dataset.rightSearchOpen,entry=fsEntry?.(id);if(entry?.type==='doc')selectDocument?.(id,{focus:true});else if(entry?.type==='folder'){activeFolderId=id;expandedFolders.add(id);renderDocNavigator?.()}return}const c=e.target.closest('[data-right-comment-open]');if(c){const row=(activeComments?.()||[]).find(x=>x.id===c.dataset.rightCommentOpen);if(row?.docId&&row.docId!==activeDocId)selectDocument?.(row.docId,{focus:false});if(row?.blockId)setTimeout(()=>document.querySelector(`[data-block-id="${CSS.escape(row.blockId)}"]`)?.scrollIntoView({block:'center'}),0);return}const o=e.target.closest('[data-right-outline-open]');if(o)jumpToBlock?.(o.dataset.rightOutlineOpen)});
-  let initial='media';try{const saved=localStorage.getItem('scratch-right-tab');if(['media','properties','search','activity','comments','outline'].includes(saved))initial=saved}catch(_){}if(initial==='properties'&&!propertyTarget?.())initial='media';setRightPanelTab(initial,{open:false});
+  let initial='media';try{const saved=localStorage.getItem('scratch-right-tab');if(['media','properties','search','activity','comments','outline','inference'].includes(saved))initial=saved}catch(_){}if(initial==='properties'&&!propertyTarget?.())initial='media';setRightPanelTab(initial,{open:false});
 })();
 
 
@@ -4632,6 +4638,85 @@ document.addEventListener('contextmenu',e=>{
   const id=row.dataset.blockId,m=blockMeta(id);if(!m)return;e.preventDefault();e.stopImmediatePropagation();activeBlockId=id;propertySelection={kind:'block',id};
   document.querySelectorAll('#blockDoc .docBlock.selected').forEach(x=>x.classList.toggle('selected',x===row));updatePropertiesPanel?.();queuePresence?.(true);openEntityContextMenu('block',id,e.clientX,e.clientY);
 },true);
+
+/* V22. Full Open Inference Mesh passthrough + block draft/refine workflow. */
+let scratchInferenceDraftState=null,scratchInferenceDraftRaf=0;
+function scratchInferenceRuntimeUrl(){return new URL('/inference/',location.origin).href}
+function scratchInferenceFrame(){return $('#scratchInferenceFrame')}
+function scratchInferenceSetStatus(text,bad=false){const el=$('#scratchInferenceBridgeStatus');if(el){el.textContent=String(text||'');el.style.color=bad?'#db8383':''}}
+function scratchEnsureInferenceFrame(){
+  const frame=scratchInferenceFrame();if(!frame)return null;
+  if(!frame.dataset.runtimeBound){
+    frame.dataset.runtimeBound='1';
+    frame.addEventListener('load',()=>{try{const api=frame.contentWindow?.OIM;if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}else scratchInferenceSetStatus('OIM LOADED · INITIALIZING')}catch(_){scratchInferenceSetStatus('OIM UI READY · BRIDGE REQUIRES SAME ORIGIN',true)}});
+  }
+  if(!frame.getAttribute('src')){frame.src=scratchInferenceRuntimeUrl();scratchInferenceSetStatus('OIM · LOADING FULL RUNTIME')}
+  return frame;
+}
+async function scratchInferenceApi(timeout=24000){
+  const frame=scratchEnsureInferenceFrame();if(!frame)throw new Error('Inference runtime frame is unavailable');
+  const deadline=Date.now()+timeout;
+  while(Date.now()<deadline){
+    try{const api=frame.contentWindow?.OIM;if(api?.infer&&api?.call){const r=api.ready?.()||{};scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`);return api}}catch(_){throw new Error('Inference runtime is not same-origin. Deploy Scratch and /inference/ under the same origin to enable block inference.')}
+    await new Promise(r=>setTimeout(r,180));
+  }
+  throw new Error('Inference runtime did not become ready before timeout');
+}
+function scratchInferenceBlockSupported(id){const row=document.querySelector(`#blockDoc .docBlock[data-block-id="${CSS.escape(String(id))}"]`);return !!row?.querySelector('.blockEditable')}
+function scratchInferenceBlockText(id){const m=blockMeta(id);if(!m||!scratchInferenceBlockSupported(id))return'';return blockText(id).toString()}
+function scratchInferencePrompt({mode,source,draft='',refinement=''}){
+  if(refinement){return `You are revising a proposed replacement for one rich-document text block.\n\nORIGINAL SOURCE:\n${source}\n\nCURRENT DRAFT:\n${draft}\n\nREFINEMENT REQUEST:\n${refinement}\n\nReturn only the revised replacement text. Preserve the original intent unless the refinement explicitly changes it. Keep the response suitable for direct insertion into the same document block. Use inline Markdown only when useful; do not wrap the answer in a code fence or add commentary about your process.`}
+  if(mode==='research')return `Research and strengthen the following document block using the browser research tools available to you. Verify material claims where useful, preserve the author's intent and voice, and return a polished replacement draft. Prefer concise inline Markdown links for sources when they materially support the text. Do not describe your research process and do not add a preamble. Return only text suitable for replacing this single document block.\n\nSOURCE BLOCK:\n${source}`;
+  return `Expand the following document block into a fuller, clearer draft while preserving its intent, tone, and factual meaning. Do not invent new factual claims that are not supported by the source. Keep it suitable for replacing this single block. Use inline Markdown only when it improves readability. Do not add a preamble or explain what you changed. Return only the proposed replacement text.\n\nSOURCE BLOCK:\n${source}`;
+}
+function scratchScheduleInferenceDraftRender(){if(scratchInferenceDraftRaf)return;scratchInferenceDraftRaf=requestAnimationFrame(()=>{scratchInferenceDraftRaf=0;scratchRenderInferenceDraft()})}
+function scratchRenderInferenceDraft(){
+  const box=$('#scratchInferenceDraft');if(!box)return;const s=scratchInferenceDraftState;
+  if(!s){box.hidden=true;box.replaceChildren();return}box.hidden=false;
+  const busy=s.status==='running',meta=[s.mode?.toUpperCase(),s.result?.model,s.result?.route,s.result?.latency_ms!=null?`${s.result.latency_ms} MS`:null].filter(Boolean).join(' · ');
+  const body=s.error?`<div class="scratchInferenceDraftError">${escapeHtml(s.error)}</div>`:`<div class="scratchInferenceDraftText">${escapeHtml(s.draft|| (busy?'Waiting for first inference token…':'No draft returned.'))}</div>`;
+  const refine=s.refining?`<div class="scratchInferenceRefine"><textarea id="scratchInferenceRefineInput" placeholder="Refine this draft: make it shorter, add technical detail, change tone…">${escapeHtml(s.refineText||'')}</textarea><button type="button" data-inf-action="submit-refine" ${busy?'disabled':''}>RUN</button></div>`:'';
+  box.innerHTML=`<div class="scratchInferenceDraftHead"><strong>${s.mode==='research'?'RESEARCH DRAFT':'EXPANSION DRAFT'}</strong><span class="scratchInferenceDraftMeta">${escapeHtml(busy?'STREAMING':meta||String(s.status||'').toUpperCase())}</span></div><div class="scratchInferenceDraftSource">${escapeHtml(s.source||'')}</div>${body}<div class="scratchInferenceDraftActions"><button class="primary" type="button" data-inf-action="approve" ${busy||!s.draft?'disabled':''}>APPROVE + REPLACE</button><button type="button" data-inf-action="refine" ${busy||!s.draft?'disabled':''}>REFINE</button><button class="danger" type="button" data-inf-action="deny" ${busy?'disabled':''}>DENY</button></div>${refine}`;
+  if(s.refining)setTimeout(()=>$('#scratchInferenceRefineInput')?.focus(),0);
+}
+async function scratchPrimeInferenceRoute(api){
+  let ready=api.ready?.()||{};
+  if(!(ready.local_models||ready.mesh_models)){try{await api.call('scan_local',{})}catch(_){}ready=api.ready?.()||{}}
+  if(!(ready.local_models||ready.mesh_models)){try{await api.join?.()}catch(_){}await new Promise(r=>setTimeout(r,900));ready=api.ready?.()||{}}
+  scratchInferenceSetStatus(`OIM READY · LOCAL ${ready.local_models||0} · MESH ${ready.mesh_models||0}`);
+  return ready;
+}
+async function scratchRunBlockInference(blockId,mode='expand',{refinement='',baseDraft=''}={}){
+  const m=blockMeta(blockId);if(!m)throw new Error('Document block no longer exists');if(!canEditDocument(m.docId))throw new Error('Editor permission is required');
+  const source=scratchInferenceBlockText(blockId);if(!source.trim())throw new Error('This block has no editable text to send to inference');
+  const previous=scratchInferenceDraftState&&scratchInferenceDraftState.blockId===blockId?scratchInferenceDraftState:null,runId=crypto.randomUUID();
+  scratchInferenceDraftState={blockId,docId:m.docId,mode,source,draft:baseDraft||'',status:'running',error:'',refining:false,refineText:'',runId,revisions:(previous?.revisions||0)+(refinement?1:0),result:null};
+  setRightPanelTab('inference',{open:true});scratchRenderInferenceDraft();
+  try{
+    const api=await scratchInferenceApi();await scratchPrimeInferenceRoute(api);
+    const prompt=scratchInferencePrompt({mode,source,draft:baseDraft,refinement});
+    let streamed='';
+    const result=await api.infer(prompt,{route:'auto',response_mode:'stream',tools:mode==='research'||!!refinement,reasoning:'auto',max_tokens:mode==='research'?5200:3200,temperature:mode==='research'?.45:.55,on_chunk:c=>{if(scratchInferenceDraftState?.runId!==runId)return;const full=String(c?.text||'');streamed=full||streamed+String(c?.delta||'');scratchInferenceDraftState.draft=streamed;scratchScheduleInferenceDraftRender()}});
+    if(scratchInferenceDraftState?.runId!==runId)return result;
+    scratchInferenceDraftState.draft=String(result?.text||streamed||'').trim();scratchInferenceDraftState.result=result;scratchInferenceDraftState.status='ready';scratchInferenceDraftState.error='';scratchRenderInferenceDraft();
+    scratchRecordActivity?.('inference-draft',`${mode==='research'?'Researched':'Expanded'} document block with inference`,{docId:m.docId,blockId,model:result?.model||null,route:result?.route||null});return result;
+  }catch(err){if(scratchInferenceDraftState?.runId===runId){scratchInferenceDraftState.status='error';scratchInferenceDraftState.error=String(err?.message||err);scratchRenderInferenceDraft()}throw err}
+}
+function scratchApproveInferenceDraft(){
+  const s=scratchInferenceDraftState;if(!s?.draft)return false;const m=blockMeta(s.blockId);if(!m||!canEditDocument(m.docId))return false;
+  try{snapshotDoc?.(m.docId,'Before inference replacement',false)}catch(_){}
+  ydoc.transact(()=>{const y=blockText(s.blockId);y.delete(0,y.length);if(m.type==='code')y.insert(0,s.draft);else{const delta=scratchMarkdownInlineDelta(s.draft);if(delta.length)y.applyDelta(delta)}setBlockMeta(s.blockId,{updated:Date.now()})},LOCAL_ORIGIN);
+  activeBlockId=s.blockId;propertySelection={kind:'block',id:s.blockId};scratchRecordActivity?.('inference-approve','Approved inference draft and replaced source block',{docId:m.docId,blockId:s.blockId,mode:s.mode,model:s.result?.model||null});scratchInferenceDraftState=null;renderStructuredWorkspace?.();updatePropertiesPanel?.();scratchRenderInferenceDraft();return true;
+}
+function scratchDenyInferenceDraft(){const s=scratchInferenceDraftState;if(s)scratchRecordActivity?.('inference-deny','Denied inference draft',{docId:s.docId,blockId:s.blockId,mode:s.mode});scratchInferenceDraftState=null;scratchRenderInferenceDraft()}
+async function scratchRefineInferenceDraft(){const s=scratchInferenceDraftState;if(!s?.draft)return;const input=$('#scratchInferenceRefineInput'),q=String(input?.value||s.refineText||'').trim();if(!q)throw new Error('Enter a refinement request');return scratchRunBlockInference(s.blockId,s.mode,{refinement:q,baseDraft:s.draft})}
+const scratchEntityActionsV22Base=entityActions;
+entityActions=function(type,id){const arr=scratchEntityActionsV22Base(type,id)||[];if(type==='block'&&scratchInferenceBlockSupported(id)&&canEditDocument(blockMeta(id)?.docId)){const at=Math.min(1,arr.length);arr.splice(at,0,{id:'inference-expand',label:'EXPAND WITH INFERENCE'},{id:'inference-research',label:'RESEARCH WITH INFERENCE'},{sep:true})}return arr};
+const scratchRunEntityActionV22Base=runEntityAction;
+runEntityAction=function(type,id,action){if(type==='block'&&(action==='inference-expand'||action==='inference-research')){scratchRunBlockInference(id,action==='inference-research'?'research':'expand').catch(err=>scratchCompletionToast?.(err.message||String(err),true));return}return scratchRunEntityActionV22Base(type,id,action)};
+document.addEventListener('click',e=>{const b=e.target.closest?.('[data-inf-action]');if(!b)return;const a=b.dataset.infAction;if(a==='approve')scratchApproveInferenceDraft();else if(a==='deny')scratchDenyInferenceDraft();else if(a==='refine'){if(scratchInferenceDraftState){scratchInferenceDraftState.refining=!scratchInferenceDraftState.refining;scratchRenderInferenceDraft()}}else if(a==='submit-refine')scratchRefineInferenceDraft().catch(err=>scratchCompletionToast?.(err.message||String(err),true))},true);
+$('#scratchInferenceOpenFull')?.addEventListener('click',()=>window.open(scratchInferenceRuntimeUrl(),'_blank','noopener'));
+window.addEventListener('message',e=>{if(e.source!==scratchInferenceFrame()?.contentWindow)return;try{const api=scratchInferenceFrame()?.contentWindow?.OIM;if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}}catch(_){}});
 
 </script>
 
@@ -4935,14 +5020,15 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
 
 /* V20. Unified tabbed right drawer. */
 .docBar,.contextShelf,#docBrowser{display:none!important}
-.rightPanelTabs{display:flex;flex:0 0 34px;height:34px;min-height:34px;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--line);background:#090b0d;scrollbar-width:none}
+.rightPanelTabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));flex:0 0 34px;height:34px;min-height:34px;overflow:hidden;border-bottom:1px solid var(--line);background:#090b0d}
 .rightPanelTabs::-webkit-scrollbar{display:none}
-.rightPanelTab{flex:0 0 auto;min-width:72px;height:34px;border:0;border-right:1px solid var(--line);background:transparent;color:#68737d;padding:0 9px;font:800 7px/1 var(--mono);letter-spacing:.08em;white-space:nowrap}
+.rightPanelTab{min-width:0;width:100%;height:34px;border:0;border-right:1px solid var(--line);background:transparent;color:#68737d;padding:0 3px;font:800 6.5px/1 var(--mono);letter-spacing:.045em;white-space:nowrap;overflow:hidden;text-overflow:clip}
+.rightPanelTab:last-child{border-right:0}
 .rightPanelTab:hover{color:#aeb7bf;background:#0d1115}.rightPanelTab.active{color:var(--text);background:#11151a;box-shadow:inset 0 -2px 0 var(--accent)}
 .rightAuxPane{display:none;flex:1;min-height:0;overflow:hidden;background:#0a0c0e;flex-direction:column}
-.assets.right-tab-search>.rightAuxPane[data-right-pane="search"],.assets.right-tab-activity>.rightAuxPane[data-right-pane="activity"],.assets.right-tab-comments>.rightAuxPane[data-right-pane="comments"],.assets.right-tab-outline>.rightAuxPane[data-right-pane="outline"]{display:flex}
+.assets.right-tab-search>.rightAuxPane[data-right-pane="search"],.assets.right-tab-activity>.rightAuxPane[data-right-pane="activity"],.assets.right-tab-comments>.rightAuxPane[data-right-pane="comments"],.assets.right-tab-outline>.rightAuxPane[data-right-pane="outline"],.assets.right-tab-inference>.rightAuxPane[data-right-pane="inference"]{display:flex}
 .assets:not(.right-tab-media)>.liveSection,.assets:not(.right-tab-media)>.drop,.assets:not(.right-tab-media)>.assetlist,.assets:not(.right-tab-media)>.transport,.assets:not(.right-tab-media)>.mediaCollapsed{display:none!important}
-.assets.right-tab-media>.propertiesPanel,.assets.right-tab-search>.propertiesPanel,.assets.right-tab-activity>.propertiesPanel,.assets.right-tab-comments>.propertiesPanel,.assets.right-tab-outline>.propertiesPanel{display:none!important}
+.assets.right-tab-media>.propertiesPanel,.assets.right-tab-search>.propertiesPanel,.assets.right-tab-activity>.propertiesPanel,.assets.right-tab-comments>.propertiesPanel,.assets.right-tab-outline>.propertiesPanel,.assets.right-tab-inference>.propertiesPanel{display:none!important}
 .assets.right-tab-properties>.propertiesPanel{display:block!important;flex:1!important;min-height:0!important;overflow:auto!important}
 .assets.right-tab-media>.liveSection{display:block!important}.assets.right-tab-media>.drop{display:flex!important}.assets.right-tab-media>.assetlist{display:block!important;flex:1!important}.assets.right-tab-media>.transport{display:flex!important}
 .assets.right-tab-media.properties-mode>.liveSection{display:block!important}.assets.right-tab-media.properties-mode>.drop{display:flex!important}.assets.right-tab-media.properties-mode>.assetlist{display:block!important}.assets.right-tab-media.properties-mode>.transport{display:flex!important}
@@ -4956,6 +5042,19 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
 @media(max-width:820px){.rightPanelTabs{flex-basis:36px;height:36px;min-height:36px}.rightPanelTab{height:36px;min-width:76px}.rightAuxPane .contextSearchRow{height:42px;flex-basis:42px}.rightDrawerRow{min-height:46px;padding:7px 9px}.rightPanePager{min-height:36px;flex-basis:36px}}
 
 
+.inferencePane{position:relative;background:#050505!important}
+.scratchInferenceBridgeBar{flex:0 0 31px;min-height:31px;display:flex;align-items:center;gap:7px;padding:0 7px;border-bottom:1px solid var(--line);background:#090b0d;color:#68737d;font:800 7px/1 var(--mono);letter-spacing:.055em}
+.scratchInferenceBridgeBar span{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scratchInferenceBridgeBar button{height:23px;border:1px solid var(--line);background:#0d1013;color:#8b969f;padding:0 6px;font:800 7px var(--mono)}
+.scratchInferenceFrame{display:block;flex:1;min-height:0;width:100%;border:0;background:#050505}
+.scratchInferenceDraft{flex:0 0 auto;max-height:46%;overflow:auto;border-bottom:1px solid #2a2f34;background:#0b0e11;padding:8px}
+.scratchInferenceDraft[hidden]{display:none!important}.scratchInferenceDraftHead{display:flex;align-items:center;gap:7px;margin-bottom:7px}.scratchInferenceDraftHead strong{font:900 8px var(--mono);letter-spacing:.08em}.scratchInferenceDraftMeta{margin-left:auto;color:#65717a;font:7px var(--mono)}
+.scratchInferenceDraftSource{padding:6px 7px;margin-bottom:7px;border-left:2px solid #343c44;background:#080a0c;color:#77818a;font:8px/1.4 var(--mono);white-space:pre-wrap;max-height:72px;overflow:auto}.scratchInferenceDraftText{min-height:70px;max-height:230px;overflow:auto;padding:8px;border:1px solid #252b30;background:#07090b;color:#d8dde1;font:10px/1.5 var(--sans);white-space:pre-wrap;word-break:break-word}
+.scratchInferenceDraftActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.scratchInferenceDraftActions button{height:27px;border:1px solid #303840;background:#0d1115;color:#aab4bc;padding:0 8px;font:800 7px var(--mono)}.scratchInferenceDraftActions button.primary{background:#d8dde1;color:#090b0d;border-color:#d8dde1}.scratchInferenceDraftActions button.danger{color:#e88f8f;border-color:#5a3434}.scratchInferenceDraftActions button:disabled{opacity:.4}
+.scratchInferenceRefine{margin-top:7px;display:grid;grid-template-columns:1fr auto;gap:5px}.scratchInferenceRefine textarea{min-height:54px;resize:vertical;border:1px solid #2b3238;background:#07090b;color:#dce1e5;padding:7px;font:9px/1.4 var(--mono);outline:0}.scratchInferenceRefine button{border:1px solid #3a444d;background:#11161b;color:#c5cdd3;padding:0 8px;font:800 7px var(--mono)}
+.scratchInferenceDraftError{padding:7px;border:1px solid #553232;background:#160c0c;color:#e59797;font:8px/1.45 var(--mono);white-space:pre-wrap}
+@media(max-width:820px){.rightPanelTab{font-size:6px;padding:0 1px;letter-spacing:.02em}.scratchInferenceDraft{max-height:52%}}
+
+
 /* V21. Drawer arrows indicate opening vs closing. */
 #historyRailToggle svg,#mediaToggle svg{transition:transform .16s ease}
 @media(max-width:820px){
@@ -4963,6 +5062,37 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
   body.left-mobile-open .syncbar #historyRailToggle svg,body.history-open .syncbar #historyRailToggle svg{transform:rotate(180deg)!important}
   .syncbar #mediaToggle svg{transform:rotate(180deg)!important}
   body:not(.media-collapsed) .syncbar #mediaToggle svg{transform:none!important}
+}
+
+
+/* V23. Restore icon-only right drawer tabs; collapsed drawer never compresses tabs. */
+.rightPanelTabs{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  flex:0 0 38px!important;
+  height:38px!important;
+  min-height:38px!important;
+  overflow:hidden!important;
+  border-bottom:1px solid var(--line)!important;
+  background:#080a0c!important;
+}
+.rightPanelTab{
+  min-width:0!important;width:auto!important;height:38px!important;padding:0!important;
+  border:0!important;border-right:1px solid var(--line)!important;
+  background:transparent!important;color:#67727c!important;
+  display:grid!important;place-items:center!important;overflow:hidden!important;
+  font-size:0!important;letter-spacing:0!important;
+}
+.rightPanelTab:last-child{border-right:0!important}
+.rightPanelTab:hover{color:#aeb7bf!important;background:#0d1115!important}
+.rightPanelTab.active{color:var(--text)!important;background:#11151a!important;box-shadow:inset 0 -2px 0 var(--accent)!important}
+.rightPanelTab svg{width:15px!important;height:15px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.65!important;stroke-linecap:round!important;stroke-linejoin:round!important;pointer-events:none!important}
+body.media-collapsed #mediaPanel>.rightPanelTabs{display:none!important}
+@media(max-width:820px){
+  .rightPanelTabs{flex-basis:36px!important;height:36px!important;min-height:36px!important}
+  .rightPanelTab{height:36px!important;min-width:0!important}
+  .rightPanelTab svg{width:15px!important;height:15px!important}
 }
 </style>
 
