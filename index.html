@@ -47,9 +47,8 @@
 *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{overflow:hidden;touch-action:pan-x pan-y} button,input,textarea,select{font:inherit} button{cursor:pointer} ::selection{background:var(--accent);color:#111}
 #app{height:100dvh;display:flex;flex-direction:column;min-height:0}
-header{flex:0 0 auto;min-height:0;border-bottom:1px solid var(--line);background:rgba(8,9,10,.96);backdrop-filter:blur(14px);display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"brand actions" "status status";align-items:center;gap:8px 12px;padding:9px 14px 8px;z-index:10}
+header{flex:0 0 auto;min-height:0;border-bottom:1px solid var(--line);background:rgba(8,9,10,.96);backdrop-filter:blur(14px);display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"brand actions";align-items:center;gap:8px 12px;padding:9px 14px 8px;z-index:10}
 .brand{grid-area:brand;font:800 12px var(--mono);letter-spacing:.13em;white-space:nowrap;min-width:0}.brand b{color:var(--accent)}.brandCompact{display:none;color:var(--accent);font-size:17px;letter-spacing:-.08em}
-.status{grid-area:status;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:stretch;gap:7px;min-width:0;width:100%;overflow:visible}.status .pill{min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:center}.status #roomPill{text-align:left}.roomPillBtn{appearance:none;-webkit-appearance:none;width:100%;display:flex;align-items:center;gap:6px;min-width:0;cursor:pointer}.roomPillLabel{flex:0 0 auto}.roomPillCode{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.roomCopyIcon{display:inline-flex;margin:-5px 0 -5px auto;flex:0 0 18px;width:18px;height:18px;align-items:center;justify-content:center;color:var(--dim)}.roomCopyIcon svg{width:13px;height:13px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pill{border:1px solid var(--line);background:#0b0d0f;color:var(--muted);padding:5px 8px;font:9px var(--mono);white-space:nowrap}.pill.good{color:var(--good);border-color:#315740}.pill.warn{color:var(--warn);border-color:#59461f}.pill.bad{color:var(--bad);border-color:#613333}
 .actions{grid-area:actions;display:flex;gap:6px;min-width:0;justify-content:flex-end;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}.actions::-webkit-scrollbar{display:none}.btn{border:1px solid var(--line2);background:#111419;color:var(--text);padding:8px 10px;font:800 9px var(--mono);letter-spacing:.06em;text-transform:uppercase}.btn:hover{background:#171b20;border-color:#5f6973}.btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.btn.danger{color:var(--bad);border-color:#603232}.btn.small{padding:6px 8px}.iconbtn{width:34px;height:34px;padding:0;border:1px solid var(--line2);background:#111419;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;position:relative}.iconbtn:hover{background:#171b20;border-color:#5f6973;color:var(--text)}.iconbtn.active{color:var(--good);border-color:#315740;background:#0d1712}.iconbtn.active::after{content:'';position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:var(--good);box-shadow:0 0 8px rgba(103,211,145,.55)}.iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#0b0c0d}.iconbtn.primary:hover{background:#f5c652;border-color:#f5c652}.iconbtn svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 main{position:relative;--history-w:0px;--media-w:420px;--splitter-w:1px;--agent-w:clamp(340px,28vw,420px);flex:1;min-height:0;display:grid;grid-template-columns:var(--history-w) minmax(0,1fr) var(--splitter-w) var(--media-w);overflow:hidden}
@@ -61,7 +60,7 @@ body.agent-open main{grid-template-columns:var(--history-w) minmax(0,1fr) var(--
 body.history-open .historyRail{display:flex}
 .historyRailBody{flex:1;min-height:0;overflow:auto;padding:8px 10px 12px}.historyRail .historylist{max-height:none}
 .railArrow{width:26px;height:26px;flex:0 0 26px;border:0;background:transparent;color:var(--dim);display:inline-flex;align-items:center;justify-content:center;padding:0}.railArrow:hover{color:var(--text);background:#111419}.railArrow svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .14s ease}
-#historyRailToggle{margin-left:-4px}body.history-open #historyRailToggle svg{transform:rotate(180deg)}
+#historyRailToggle{margin-left:-5px}.syncRailArrow{width:24px;height:24px;flex-basis:24px}#historyRailToggle svg{transform:none}body.history-open #historyRailToggle svg{transform:rotate(180deg)}
 .mediaSplitter{grid-column:3;position:relative;width:1px;min-width:1px;align-self:stretch;background:var(--line);border:0;padding:0;cursor:col-resize;touch-action:none;user-select:none;overflow:visible;z-index:12;outline:none}.mediaSplitter::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:11px;transform:translateX(-50%);cursor:col-resize;background:transparent}.mediaSplitter:hover,.mediaSplitter:focus-visible,.mediaSplitter.dragging{background:var(--accent)}.mediaSplitter:focus-visible{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent)}body.resizing-media,body.resizing-media *{cursor:col-resize!important;user-select:none!important}body.resizing-media .assets{pointer-events:none}
 
 .panelhead{height:42px;flex:0 0 42px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#0a0c0e}
@@ -84,7 +83,7 @@ body.history-open .historyRail{display:flex}
 .historylist{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow:auto;padding-right:2px}
 .historyrow{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:8px;align-items:start;border-bottom:1px solid var(--line);padding:7px 0 9px}
 .historyrow:last-child{border-bottom:0}.historydot{width:8px;height:8px;border-radius:50%;background:var(--user);margin-top:4px}.historywho{font:800 9px/1.4 var(--mono);color:var(--text)}.historydesc{font:9px/1.5 var(--mono);color:var(--muted);margin-top:2px;word-break:break-word}.historytime{font:8px var(--mono);color:var(--dim);white-space:nowrap}.historyempty{padding:18px 4px;text-align:center;color:var(--dim);font:9px/1.6 var(--mono)}
-.syncbar{flex:0 0 31px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
+.syncbar{flex:0 0 28px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;background:#090b0d;color:var(--dim);font:9px var(--mono)}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block}.dot.good{background:var(--good);box-shadow:0 0 10px rgba(103,211,145,.3)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
 .assets{grid-column:4;min-width:0;min-height:0;display:flex;flex-direction:column;background:#0a0c0e;overflow:hidden}
 .propertiesPanel{display:none;flex:1;min-height:0;overflow:auto;padding:7px 7px 18px;background:#0a0c0e;overscroll-behavior:contain}.assets.properties-mode>.propertiesPanel{display:block}.assets.properties-mode>.liveSection,.assets.properties-mode>.drop,.assets.properties-mode>.assetlist,.assets.properties-mode>.transport,.assets.properties-mode>.mediaCollapsed{display:none!important}body.media-collapsed .assets.properties-mode>.mediaCollapsed{display:flex!important}.propSection{border:1px solid var(--line);background:#0d1013;margin-bottom:7px}.propSectionHead{min-height:27px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--line);color:#aeb7bf;font:800 7px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase}.propSectionBody{padding:7px}.propGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.propGrid.one{grid-template-columns:1fr}.propField{min-width:0;display:flex;flex-direction:column;gap:4px}.propField.wide{grid-column:1/-1}.propLabel{color:#66717b;font:700 6.5px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase}.propInput,.propSelect,.propTextarea{width:100%;min-width:0;border:1px solid var(--line2);background:#090b0d;color:var(--text);outline:0;border-radius:0;font:10px/1.2 var(--mono)}.propInput,.propSelect{height:30px;padding:0 7px}.propTextarea{min-height:62px;padding:7px;resize:vertical;line-height:1.35}.propInput:focus,.propSelect:focus,.propTextarea:focus{border-color:#65717c}.propColor{width:100%;height:30px;padding:2px;border:1px solid var(--line2);background:#090b0d}.propCheckRow{height:30px;display:flex;align-items:center;gap:7px;border:1px solid var(--line2);padding:0 7px;color:#adb5bc;font:700 8px var(--mono)}.propCheckRow input{accent-color:var(--accent)}.propRangeRow{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:5px;align-items:center}.propRange{width:100%;accent-color:var(--accent)}.propButtonRow{display:flex;flex-wrap:wrap;gap:5px}.propButton{min-height:28px;border:1px solid var(--line2);background:#101419;color:#aeb6bd;padding:0 8px;font:800 7px var(--mono)}.propButton:hover,.propButton.active{color:var(--text);border-color:#56616c;background:#171c21}.propButton.danger{color:#d58d8d}.propAsset{padding:7px;border:1px solid var(--line);background:#090b0d;color:#9ba5ad;font:8px/1.45 var(--mono);overflow-wrap:anywhere}.propHint{color:#5f6972;font:7px/1.45 var(--mono);margin-top:5px}.propInlineBar{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}.propInlineBar .propButton{padding:0}.propertiesPanel input[type=number]{font-variant-numeric:tabular-nums}
@@ -167,8 +166,6 @@ body.resizing-media .assets{pointer-events:none}
   header{gap:7px 8px;padding:8px 9px}
   .brand{align-self:center;margin:0}.brandLong{display:none}.brandCompact{display:inline}
   .actions{margin:0;gap:4px;padding-bottom:1px;flex-wrap:nowrap}.actions .iconbtn{width:32px;height:32px;flex:0 0 32px}
-  .status{grid-template-columns:minmax(0,1fr) auto auto;gap:5px}
-  .status .pill{width:auto;min-width:0;padding:5px 7px;text-align:center;font-size:8px;overflow:hidden;text-overflow:ellipsis}.status #roomPill{text-align:left}.status .roomPillBtn{cursor:pointer;padding-right:5px;touch-action:manipulation}.status .roomPillBtn:active{background:#12161a;border-color:#4c5661}.status .roomCopyIcon{display:inline-flex}
 
   #app{height:100dvh;min-height:0;overflow:hidden}
   body{overflow:hidden}
@@ -178,8 +175,8 @@ body.resizing-media .assets{pointer-events:none}
 
   .pad{order:2;flex:1 1 auto;height:auto;min-height:0;max-height:none;border-bottom:0}
   .pad>.panelhead{height:48px;min-height:48px;display:flex;align-items:center;gap:8px;padding:0 8px}
-  #historyRailToggle{margin:0;flex:0 0 auto}.pad>.panelhead .paneltitle{display:none}.pad>.panelhead .presencebar{margin-left:auto;min-width:0;max-width:calc(100% - 42px);height:32px;min-height:32px;padding:4px 3px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;justify-content:flex-end}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
-  #historyRailToggle svg{transform:rotate(90deg)}body.history-open #historyRailToggle svg{transform:rotate(-90deg)}
+  #historyRailToggle{margin-left:-5px;flex:0 0 24px}.pad>.panelhead .paneltitle{display:none}.pad>.panelhead .presencebar{margin-left:auto;min-width:0;max-width:100%;height:32px;min-height:32px;padding:4px 3px;overflow-x:auto;overflow-y:visible;scrollbar-width:none;justify-content:flex-end}.pad>.panelhead .presencebar::-webkit-scrollbar{display:none}.pad>.panelhead .panelmeta{display:none}
+  #historyRailToggle svg{transform:none}body.history-open #historyRailToggle svg{transform:rotate(180deg)}
   #historyRailClose svg{transform:rotate(-90deg)}
 
   .mediaSplitter{display:none!important}
@@ -211,13 +208,11 @@ body.resizing-media .assets{pointer-events:none}
 }
 @media(max-width:520px){
   .blockEmbedFrameWrap,.blockEmbedFrame{min-height:190px}
-  .status{grid-template-columns:minmax(0,1fr) auto auto}.status #roomPill{grid-column:auto;text-align:left}.status #peerPill,.status #netPill{text-align:center}
   .liveGrid{grid-template-columns:1fr}.mediaTile.screen{grid-column:auto}
   .panelhead{padding-left:8px;padding-right:8px}.paneltitle{letter-spacing:.08em}.panelmeta{font-size:8px}
 }
 @media(max-width:380px){
   header{padding-inline:7px}.actions{gap:3px}.actions .iconbtn{width:30px;height:30px;flex-basis:30px}
-  .status .pill{font-size:7.5px;padding-inline:5px}
   .pad>.panelhead{gap:6px}.avatar{width:20px;height:20px}
 }
 
@@ -270,20 +265,17 @@ body.resizing-media .assets{pointer-events:none}
 .docRowActions{grid-column:2/-1}
 @media(max-width:820px){.docPresenceAvatar{width:18px;height:18px;flex-basis:18px;font-size:6px}.docCollaborators{padding-right:1px}}
 </style>
+
+<style id="mobile-actions-peer-outline-padding">
+@media(max-width:820px){
+  header .actions{padding-left:2px!important;padding-right:2px!important}
+}
+</style>
 </head>
 <body>
 <div id="app">
   <header>
     <div class="brand"><span class="brandLong">SCRATCH<b>//</b>P2P</span><span class="brandCompact" aria-hidden="true">//</span></div>
-    <div class="status">
-      <button class="pill roomPillBtn" id="roomPill" data-agent-id="room-status" type="button" aria-label="Copy full page URL" title="Copy full page URL">
-        <span class="roomPillLabel">ROOM</span>
-        <span class="roomPillCode" id="roomPillCode">…</span>
-        <span class="roomCopyIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="10" height="10" rx="2"/><path d="M15 9V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/></svg></span>
-      </button>
-      <span class="pill" id="peerPill" data-agent-id="peer-status">PEERS 0</span>
-      <span class="pill warn" id="netPill" data-agent-id="network-status">MESH STARTING</span>
-    </div>
     <div class="actions">
       <button class="iconbtn" id="micBtn" data-agent-action="toggle-microphone" type="button" aria-label="Share microphone" title="Share microphone">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>
@@ -364,7 +356,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       </div>
     </aside>
     <section class="pad">
-      <div class="panelhead"><button class="railArrow" id="historyRailToggle" type="button" aria-label="Toggle edit history" title="Toggle edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><span class="paneltitle" id="activeDocTitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
+      <div class="panelhead"><span class="paneltitle" id="activeDocTitle">Shared scratch pad</span><div class="presencebar" id="presenceBar" data-agent-id="presence"></div><span class="panelmeta" id="docMeta">LOCAL</span></div>
       <div class="workspaceToolbar scratchToolbar" id="workspaceToolbar" data-agent-id="workspace-toolbar" aria-label="Workspace tools">
         <div class="scratchToolCluster canvasVisible" data-tool-cluster="mode">
           <button class="scratchToolBtn active" type="button" data-canvas-mode="move" aria-label="Move tool"><svg viewBox="0 0 24 24"><path d="m5 3 13 8-6 2-3 6z"/></svg></button>
@@ -461,30 +453,28 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
         <div class="markdownView" id="markdownView" data-agent-id="markdown-view" aria-label="Rendered Markdown view" tabindex="0"></div>
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
-      <div class="syncbar"><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
-      <div class="docBrowser contextShelf" id="docBrowser" aria-label="Workspace shelf" data-agent-id="workspace-shelf">
-        <div class="contextShelfHead"><div class="contextShelfTabs" role="tablist"><button class="contextShelfTab active" data-shelf-tab="search" type="button">SEARCH</button><button class="contextShelfTab" data-shelf-tab="comments" type="button">COMMENTS</button><button class="contextShelfTab" data-shelf-tab="activity" type="button">ACTIVITY</button><button class="contextShelfTab" data-shelf-tab="outline" type="button">OUTLINE</button></div><button class="iconbtn" id="docBrowserClose" type="button" aria-label="Close workspace shelf"><svg viewBox="0 0 24 24"><path d="m5 9 7 7 7-7"/></svg></button></div>
-        <div class="contextShelfPane active" data-shelf-pane="search"><div class="contextSearchRow"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input id="contextShelfSearch" type="search" placeholder="Find documents, blocks, files, comments…" aria-label="Search workspace"></div><div id="contextShelfSearchResults" class="contextShelfResults"></div></div>
-        <div class="contextShelfPane" data-shelf-pane="comments"><div id="contextShelfComments" class="contextShelfResults"></div></div>
-        <div class="contextShelfPane" data-shelf-pane="activity"><div id="contextShelfActivity" class="contextShelfResults"></div></div><div class="contextShelfPane" data-shelf-pane="outline"><div id="contextShelfOutline" class="contextShelfResults"></div></div>
-      </div>
-      <div class="docBar" id="docBar">
-        <button class="drawerBottomToggle left" id="leftDrawerBottomToggle" type="button" aria-label="Open workspace drawer" title="Open workspace drawer" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></svg></button>
-        <button class="docBreadcrumb" id="docNavToggle" type="button" aria-label="Open room documents" aria-expanded="false"><span id="docBreadcrumbPath">ROOT <span class="crumbSep">›</span> <span class="crumbFile">Scratch pad</span></span></button>
-        <div class="docShelfActions"><button class="docQuickNew" id="openSearchShelf" type="button" aria-label="Search workspace"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><button class="docQuickNew" id="openActivityShelf" type="button" aria-label="Workspace activity"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button></div><button class="docQuickNew" id="docQuickNew" type="button" aria-label="New document in current folder" title="New document"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
-        <button class="drawerBottomToggle right" id="rightDrawerBottomToggle" type="button" aria-label="Open right drawer" title="Open right drawer" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
-      </div>
+      <div class="syncbar"><button class="railArrow syncRailArrow" id="historyRailToggle" type="button" aria-label="Open edit history" title="Open edit history" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
     </section>
     <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
     <button class="mobileMediaScrim" id="mobileMediaScrim" type="button" aria-label="Close files, media, or properties drawer"></button>
-    <section class="assets" id="mediaPanel">
-      <div class="panelhead"><span class="paneltitle" id="mediaPanelTitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Close right drawer" title="Close right drawer" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
-      <div class="rightPanelTabs" id="rightPanelTabs" role="tablist" aria-label="Right drawer">
-        <button class="rightPanelTab active" type="button" role="tab" data-right-panel-tab="media" aria-selected="true" aria-label="Files and media" title="Files and media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z"/><path d="M7 12h10M7 15h7"/></svg></button>
-        <button class="rightPanelTab" type="button" role="tab" data-right-panel-tab="properties" aria-selected="false" aria-label="Properties" title="Properties"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg></button>
+    <section class="assets right-tab-media" id="mediaPanel" data-right-tab-active="media">
+      <div class="panelhead"><span class="paneltitle" id="mediaPanelTitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse right drawer" title="Collapse right drawer" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <div class="rightPanelTabs" id="rightPanelTabs" role="tablist" aria-label="Right drawer sections">
+        <button class="rightPanelTab active" data-right-tab="media" type="button">MEDIA</button>
+        <button class="rightPanelTab" data-right-tab="properties" type="button">PROPERTIES</button>
+        <button class="rightPanelTab" data-right-tab="search" type="button">SEARCH</button>
+        <button class="rightPanelTab" data-right-tab="activity" type="button">ACTIVITY</button>
+        <button class="rightPanelTab" data-right-tab="comments" type="button">COMMENTS</button>
+        <button class="rightPanelTab" data-right-tab="outline" type="button">OUTLINE</button>
       </div>
       <div class="propertiesPanel" id="propertiesPanel" data-agent-id="properties-panel" aria-label="Properties inspector"></div>
-      <div class="mobileMediaDock" id="mobileMediaDock" aria-label="Files and media dock"><span class="mobileMediaDockTitle">Files + media</span><div class="mobileMediaDockIcons" id="mobileMediaDockIcons" aria-label="Shared media and files"></div><button class="railArrow" id="mobileMediaToggle" type="button" aria-label="Expand files and media" title="Expand files and media"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <section class="rightAuxPane" data-right-pane="search" aria-label="Workspace search">
+        <div class="contextSearchRow"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg><input id="contextShelfSearch" type="search" placeholder="Find documents, blocks, files, comments…" aria-label="Search workspace"></div>
+        <div id="contextShelfSearchResults" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="search"></div>
+      </section>
+      <section class="rightAuxPane" data-right-pane="activity" aria-label="Workspace activity"><div id="contextShelfActivity" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="activity"></div></section>
+      <section class="rightAuxPane" data-right-pane="comments" aria-label="Comments"><div id="contextShelfComments" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="comments"></div></section>
+      <section class="rightAuxPane" data-right-pane="outline" aria-label="Outline"><div id="contextShelfOutline" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="outline"></div></section>
       <div class="mobileMediaPopover" id="mobileMediaPopover" role="dialog" aria-live="polite"></div>
       <div class="mediaCollapsed" id="mediaCollapsed" aria-label="Collapsed media summary"><div id="mediaCollapsedStack"></div></div>
       <div class="liveSection" id="liveSection">
@@ -923,60 +913,7 @@ const EMBED_PDF_RE=/\.pdf(?:$|[?#])/i;
 const EMBED_OFFICE_RE=/\.(?:docx?|xlsx?|pptx?|odt|ods|odp)(?:$|[?#])/i;
 function embedProviderLabel(host){return String(host||'').replace(/^www\./,'').split('.')[0].toUpperCase()||'WEB'}
 function embedSrcdoc(body,title='Embedded content'){
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#0b0d0f;color:#d8dde2;font:14px system-ui,sans-serif}body{padding:12px}a{color:#9bc6ff}</style></head><body aria-label="${String(title).replace(/"/g,'&quot;')}">${body}
-<style id="scratch-v21-desktop-docked-workspace">
-/* V21: desktop uses real docked workspace columns; mobile retains overlay drawers. */
-@media(min-width:821px){
-  main,body.history-open main,body.media-collapsed main,body.agent-open main{
-    position:relative!important;
-    display:grid!important;
-    grid-template-rows:minmax(0,1fr)!important;
-    grid-template-columns:260px minmax(0,1fr) 0px!important;
-    gap:0!important;
-    align-items:stretch!important;
-    overflow:hidden!important;
-  }
-  body.left-nav-collapsed main{grid-template-columns:0 minmax(0,1fr) 0px!important}
-  body.right-drawer-open main{grid-template-columns:260px minmax(0,1fr) 380px!important}
-  body.left-nav-collapsed.right-drawer-open main{grid-template-columns:0 minmax(0,1fr) 380px!important}
-
-  .historyRail.workspaceNavRail{
-    grid-column:1!important;grid-row:1!important;
-    position:relative!important;inset:auto!important;
-    display:flex!important;flex-direction:column!important;
-    width:260px!important;min-width:260px!important;max-width:260px!important;
-    height:auto!important;max-height:none!important;
-    transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;
-    box-shadow:none!important;border-right:1px solid var(--line2)!important;border-bottom:0!important;z-index:2!important;
-  }
-  body.left-nav-collapsed .historyRail.workspaceNavRail{display:none!important}
-
-  .pad{
-    grid-column:2!important;grid-row:1!important;
-    position:relative!important;inset:auto!important;
-    display:flex!important;flex-direction:column!important;
-    width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:none!important;
-    z-index:1!important;
-  }
-
-  .assets,body.media-collapsed .assets,body:not(.media-collapsed) .assets{
-    grid-column:3!important;grid-row:1!important;
-    position:relative!important;inset:auto!important;
-    display:none!important;flex-direction:column!important;
-    width:380px!important;min-width:380px!important;max-width:380px!important;
-    height:auto!important;max-height:none!important;
-    transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;
-    box-shadow:none!important;border-left:1px solid var(--line2)!important;border-top:0!important;z-index:2!important;
-  }
-  body.right-drawer-open .assets{display:flex!important}
-
-  /* Desktop side panels are structural columns, never overlay drawers. */
-  .mobileMediaScrim{display:none!important}
-  .mediaSplitter{display:none!important}
-  body.left-drawer-open .historyRail.workspaceNavRail,body.right-drawer-open .assets{transition:none!important}
-}
-</style>
-</body></html>`;
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#0b0d0f;color:#d8dde2;font:14px system-ui,sans-serif}body{padding:12px}a{color:#9bc6ff}</style></head><body aria-label="${String(title).replace(/"/g,'&quot;')}">${body}</body></html>`;
 }
 function resolveEmbed(raw){
   const source=extractEmbedSource(raw),href=safeLinkHref(source);if(!href)return{kind:'invalid',href:null,provider:'WEB',label:'INVALID URL'};
@@ -1787,10 +1724,10 @@ function setTransport(name,state){
   el.classList.toggle('on',state==='on');el.classList.toggle('err',state==='err');if(state==='loading')el.textContent=STRATEGIES[name].label+' …';else el.textContent=STRATEGIES[name].label;
 }
 function updatePresence(){
-  const n=actorRoutes.size;$('#peerPill').textContent='PEERS '+n;$('#peerPill').className='pill '+(n?'good':'');
+  const n=actorRoutes.size;const peerPill=$('#peerPill');if(peerPill){peerPill.textContent='PEERS '+n;peerPill.className='pill '+(n?'good':'')}
   const online=[...wrappers.values()].filter(w=>w.peers.size||true).length;const good=[...document.querySelectorAll('#transportBar .tag.on')].length;
   const enabledTransportCount=TRYSTERO_STRATEGIES.length+1; // + NATS
-  $('#netPill').textContent=networkReady||good?`MESH ${good}/${enabledTransportCount}`:'MESH STARTING';$('#netPill').className='pill '+(networkReady||good?'good':'warn');updateDocMeta();renderPresence();requestAnimationFrame(renderRemoteCursors);
+  const netPill=$('#netPill');if(netPill){netPill.textContent=networkReady||good?`MESH ${good}/${enabledTransportCount}`:'MESH STARTING';netPill.className='pill '+(networkReady||good?'good':'warn')}updateDocMeta();renderPresence();requestAnimationFrame(renderRemoteCursors);
 }
 
 
@@ -2180,7 +2117,7 @@ window.addEventListener('resize',()=>{if(innerWidth>820){if(document.body.classL
 $('#markdownBtn')?.addEventListener('click',()=>setMarkdownEnabled(!markdownEnabled));
 $('#markdownView').addEventListener('click',e=>{if(e.target.closest('a'))return;markdownEditing=true;updateMarkdownMode();const s=$('#scratch');s.focus({preventScroll:true});try{s.setSelectionRange(s.selectionStart,s.selectionEnd)}catch(_){}});
 $('#historyRailToggle').onclick=()=>setHistoryOpen(!document.body.classList.contains('history-open'));$('#historyRailClose').onclick=()=>setHistoryOpen(false);
-$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));$('#mobileMediaToggle').onclick=()=>setMediaCollapsed(false);$('#mobileMediaScrim').onclick=()=>setMediaCollapsed(true);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820&&!document.body.classList.contains('media-collapsed'))setMediaCollapsed(true)},{capture:true});
+$('#mediaToggle').onclick=()=>setMediaCollapsed(!document.body.classList.contains('media-collapsed'));const __mobileMediaToggle=$('#mobileMediaToggle');if(__mobileMediaToggle)__mobileMediaToggle.onclick=()=>setMediaCollapsed(false);$('#mobileMediaScrim').onclick=()=>setMediaCollapsed(true);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820&&!document.body.classList.contains('media-collapsed'))setMediaCollapsed(true)},{capture:true});
 const blockZoomGesture=e=>{if(e.cancelable)e.preventDefault()};
 for(const ev of ['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,blockZoomGesture,{passive:false,capture:true});
 for(const ev of ['touchstart','touchmove'])document.addEventListener(ev,e=>{if(e.target?.closest?.('#canvasSurface'))return;if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault()},{passive:false,capture:true});
@@ -2231,7 +2168,7 @@ mediaSplitter.addEventListener('keydown',e=>{
   if(e.key==='Home'){setMediaCollapsed(false);return}
   const base=document.body.classList.contains('media-collapsed')?mediaExpandedWidth:mediaWidth;setMediaWidth(base+(e.key==='ArrowLeft'?24:-24),{open:true});
 });
-$('#docNavToggle').onclick=()=>setDocsOpen(!document.body.classList.contains('docs-open'));$('#docBrowserClose').onclick=()=>setDocsOpen(false);$('#newFolderBtn').onclick=()=>createFolder(activeFolderId);$('#newDocBtn').onclick=()=>createDocument(activeFolderId);$('#docQuickNew').onclick=()=>createDocument(activeFolderId);
+$('#docNavToggle')?.addEventListener('click',()=>setDocsOpen(!document.body.classList.contains('docs-open')));$('#docBrowserClose')?.addEventListener('click',()=>setDocsOpen(false));$('#newFolderBtn')?.addEventListener('click',()=>createFolder(activeFolderId));$('#newDocBtn')?.addEventListener('click',()=>createDocument(activeFolderId));$('#docQuickNew')?.addEventListener('click',()=>createDocument(activeFolderId));
 $('#micBtn').onclick=()=>toggleMedia('mic');$('#cameraBtn').onclick=()=>toggleMedia('camera');$('#screenBtn').onclick=()=>toggleMedia('screen');
 const syncGateRetry=$('#syncGateRetry');if(syncGateRetry)syncGateRetry.onclick=()=>location.reload();const syncGateOffline=$('#syncGateOffline');if(syncGateOffline)syncGateOffline.onclick=()=>releaseInitialSyncGate('offline');
 const roomPill=$('#roomPill');if(roomPill)roomPill.onclick=copyCurrentPageUrl;
@@ -2641,7 +2578,7 @@ const agentInstructionsV4=$('#agentInstructions');if(agentInstructionsV4)agentIn
  };canvasObjectHtml.__scratchDrawRenderer=true}
  const applyCanvasVisualStylesScratchTools=applyCanvasVisualStyles;applyCanvasVisualStyles=function(stage,objects){applyCanvasVisualStylesScratchTools(stage,objects);for(const o of (objects||canvasObjectsForPage())){const el=stage?.querySelector?.(`:scope > .canvasObject[data-object-id="${CSS.escape(o.id)}"]`);if(el&&['frame','group','section'].includes(o.type)){const body=el.querySelector('.canvasBody');if(body)body.style.overflow=o.clipContent?'hidden':''}}};
  // Shelf / search / activity.
- function setShelfTab(name){shelfTab=name;$$('[data-shelf-tab]').forEach(b=>b.classList.toggle('active',b.dataset.shelfTab===name));$$('[data-shelf-pane]').forEach(p=>p.classList.toggle('active',p.dataset.shelfPane===name));renderShelf()}function openShelf(name='search'){document.body.classList.add('context-shelf-open');setShelfTab(name);if(name==='search')setTimeout(()=>$q('#contextShelfSearch')?.focus(),0)}function closeShelf(){document.body.classList.remove('context-shelf-open')}$$('[data-shelf-tab]').forEach(b=>b.addEventListener('click',()=>setShelfTab(b.dataset.shelfTab)));$q('#docBrowserClose').onclick=closeShelf;$q('#openSearchShelf')?.addEventListener('click',()=>openShelf('search'));$q('#openActivityShelf')?.addEventListener('click',()=>openShelf('activity'));
+ function setShelfTab(name){shelfTab=name;$$('[data-shelf-tab]').forEach(b=>b.classList.toggle('active',b.dataset.shelfTab===name));$$('[data-shelf-pane]').forEach(p=>p.classList.toggle('active',p.dataset.shelfPane===name));renderShelf()}function openShelf(name='search'){document.body.classList.add('context-shelf-open');setShelfTab(name);if(name==='search')setTimeout(()=>$q('#contextShelfSearch')?.focus(),0)}function closeShelf(){document.body.classList.remove('context-shelf-open')}$$('[data-shelf-tab]').forEach(b=>b.addEventListener('click',()=>setShelfTab(b.dataset.shelfTab)));$q('#docBrowserClose')?.addEventListener('click',closeShelf);$q('#openSearchShelf')?.addEventListener('click',()=>openShelf('search'));$q('#openActivityShelf')?.addEventListener('click',()=>openShelf('activity'));
  function renderShelf(){if(shelfTab==='activity'){const box=$q('#contextShelfActivity');if(!box)return;const rows=(yhistory?.toArray?.()||[]).slice(-80).reverse();box.innerHTML=rows.length?rows.map(h=>`<div class="contextResult"><div><div class="contextResultName">${escapeHtml(h.actorName||h.actor||'Peer')} · ${escapeHtml(h.type||'edit')}</div><div class="contextResultMeta">${escapeHtml(h.description||h.desc||h.docName||'Workspace change')}</div></div><span class="contextResultMeta">${new Date(h.ts||h.time||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span></div>`).join(''):'<div class="workspaceNavEmpty">No activity yet.</div>'}else if(shelfTab==='comments'){const box=$q('#contextShelfComments');if(!box)return;let rows=[];try{rows=activeComments?.()||[]}catch(_){}box.innerHTML=rows.length?rows.map(c=>`<div class="contextResult"><div><div class="contextResultName">${escapeHtml(c.authorName||c.actorName||'Comment')}</div><div class="contextResultMeta">${escapeHtml(c.text||c.body||'')}</div></div><button class="contextResultAction" data-comment-open="${escapeHtml(c.id)}">OPEN</button></div>`).join(''):'<div class="workspaceNavEmpty">No comments on this document.</div>'}}
  async function doSearch(q){const box=$q('#contextShelfSearchResults');q=String(q||'').trim();if(!box)return;if(!q){box.innerHTML='<div class="workspaceNavEmpty">Search the entire encrypted room.</div>';return}let results=[];try{results=await ScratchpadAgent.search(q)}catch(_){const l=q.toLowerCase();results=fsEntries().filter(x=>String(x.name||'').toLowerCase().includes(l)).map(x=>({type:x.type,id:x.id,name:x.name}))}if(!Array.isArray(results))results=results.results||[];box.innerHTML=results.slice(0,80).map(r=>`<div class="contextResult"><div><div class="contextResultName">${escapeHtml(r.name||r.title||r.type||'Result')}</div><div class="contextResultMeta">${escapeHtml(r.path||r.text||r.type||'')}</div></div>${r.id?`<button class="contextResultAction" data-search-open="${escapeHtml(r.id)}">OPEN</button>`:''}</div>`).join('')||'<div class="workspaceNavEmpty">No matches.</div>'}
  let st=0;$q('#contextShelfSearch')?.addEventListener('input',e=>{clearTimeout(st);st=setTimeout(()=>doSearch(e.target.value),120)});$q('#docBrowser')?.addEventListener('click',e=>{const b=e.target.closest('[data-search-open]');if(b){const id=b.dataset.searchOpen;if(fsEntry?.(id)?.type==='doc')selectDocument?.(id,{focus:true});closeShelf()}const c=e.target.closest('[data-comment-open]');if(c)openWorkspaceInspector?.('comments')});
@@ -4493,7 +4430,7 @@ bindCanvasPresenceTracking();
     await initSecret();await importYjs();setupYDoc();await loadLocal();scratchInitCompletion();scratchInstallCapabilityReverification();initWorkspaceLayout();updatePresence();const agentLinkInput=$('#agentLink');if(agentLinkInput)agentLinkInput.value=agentLink();if(new URLSearchParams(location.search).get('agent')==='1')setAgentOpen(true);agentReadyResolve?.(window.ScratchpadAgent);const agentReadyMeta=$('#agentReadyMeta');if(agentReadyMeta)agentReadyMeta.textContent='LOCAL READY';scheduleAgentStateRefresh('ready',0);await startMesh();startInitialSyncGate();if(agentReadyMeta)agentReadyMeta.textContent='READY';scheduleAgentStateRefresh('mesh-ready',0);
     setTimeout(()=>{broadcastCtl(newMessage('state-req',{sv:bytesToB64(Y.encodeStateVector(ydoc))}));queuePresence(true)},900);
     setInterval(()=>queuePresence(true),10000);agentPollTimer=setInterval(()=>{if(agentIsOpen())scheduleAgentStateRefresh('poll',0)},1500);presenceSweepTimer=setInterval(()=>{const now=Date.now();let changed=false;for(const [id,p] of remotePresence)if(now-Number(p.ts||0)>35000){remotePresence.delete(id);changed=true}if(changed){renderPresence();requestAnimationFrame(renderRemoteCursors)}},5000);
-  }catch(e){console.error(e);$('#netPill').textContent='INIT FAILED';$('#netPill').className='pill bad';$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;setInitialSyncGate('INITIALIZATION FAILED',e.message,'error');const ga=$('#syncGateActions'),off=$('#syncGateOffline');if(ga)ga.hidden=false;if(off)off.hidden=true;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
+  }catch(e){console.error(e);const netPill=$('#netPill');if(netPill){netPill.textContent='INIT FAILED';netPill.className='pill bad'}$('#syncDot').className='dot bad';$('#syncText').textContent=e.message;setInitialSyncGate('INITIALIZATION FAILED',e.message,'error');const ga=$('#syncGateActions'),off=$('#syncGateOffline');if(ga)ga.hidden=false;if(off)off.hidden=true;toast('<b>Initialization failed.</b> '+escapeHtml(e.message),'bad')}
 })();
 
 
@@ -4536,57 +4473,166 @@ $('#mobileMediaScrim')?.addEventListener('click',()=>{if(innerWidth<=820)scratch
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820)scratchCloseMobileSecondarySurfaces('')},{capture:true});
 window.addEventListener('resize',()=>{if(innerWidth>820){document.body.classList.remove('mobile-inspector-open','left-mobile-open')}},{passive:true});
 
-/* V19. Unified overlay drawers + explicit right-panel tabs. */
-let scratchRightPanelTab=(()=>{try{return localStorage.getItem('scratch-right-panel-tab')==='properties'?'properties':'media'}catch(_){return'media'}})();
-function scratchSetLeftDrawer(open,{persist=true}={}){
-  open=!!open;
-  const mobile=innerWidth<=820;
-  document.body.classList.toggle('left-drawer-open',open);
-  document.body.classList.toggle('left-mobile-open',open&&mobile);
-  document.body.classList.toggle('left-nav-collapsed',!mobile&&!open);
-  const b=$('#leftDrawerBottomToggle'),h=$('#historyRailToggle');for(const el of [b,h])if(el){el.setAttribute('aria-expanded',open?'true':'false');el.setAttribute('aria-label',open?'Close workspace panel':'Open workspace panel');el.setAttribute('title',open?'Close workspace panel':'Open workspace panel')}
-  if(persist)try{localStorage.setItem('scratch-left-drawer-open',open?'1':'0')}catch(_){}
-}
-function scratchSetRightDrawer(open,{persist=true}={}){
-  open=!!open;document.body.classList.toggle('right-drawer-open',open);
-  if(open)document.body.classList.remove('media-collapsed');else document.body.classList.add('media-collapsed');
-  const b=$('#rightDrawerBottomToggle'),h=$('#mediaToggle');for(const el of [b,h])if(el){el.setAttribute('aria-expanded',open?'true':'false');el.setAttribute('aria-label',open?'Close right drawer':'Open right drawer');el.setAttribute('title',open?'Close right drawer':'Open right drawer')}
-  if(persist)try{localStorage.setItem('scratch-right-drawer-open',open?'1':'0');localStorage.setItem('scratch-media-collapsed',open?'0':'1')}catch(_){}
-  requestAnimationFrame(renderRemoteCursors);
-}
-function scratchRenderRightPanelTab(){
-  const panel=$('#mediaPanel'),box=$('#propertiesPanel');if(!panel)return;
-  const prop=scratchRightPanelTab==='properties';panel.classList.toggle('right-tab-properties',prop);panel.classList.toggle('right-tab-media',!prop);panel.classList.toggle('properties-mode',prop);panel.classList.remove('properties-narrow');
-  document.querySelectorAll('#rightPanelTabs [data-right-panel-tab]').forEach(b=>{const on=b.dataset.rightPanelTab===scratchRightPanelTab;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1});
-  const title=$('#mediaPanelTitle'),meta=$('#assetMeta');
-  if(prop){
-    if(title)title.textContent='Properties';
-    const target=ydoc?propertyTarget():null;
-    if(!target&&box){box.innerHTML=isRichDoc()?scratchDocumentAppearancePropertiesHtml()+'<div class="propHint" style="padding:8px 2px">Select a block or canvas object for element properties.</div>':'<div class="propSection"><div class="propSectionBody"><div class="propHint">Select an object to inspect its properties.</div></div></div>'}
-    if(meta&&!target)meta.textContent=isRichDoc()?'DOCUMENT':'NO SELECTION';
+
+/* V19. Responsive chrome relocation. */
+function scratchPlaceResponsiveChrome(){
+  const mobile=innerWidth<=820, presence=$('#presenceBar'), actions=document.querySelector('header .actions'), padHead=document.querySelector('.pad>.panelhead'), mediaToggle=$('#mediaToggle'), sync=$('.syncbar'), assetsHead=document.querySelector('.assets>.panelhead');
+  if(mobile){
+    if(presence&&actions&&presence.parentElement!==actions)actions.prepend(presence);
+    if(mediaToggle&&sync&&mediaToggle.parentElement!==sync)sync.append(mediaToggle);
   }else{
-    if(title)title.textContent='Files + media';const n=[...assets.values()].filter(x=>!x.deleted).length;if(meta)meta.textContent=n+' ITEM'+(n===1?'':'S');
+    if(presence&&padHead&&presence.parentElement!==padHead){const meta=$('#docMeta');padHead.insertBefore(presence,meta||null)}
+    if(mediaToggle&&assetsHead&&mediaToggle.parentElement!==assetsHead)assetsHead.append(mediaToggle);
   }
 }
-function scratchSetRightPanelTab(tab,{open=true,persist=true}={}){
-  if(!['media','properties'].includes(tab))tab='media';scratchRightPanelTab=tab;if(persist)try{localStorage.setItem('scratch-right-panel-tab',tab)}catch(_){}
-  if(open)scratchSetRightDrawer(true);scratchRenderRightPanelTab();
+window.addEventListener('resize',scratchPlaceResponsiveChrome,{passive:true});
+queueMicrotask(scratchPlaceResponsiveChrome);
+/* V20. Unified right drawer: Media / Properties / Search / Activity / Comments / Outline. */
+const scratchRightPanelState={tab:'media',page:{search:0,activity:0,comments:0,outline:0},pageSize:18,searchResults:[],searchQuery:''};
+function scratchRightPanelTitle(tab=scratchRightPanelState.tab){return({media:'Files + media',properties:'Properties',search:'Search',activity:'Activity',comments:'Comments',outline:'Outline'})[tab]||'Right drawer'}
+function scratchRightPanelRows(tab){
+  if(tab==='search')return scratchRightPanelState.searchResults||[];
+  if(tab==='activity')return (yhistory?.toArray?.()||[]).slice().reverse();
+  if(tab==='comments'){try{return activeComments?.()||[]}catch(_){return[]}}
+  if(tab==='outline'){try{return docOutlineItems?.()||[]}catch(_){return[]}}
+  return[];
 }
-const scratchUpdatePropertiesPanelV19Base=updatePropertiesPanel;
-updatePropertiesPanel=function(){scratchUpdatePropertiesPanelV19Base();scratchRenderRightPanelTab()};
-const scratchSetMediaCollapsedV19Base=setMediaCollapsed;
-setMediaCollapsed=function(on,opts={}){scratchSetRightDrawer(!on,{persist:opts.persist!==false});return;};
-$('#rightPanelTabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-right-panel-tab]');if(b)scratchSetRightPanelTab(b.dataset.rightPanelTab,{open:true})});
-$('#rightPanelTabs')?.addEventListener('keydown',e=>{const tabs=[...document.querySelectorAll('#rightPanelTabs [data-right-panel-tab]')],i=tabs.indexOf(document.activeElement);if(i<0||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();let n=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[n].focus();scratchSetRightPanelTab(tabs[n].dataset.rightPanelTab,{open:true})});
-$('#leftDrawerBottomToggle').onclick=()=>scratchSetLeftDrawer(!document.body.classList.contains('left-drawer-open'));
-$('#rightDrawerBottomToggle').onclick=()=>scratchSetRightDrawer(!document.body.classList.contains('right-drawer-open'));
-$('#historyRailToggle').onclick=()=>scratchSetLeftDrawer(!document.body.classList.contains('left-drawer-open'));
-$('#mediaToggle').onclick=()=>scratchSetRightDrawer(false);
-$('#mobileMediaToggle').onclick=()=>scratchSetRightDrawer(true);
-$('#mobileMediaScrim').onclick=()=>{scratchSetRightDrawer(false);scratchSetLeftDrawer(false);document.body.classList.remove('context-shelf-open','mobile-inspector-open')};
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(document.body.classList.contains('right-drawer-open'))scratchSetRightDrawer(false);else if(document.body.classList.contains('left-drawer-open'))scratchSetLeftDrawer(false)},{capture:true});
-try{const savedLeft=localStorage.getItem('scratch-left-drawer-open');scratchSetLeftDrawer(savedLeft==null?innerWidth>820:savedLeft==='1',{persist:false});scratchSetRightDrawer(localStorage.getItem('scratch-right-drawer-open')==='1',{persist:false})}catch(_){scratchSetLeftDrawer(innerWidth>820,{persist:false});scratchSetRightDrawer(false,{persist:false})}
-scratchRenderRightPanelTab();
+function scratchRightPanelPager(tab,total){
+  const box=document.querySelector(`[data-right-pager="${CSS.escape(tab)}"]`);if(!box)return;
+  const size=scratchRightPanelState.pageSize,pages=Math.max(1,Math.ceil(total/size));let page=Math.max(0,Math.min(pages-1,scratchRightPanelState.page[tab]||0));scratchRightPanelState.page[tab]=page;
+  if(total<=size){box.innerHTML=total?`<span>${total} ITEM${total===1?'':'S'}</span>`:'';return}
+  box.innerHTML=`<button type="button" data-right-page="prev" data-right-page-tab="${tab}" ${page<=0?'disabled':''}>‹</button><span>${page+1} / ${pages} · ${total}</span><button type="button" data-right-page="next" data-right-page-tab="${tab}" ${page>=pages-1?'disabled':''}>›</button>`;
+}
+function scratchRightPanelSlice(tab,rows){const size=scratchRightPanelState.pageSize,total=rows.length,pages=Math.max(1,Math.ceil(total/size)),page=Math.max(0,Math.min(pages-1,scratchRightPanelState.page[tab]||0));scratchRightPanelState.page[tab]=page;scratchRightPanelPager(tab,total);return rows.slice(page*size,page*size+size)}
+function scratchRenderRightSearchResults(){const rows=scratchRightPanelState.searchResults||[],view=scratchRightPanelSlice('search',rows),box=$('#contextShelfSearchResults'),meta=$('#assetMeta');if(meta)meta.textContent=rows.length+' RESULT'+(rows.length===1?'':'S');if(!box)return;box.innerHTML=scratchRightPanelState.searchQuery?(view.length?view.map(r=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(r.name||r.title||r.type||'Result')}</strong><span>${escapeHtml(r.path||r.text||r.type||'')}</span></div>${r.id?`<button type="button" data-right-search-open="${escapeHtml(r.id)}">OPEN</button>`:''}</div>`).join(''):'<div class="rightPaneEmpty">No matches.</div>'):'<div class="rightPaneEmpty">Search the entire encrypted room.</div>'}
+function scratchRenderRightAux(tab=scratchRightPanelState.tab){
+  const panel=$('#mediaPanel');if(!panel)return;
+  const title=$('#mediaPanelTitle'),meta=$('#assetMeta');if(title)title.textContent=scratchRightPanelTitle(tab);
+  if(tab==='media'){const n=[...assets.values()].filter(x=>!x.deleted).length;if(meta)meta.textContent=n+' ITEM'+(n===1?'':'S');return}
+  if(tab==='properties'){const t=propertyTarget?.();if(meta)meta.textContent=t?String(t.data?.type||t.kind||'selection').toUpperCase():'NO SELECTION';if(!t&&$('#propertiesPanel'))$('#propertiesPanel').innerHTML='<div class="rightPaneEmpty">Select a document block or canvas object to inspect its properties.</div>';return}
+  const rows=scratchRightPanelRows(tab),view=scratchRightPanelSlice(tab,rows);if(meta)meta.textContent=rows.length+' ITEM'+(rows.length===1?'':'S');
+  if(tab==='activity'){
+    const box=$('#contextShelfActivity');if(box)box.innerHTML=view.length?view.map(h=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(h.actorName||h.actor||'Peer')} · ${escapeHtml(h.type||'edit')}</strong><span>${escapeHtml(h.description||h.desc||h.docName||'Workspace change')}</span></div><time>${new Date(h.ts||h.time||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time></div>`).join(''):'<div class="rightPaneEmpty">No activity yet.</div>';
+  }else if(tab==='comments'){
+    const box=$('#contextShelfComments');if(box)box.innerHTML=view.length?view.map(c=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(c.authorName||c.actorName||c.name||'Comment')}</strong><span>${escapeHtml(c.text||c.body||'')}</span></div><button type="button" data-right-comment-open="${escapeHtml(c.id)}">OPEN</button></div>`).join(''):'<div class="rightPaneEmpty">No comments on this document.</div>';
+  }else if(tab==='outline'){
+    const box=$('#contextShelfOutline');if(box)box.innerHTML=view.length?view.map(x=>`<button class="rightDrawerRow rightDrawerRowButton" type="button" data-right-outline-open="${escapeHtml(x.id)}"><div class="rightDrawerRowMain"><strong>${x.bookmark?'★ ':''}${escapeHtml(x.text||'Untitled')}</strong><span>${x.type==='heading'?'HEADING':'BOOKMARK'}</span></div></button>`).join(''):'<div class="rightPaneEmpty">No headings or bookmarks.</div>';
+  }else if(tab==='search')scratchRenderRightSearchResults();
+}
+async function scratchRightPanelSearch(q){q=String(q||'').trim();scratchRightPanelState.searchQuery=q;scratchRightPanelState.page.search=0;if(!q){scratchRightPanelState.searchResults=[];scratchRenderRightSearchResults();return}let rows=[];try{rows=await ScratchpadAgent.search(q)}catch(_){const l=q.toLowerCase();rows=fsEntries().filter(x=>String(x.name||'').toLowerCase().includes(l)).map(x=>({type:x.type,id:x.id,name:x.name}))}if(!Array.isArray(rows))rows=rows?.results||[];scratchRightPanelState.searchResults=rows;scratchRenderRightSearchResults()}
+function setRightPanelTab(tab,{open=true,focus=false}={}){
+  const allowed=['media','properties','search','activity','comments','outline'];if(!allowed.includes(tab))tab='media';scratchRightPanelState.tab=tab;if(['search','activity','comments','outline'].includes(tab))shelfTab=tab;
+  const panel=$('#mediaPanel');if(!panel)return;panel.dataset.rightTabActive=tab;for(const n of allowed)panel.classList.toggle('right-tab-'+n,n===tab);
+  panel.querySelectorAll('[data-right-tab]').forEach(b=>{const on=b.dataset.rightTab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',on?'true':'false')});
+  if(open)setMediaCollapsed(false);scratchRenderRightAux(tab);try{localStorage.setItem('scratch-right-tab',tab)}catch(_){}
+  if(focus&&tab==='search')setTimeout(()=>$('#contextShelfSearch')?.focus(),0);
+}
+function openRightPanelTab(tab){setRightPanelTab(tab,{open:true,focus:tab==='search'})}
+window.openSearchShelf=()=>openRightPanelTab('search');window.openActivityShelf=()=>openRightPanelTab('activity');
+openShelf=function(name='search'){openRightPanelTab(name)};setShelfTab=function(name){setRightPanelTab(name,{open:true,focus:name==='search'})};closeShelf=function(){if(innerWidth<=820)setMediaCollapsed(true)};
+doSearch=scratchRightPanelSearch;renderShelf=()=>scratchRenderRightAux(scratchRightPanelState.tab);renderOutlineShelf=()=>{scratchRightPanelState.page.outline=0;scratchRenderRightAux('outline')};window.__scratchOpenShelf=openShelf;window.__scratchSetShelfTab=setShelfTab;window.__scratchRenderShelf=renderShelf;window.__scratchShelfTab=()=>scratchRightPanelState.tab;
+const scratchUpdatePropertiesPanelV20Base=updatePropertiesPanel;
+updatePropertiesPanel=function(){scratchUpdatePropertiesPanelV20Base();const t=propertyTarget?.();if(t&&['media','properties'].includes(scratchRightPanelState.tab))setRightPanelTab('properties',{open:false});else scratchRenderRightAux(scratchRightPanelState.tab)};
+(function scratchBindRightPanelV20(){
+  const panel=$('#mediaPanel');if(!panel||panel.dataset.rightTabsBound==='1')return;panel.dataset.rightTabsBound='1';
+  panel.querySelector('#rightPanelTabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-right-tab]');if(b)setRightPanelTab(b.dataset.rightTab,{open:true,focus:b.dataset.rightTab==='search'})});
+  let timer=0;$('#contextShelfSearch')?.addEventListener('input',e=>{clearTimeout(timer);timer=setTimeout(()=>scratchRightPanelSearch(e.target.value),120)});
+  panel.addEventListener('click',e=>{const pg=e.target.closest('[data-right-page]');if(pg){const tab=pg.dataset.rightPageTab,dir=pg.dataset.rightPage==='next'?1:-1;scratchRightPanelState.page[tab]=Math.max(0,(scratchRightPanelState.page[tab]||0)+dir);scratchRenderRightAux(tab);return}const s=e.target.closest('[data-right-search-open]');if(s){const id=s.dataset.rightSearchOpen,entry=fsEntry?.(id);if(entry?.type==='doc')selectDocument?.(id,{focus:true});else if(entry?.type==='folder'){activeFolderId=id;expandedFolders.add(id);renderDocNavigator?.()}return}const c=e.target.closest('[data-right-comment-open]');if(c){const row=(activeComments?.()||[]).find(x=>x.id===c.dataset.rightCommentOpen);if(row?.docId&&row.docId!==activeDocId)selectDocument?.(row.docId,{focus:false});if(row?.blockId)setTimeout(()=>document.querySelector(`[data-block-id="${CSS.escape(row.blockId)}"]`)?.scrollIntoView({block:'center'}),0);return}const o=e.target.closest('[data-right-outline-open]');if(o)jumpToBlock?.(o.dataset.rightOutlineOpen)});
+  let initial='media';try{const saved=localStorage.getItem('scratch-right-tab');if(['media','properties','search','activity','comments','outline'].includes(saved))initial=saved}catch(_){}if(initial==='properties'&&!propertyTarget?.())initial='media';setRightPanelTab(initial,{open:false});
+})();
+
+
+/* V21. Syncbar drawer semantics + rich document block context actions. */
+function scratchLeftDrawerIsOpen(){return document.body.classList.contains('left-mobile-open')||document.body.classList.contains('history-open')}
+function scratchSyncDrawerAria(){
+  const left=$('#historyRailToggle'),right=$('#mediaToggle'),leftOpen=scratchLeftDrawerIsOpen(),rightOpen=!document.body.classList.contains('media-collapsed');
+  if(left){left.setAttribute('aria-expanded',leftOpen?'true':'false');left.setAttribute('aria-label',leftOpen?'Close left drawer':'Open left drawer');left.setAttribute('title',leftOpen?'Close left drawer':'Open left drawer')}
+  if(right){right.setAttribute('aria-expanded',rightOpen?'true':'false');right.setAttribute('aria-label',rightOpen?'Close right drawer':'Open right drawer');right.setAttribute('title',rightOpen?'Close right drawer':'Open right drawer')}
+}
+function scratchToggleSyncLeftDrawer(){
+  if(innerWidth>820){setHistoryOpen(!document.body.classList.contains('history-open'));scratchSyncDrawerAria();return}
+  if(scratchLeftDrawerIsOpen()){
+    if(document.body.classList.contains('history-open'))setHistoryOpen(false);
+    document.body.classList.remove('left-mobile-open');
+  }else{
+    scratchCloseMobileSecondarySurfaces?.('left');
+    if(document.body.classList.contains('history-open'))setHistoryOpen(false);
+    openLeftTab?.(typeof leftTab==='string'&&leftTab?leftTab:'files');
+    document.body.classList.add('left-mobile-open');
+  }
+  scratchSyncDrawerAria();
+}
+const scratchHistoryRailToggleV21=$('#historyRailToggle');
+if(scratchHistoryRailToggleV21)scratchHistoryRailToggleV21.onclick=scratchToggleSyncLeftDrawer;
+new MutationObserver(scratchSyncDrawerAria).observe(document.body,{attributes:true,attributeFilter:['class']});
+window.addEventListener('resize',scratchSyncDrawerAria,{passive:true});queueMicrotask(scratchSyncDrawerAria);
+
+function scratchBlockDisplayName(m){
+  if(!m)return'Block';const names={paragraph:'Paragraph',heading:'Heading',checklist:'Checklist',quote:'Quote',code:'Code',callout:'Callout',table:'Table',divider:'Divider',embed:'Embed',image:'Image',file:'File',canvas:'Canvas',footnote:'Footnote',pagebreak:'Page break',sectionbreak:'Section break'};
+  const base=names[m.type]||String(m.type||'Block');
+  if(V3_TEXT_TYPES.has(m.type)||m.type==='embed'){const t=blockText(m.id).toString().replace(/\s+/g,' ').trim();return t?`${base} · ${t.slice(0,54)}${t.length>54?'…':''}`:base}
+  return base;
+}
+function scratchBlockPlainForTypeChange(m){
+  if(!m)return'';
+  if(V3_TEXT_TYPES.has(m.type)||m.type==='embed')return blockText(m.id).toString();
+  if(m.type==='table'){const a=m.attrs||{},rows=Math.max(1,Number(a.rows)||3),cols=Math.max(1,Number(a.cols)||3);return Array.from({length:rows},(_,r)=>Array.from({length:cols},(_,c)=>tableCellText(m.id,r,c).toString()).join('\t')).join('\n')}
+  if(m.type==='image'||m.type==='file')return assetForBlock(m)?.name||'';
+  if(m.type==='canvas')return fsEntry(m.attrs?.canvasDocId)?.name||'';
+  return'';
+}
+function scratchChangeRichBlockType(id,nextType=null){
+  const m=blockMeta(id);if(!m||!canEditDocument(m.docId))return false;
+  const allowed=['paragraph','heading','checklist','quote','code','callout','table','divider','embed'];
+  if(nextType==null){
+    const labels=allowed.map((x,i)=>`${i+1}. ${x}`).join('\n');
+    const raw=prompt(`Change block type:\n${labels}`,String(Math.max(1,allowed.indexOf(m.type)+1)));
+    if(raw==null)return false;const n=Number(raw);nextType=Number.isInteger(n)&&n>=1&&n<=allowed.length?allowed[n-1]:String(raw).trim().toLowerCase();
+  }
+  if(!allowed.includes(nextType))throw new Error('Unsupported block type');if(nextType===m.type)return true;
+  const plain=scratchBlockPlainForTypeChange(m),attrs={...(m.attrs||{})};
+  ydoc.transact(()=>{
+    if(nextType==='table'){
+      const lines=String(plain||'').split(/\r?\n/),grid=lines.map(line=>line.includes('\t')?line.split('\t'):(line.includes('|')?line.split('|').map(x=>x.trim()).filter((x,i,a)=>x!==''||i>0&&i<a.length-1):[line]));
+      const rows=Math.max(1,grid.length),cols=Math.max(1,...grid.map(r=>r.length));setBlockMeta(id,{type:'table',attrs:{...attrs,rows,cols,markdownTable:false}});
+      for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const y=tableCellText(id,r,c),v=String(grid[r]?.[c]??'');y.delete(0,y.length);if(v)y.insert(0,v)}
+    }else{
+      setBlockMeta(id,{type:nextType,attrs:{...attrs}});
+      if(V3_TEXT_TYPES.has(nextType)||nextType==='embed'){
+        const y=blockText(id);y.delete(0,y.length);if(plain)y.insert(0,plain);
+      }
+    }
+  },LOCAL_ORIGIN);
+  activeBlockId=id;propertySelection={kind:'block',id};renderStructuredWorkspace();updatePropertiesPanel?.();scratchRecordActivity?.('block-type',`Changed block to ${nextType}`,{blockId:id,docId:m.docId,from:m.type,to:nextType});return true;
+}
+function scratchMoveRichBlockContext(id,action){
+  const m=blockMeta(id);if(!m||!canEditDocument(m.docId))return false;const rows=blocksForDoc(m.docId),i=rows.findIndex(x=>x.id===id);if(i<0)return false;
+  if(action==='move-up')return moveBlock(id,Math.max(0,i-1));if(action==='move-down')return moveBlock(id,Math.min(rows.length-1,i+1));if(action==='move-top')return moveBlock(id,0);if(action==='move-bottom')return moveBlock(id,rows.length-1);return false;
+}
+const scratchEntityInfoV21Base=entityInfo;
+entityInfo=function(type,id){if(type==='block'){const m=blockMeta(id);return m?{type:'document block',name:scratchBlockDisplayName(m),raw:m}:null}return scratchEntityInfoV21Base(type,id)};
+const scratchEntityActionsV21Base=entityActions;
+entityActions=function(type,id){
+  if(type!=='block')return scratchEntityActionsV21Base(type,id);
+  const info=entityInfo(type,id);if(!info)return[];const m=info.raw,rows=blocksForDoc(m.docId),i=rows.findIndex(x=>x.id===id),editable=canEditDocument(m.docId),arr=[{id:'select',label:'SELECT / PROPERTIES'}];
+  if(editable){arr.push({id:'change-type',label:'CHANGE TYPE…'},{id:'duplicate',label:'DUPLICATE'},{sep:true});if(i>0)arr.push({id:'move-up',label:'MOVE UP'},{id:'move-top',label:'MOVE TO TOP'});if(i>=0&&i<rows.length-1)arr.push({id:'move-down',label:'MOVE DOWN'},{id:'move-bottom',label:'MOVE TO BOTTOM'})}
+  const asset=assetForBlock(m);if(asset)arr.push({sep:true},{id:'openasset',label:'OPEN ASSET'},{id:'downloadasset',label:'DOWNLOAD ASSET'});
+  if(editable)arr.push({sep:true},{id:'delete',label:'DELETE BLOCK',danger:true});return arr;
+};
+const scratchRunEntityActionV21Base=runEntityAction;
+runEntityAction=function(type,id,action){
+  if(type!=='block')return scratchRunEntityActionV21Base(type,id,action);
+  const m=blockMeta(id);if(!m)return;
+  if(action==='select'){activeBlockId=id;propertySelection={kind:'block',id};document.querySelectorAll('#blockDoc .docBlock.selected').forEach(x=>x.classList.toggle('selected',x.dataset.blockId===id));updatePropertiesPanel?.();queuePresence?.(true);return}
+  if(!canEditDocument(m.docId))return;
+  if(action==='change-type')scratchChangeRichBlockType(id);else if(action==='duplicate')duplicateRichBlock(id);else if(['move-up','move-down','move-top','move-bottom'].includes(action))scratchMoveRichBlockContext(id,action);else if(action==='openasset'){const a=assetForBlock(m);if(a)openAsset(a.id)}else if(action==='downloadasset'){const a=assetForBlock(m);if(a)downloadAsset(a.id)}else if(action==='delete'){if(confirm(`Delete this ${m.type} block?`))deleteBlock(id)}
+};
+document.addEventListener('contextmenu',e=>{
+  const row=e.target.closest?.('#blockDoc .docBlock[data-block-id]');if(!row||isCanvasDoc())return;
+  const id=row.dataset.blockId,m=blockMeta(id);if(!m)return;e.preventDefault();e.stopImmediatePropagation();activeBlockId=id;propertySelection={kind:'block',id};
+  document.querySelectorAll('#blockDoc .docBlock.selected').forEach(x=>x.classList.toggle('selected',x===row));updatePropertiesPanel?.();queuePresence?.(true);openEntityContextMenu('block',id,e.clientX,e.clientY);
+},true);
+
 </script>
 
   <div class="workspaceToolTooltip" id="workspaceToolTooltip" role="tooltip" aria-hidden="true"></div>
@@ -4676,7 +4722,7 @@ scratchRenderRightPanelTab();
 .workspaceNavPane{display:none;flex:1;min-height:0;overflow:hidden;flex-direction:column}.workspaceNavPane.active{display:flex}.workspaceNavHead{height:34px;flex:0 0 34px;display:flex;align-items:center;gap:6px;padding:0 6px 0 9px;border-bottom:1px solid var(--line);font:800 7px var(--mono);letter-spacing:.1em;color:#8b959e}.workspaceNavMeta{margin-left:auto;color:var(--dim);font-weight:600;letter-spacing:0}.workspaceNavActions{display:flex;gap:2px}.workspaceNavActions .iconbtn,.workspaceNavHead>.iconbtn{width:27px;height:27px}.workspaceNavActions svg,.workspaceNavHead>.iconbtn svg{width:13px;height:13px}.workspaceNavPane>.docTree{flex:1;min-height:0}.workspaceNavEmpty{padding:16px 10px;color:var(--dim);font:8px/1.5 var(--mono)}
 .workspaceNavRail .scratchPanel{position:static!important;display:none;width:auto!important;height:auto!important;max-height:none!important;inset:auto!important;border:0!important;background:transparent!important;box-shadow:none!important;flex:1;min-height:0}.workspaceNavPane.active .scratchPanel{display:flex;flex-flow:column}.workspaceNavRail .scratchHead{height:34px;flex-basis:34px}.workspaceNavRail .scratchSection:last-child{flex:1}.workspaceNavRail .scratchList{padding:3px 4px 6px}
 .leftAssetSection{border-bottom:1px solid var(--line);min-height:0}.leftAssetSection.grow{flex:1;display:flex;flex-direction:column}.workspaceNavSectionLabel{height:27px;display:flex;align-items:center;padding:0 8px;color:#66717b;font:800 7px var(--mono);letter-spacing:.1em}.leftResourceList{padding:3px 5px 8px;overflow:auto}.leftAssetSection.grow .leftResourceList{flex:1;min-height:0}.leftResourceRow{min-height:31px;display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:5px;padding:2px 5px;border:1px solid transparent;color:#a6afb7}.leftResourceRow:hover{background:#101418;border-color:#1b2228}.leftResourceIcon{width:20px;height:20px;display:grid;place-items:center;color:#6f7a84}.leftResourceIcon svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6}.leftResourceName{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 8px var(--mono)}.leftResourceMeta{color:var(--dim);font:6.5px var(--mono)}
-.workspaceHistoryDock{flex:0 0 auto;border-top:1px solid var(--line);background:#080a0c}.workspaceHistoryToggle{width:100%;height:34px;border:0;background:transparent;color:#7b8791;display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:6px;padding:0 8px;text-align:left;font:800 7px var(--mono);letter-spacing:.08em}.workspaceHistoryToggle:hover{background:#11151a;color:var(--text)}.workspaceHistoryToggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}.workspaceHistoryCount{font-size:6.5px;color:var(--dim);letter-spacing:0}.workspaceHistoryDrawer{display:none;max-height:42vh;min-height:120px;overflow:hidden;flex-direction:column;border-top:1px solid var(--line)}body.history-open .workspaceHistoryDrawer{display:flex}.workspaceHistoryDrawerHead{height:31px;flex:0 0 31px;display:flex;align-items:center;padding:0 5px 0 8px;color:#939da6;font:800 7px var(--mono);letter-spacing:.08em}.workspaceHistoryDrawerHead .railArrow{margin-left:auto}.workspaceHistoryDrawer>.historylist{flex:1;min-height:0;max-height:none;overflow:auto;padding:5px 8px 10px}
+.workspaceHistoryDock{flex:0 0 auto;border-top:1px solid var(--line);background:#080a0c}.workspaceHistoryToggle{width:100%;height:30px;border:0;background:transparent;color:#7b8791;display:grid;grid-template-columns:18px 1fr auto;align-items:center;gap:6px;padding:0 8px;text-align:left;font:800 7px var(--mono);letter-spacing:.08em}.workspaceHistoryToggle:hover{background:#11151a;color:var(--text)}.workspaceHistoryToggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7}.workspaceHistoryCount{font-size:6.5px;color:var(--dim);letter-spacing:0}.workspaceHistoryDrawer{display:none;max-height:42vh;min-height:120px;overflow:hidden;flex-direction:column;border-top:1px solid var(--line)}body.history-open .workspaceHistoryDrawer{display:flex}.workspaceHistoryDrawerHead{height:28px;flex:0 0 28px;display:flex;align-items:center;padding:0 5px 0 8px;color:#939da6;font:800 7px var(--mono);letter-spacing:.08em}.workspaceHistoryDrawerHead .railArrow{margin-left:auto}.workspaceHistoryDrawer>.historylist{flex:1;min-height:0;max-height:none;overflow:auto;padding:5px 8px 10px}
 /* Compact grouped toolbar */
 .scratchToolbar{position:relative;z-index:520;isolation:isolate;gap:3px;overflow:visible;padding:4px 6px;min-height:39px;flex:0 0 39px;background:#090b0d}.legacyToolPool{display:none!important}.scratchToolCluster{position:relative;display:inline-flex;align-items:stretch;height:30px;border:1px solid transparent}.scratchToolBtn,.scratchToolChevron{height:30px;border:1px solid var(--line);background:#0d1013;color:#8d98a1;display:grid;place-items:center;padding:0}.scratchToolBtn{width:32px}.scratchToolChevron{width:16px;border-left:0}.scratchToolBtn:hover,.scratchToolChevron:hover,.scratchToolBtn.active{color:var(--text);background:#171c21;border-color:#3a444d}.scratchToolBtn.active{box-shadow:inset 0 -2px 0 var(--accent)}.scratchToolBtn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}.scratchToolChevron svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:1.8}.scratchToolSpacer{flex:1;min-width:8px}.scratchToolMenu{display:none;position:absolute;z-index:540;top:34px;left:0;min-width:176px;padding:4px;border:1px solid var(--line2);background:#0b0e11;box-shadow:0 16px 42px rgba(0,0,0,.5)}.scratchToolMenu.show{display:block}.scratchToolMenu.wide{min-width:205px}.scratchToolMenu button{width:100%;min-height:30px;border:0;background:transparent;color:#aeb6bd;display:flex;align-items:center;gap:8px;padding:0 8px;text-align:left;font:700 8px var(--mono)}.scratchToolMenu button:hover{background:#171c21;color:var(--text)}.scratchToolMenu button kbd{margin-left:auto;color:#5f6972;font:600 7px var(--mono)}.richVisible,.canvasVisible{display:none}.editorwrap.structured-rich~*{}body.workspace-rich .richVisible{display:inline-flex}body.workspace-canvas .canvasVisible{display:inline-flex}.scratchToolbar>button.richVisible,.scratchToolbar>button.canvasVisible{display:none}body.workspace-rich .scratchToolbar>button.richVisible,body.workspace-canvas .scratchToolbar>button.canvasVisible{display:grid}
 /* Bottom context shelf replaces duplicate file tree */
@@ -4791,7 +4837,7 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
   body.history-open .workspaceNavTabs,
   body.history-open .workspaceNavPane{display:none!important}
   body.history-open .workspaceHistoryDock{display:flex!important;flex:1!important;min-height:0!important;flex-direction:column!important;border-top:0!important}
-  body.history-open .workspaceHistoryToggle{flex:0 0 40px!important;height:40px!important}
+  body.history-open .workspaceHistoryToggle{flex:0 0 32px!important;height:32px!important}
   body.history-open .workspaceHistoryDrawer{display:flex!important;flex:1!important;min-height:0!important;max-height:none!important}
   body.history-open .workspaceHistoryDrawer>.historylist{flex:1!important;min-height:0!important;max-height:none!important;overflow:auto!important}
 
@@ -4854,164 +4900,72 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
   .historyRail.workspaceNavRail{width:min(94vw,390px)!important}
   .contextShelf,body.context-shelf-open .contextShelf,.workspaceInspector,.assets,body:not(.media-collapsed) .assets,body.agent-mode .agentInstructions{width:min(96vw,390px)!important}
 }
-</style>
-<style id="scratch-v19-unified-drawers">
-/* V19: editor-first drawers on every viewport. Secondary surfaces never consume editor width. */
-header .actions .presencebar,.pad>.panelhead .presencebar{padding:2px!important}
-main,body.history-open main,body.media-collapsed main,body.agent-open main{
-  position:relative!important;display:block!important;overflow:hidden!important;
-  --history-w:0px!important;--media-w:0px!important;--splitter-w:0px!important;
-}
-.pad{position:absolute!important;inset:0!important;z-index:1!important;width:100%!important;height:100%!important;min-width:0!important;max-width:none!important}
-.mediaSplitter{display:none!important;width:0!important;pointer-events:none!important}
 
-/* Shared drawer shell. */
-.historyRail.workspaceNavRail,.assets{
-  position:absolute!important;top:0!important;bottom:0!important;height:100%!important;max-height:none!important;min-height:0!important;
-  z-index:70!important;background:#090b0d!important;overflow:hidden!important;transition:transform .17s ease,opacity .12s ease!important;
-}
-.historyRail.workspaceNavRail{
-  display:none!important;left:0!important;right:auto!important;width:min(88vw,400px)!important;max-width:400px!important;
-  border-right:1px solid var(--line2)!important;border-bottom:0!important;box-shadow:18px 0 46px rgba(0,0,0,.46)!important;
-}
-body.left-drawer-open .historyRail.workspaceNavRail{display:flex!important;flex-direction:column!important}
-.assets,body.media-collapsed .assets,body:not(.media-collapsed) .assets{
-  display:flex!important;flex-direction:column!important;left:auto!important;right:0!important;width:min(88vw,420px)!important;max-width:420px!important;
-  min-width:320px!important;border-left:1px solid var(--line2)!important;border-top:0!important;box-shadow:-18px 0 46px rgba(0,0,0,.46)!important;
-  transform:translateX(calc(100% + 24px))!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important;
-}
-body.right-drawer-open .assets{transform:translateX(0)!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
 
-/* A closed drawer has no compact/semi-collapsed content at all. */
-.mobileMediaDock,.mediaCollapsed,body.media-collapsed .mobileMediaDock,body.media-collapsed .assets>.mediaCollapsed{display:none!important}
-.assets.properties-narrow>.propertiesPanel,.assets.properties-mode.properties-narrow>.propertiesPanel{display:none!important}
-body.right-drawer-open .assets.right-tab-properties>.propertiesPanel{display:block!important;flex:1!important;min-height:0!important;overflow:auto!important}
-body.right-drawer-open .assets.right-tab-properties>.liveSection,
-body.right-drawer-open .assets.right-tab-properties>.drop,
-body.right-drawer-open .assets.right-tab-properties>.assetlist,
-body.right-drawer-open .assets.right-tab-properties>.transport{display:none!important}
-body.right-drawer-open .assets.right-tab-media>.propertiesPanel{display:none!important}
-body.right-drawer-open .assets.right-tab-media>.liveSection{display:block!important}
-body.right-drawer-open .assets.right-tab-media>.drop{display:flex!important}
-body.right-drawer-open .assets.right-tab-media>.assetlist{display:block!important;flex:1!important;min-height:0!important;overflow:auto!important}
-body.right-drawer-open .assets.right-tab-media>.transport{display:flex!important}
-.assets.properties-mode.properties-narrow>.panelhead,.assets.properties-mode.properties-narrow>.panelhead{padding:0 8px!important;justify-content:flex-start!important}
-.assets.properties-mode.properties-narrow>.panelhead .paneltitle,.assets.properties-mode.properties-narrow>.panelhead .panelmeta{display:inline!important}
-
-/* Icon-only right panel tabs: explicit state, never inferred from selection. */
-.rightPanelTabs{height:40px;flex:0 0 40px;display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:#080a0c;padding:0 6px;gap:2px}
-.rightPanelTab{width:38px;height:39px;border:0;border-bottom:2px solid transparent;background:transparent;color:#68737d;display:grid;place-items:center;padding:0;cursor:pointer}
-.rightPanelTab:hover{color:#c8d0d6;background:#11151a}.rightPanelTab.active{color:var(--text);border-bottom-color:var(--accent);background:#101419}
-.rightPanelTab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
-.assets>.panelhead{height:42px!important;flex:0 0 42px!important;padding:0 8px 0 11px!important;justify-content:flex-start!important}
-.assets>.panelhead .paneltitle{display:block!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.assets>.panelhead .panelmeta{display:inline!important;margin-left:auto}
-#mediaToggle{margin-left:4px!important;width:30px!important;height:30px!important;flex:0 0 30px!important}
-#mediaToggle svg{transform:none!important}
-.propertiesPanel{padding:9px 9px 20px!important}
-
-/* Bottom bar owns drawer launch/close affordances on desktop and mobile. */
-.docBar{gap:4px!important}
-.drawerBottomToggle{width:30px;height:30px;flex:0 0 30px;border:1px solid var(--line);background:#0b0e11;color:#74808a;display:grid;place-items:center;padding:0}
-.drawerBottomToggle:hover,.drawerBottomToggle[aria-expanded="true"]{color:var(--text);border-color:#46515a;background:#14191e}
-.drawerBottomToggle svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .14s ease}
-body.left-drawer-open #leftDrawerBottomToggle svg{transform:rotate(180deg)}
-body.right-drawer-open #rightDrawerBottomToggle svg{transform:rotate(180deg)}
-
-/* Desktop overlay drawers do not need a modal scrim; mobile keeps one. */
-.mobileMediaScrim{display:none!important}
+/* V19. Mobile chrome simplification: editor-first, syncbar owns drawer controls. */
 @media(max-width:820px){
-  .historyRail.workspaceNavRail{width:min(94vw,400px)!important;max-width:none!important}
-  .assets,body.media-collapsed .assets,body:not(.media-collapsed) .assets{width:min(94vw,420px)!important;max-width:none!important;min-width:0!important}
-  body.left-drawer-open .mobileMediaScrim,body.right-drawer-open .mobileMediaScrim,body.context-shelf-open .mobileMediaScrim,body.mobile-inspector-open .mobileMediaScrim{
-    display:block!important;position:absolute!important;inset:0!important;z-index:65!important;background:rgba(0,0,0,.43)!important;opacity:1!important;pointer-events:auto!important;border:0!important;
-  }
-  .propertiesPanel .propGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  /* No panel headers consume vertical space on mobile. */
+  .panelhead{display:none!important}
+
+  /* Files / media / properties are either a drawer or completely absent from layout. */
+  body.media-collapsed .assets{display:none!important}
+  body:not(.media-collapsed) .assets{display:flex!important;position:absolute!important;right:0!important;top:0!important;bottom:0!important;left:auto!important;width:min(94vw,420px)!important;height:100%!important;z-index:63!important}
+  #mobileMediaDock,.mobileMediaDock{display:none!important}
+
+  /* Syncbar is the persistent mobile drawer/navigation strip. */
+  .syncbar{height:30px!important;min-height:30px!important;flex:0 0 30px!important;padding:0 5px!important;gap:6px!important}
+  .syncbar #historyRailToggle{order:0!important;margin:0!important;width:26px!important;height:26px!important;flex:0 0 26px!important}
+  .syncbar #syncDot{order:1!important;flex:0 0 auto!important}
+  .syncbar #syncText{order:2!important;flex:1 1 auto!important;min-width:0!important}
+  .syncbar #actorText{order:3!important;margin-left:0!important;max-width:28vw!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .syncbar #mediaToggle{display:inline-flex!important;order:4!important;margin:0 0 0 auto!important;width:26px!important;height:26px!important;flex:0 0 26px!important;align-items:center!important;justify-content:center!important}
+  .syncbar #mediaToggle svg{transform:rotate(180deg)!important}
+  body:not(.media-collapsed) .syncbar #mediaToggle svg{transform:none!important}
+
+  /* Presence moves to the header action strip instead of a document panelhead. */
+  header .actions .presencebar{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:3px!important;height:32px!important;min-height:32px!important;max-width:min(30vw,132px)!important;overflow-x:auto!important;overflow-y:hidden!important;padding:2px 1px!important;margin:0 2px 0 0!important;scrollbar-width:none!important}
+  header .actions .presencebar::-webkit-scrollbar{display:none!important}
+  header .actions .presencebar .avatar{width:24px!important;height:24px!important;flex:0 0 24px!important}
 }
 @media(max-width:480px){
-  .historyRail.workspaceNavRail,.assets,body.media-collapsed .assets,body:not(.media-collapsed) .assets{width:min(96vw,390px)!important}
-  .propertiesPanel .propGrid{grid-template-columns:1fr!important}
+  header .actions .presencebar{max-width:92px!important}
+  .syncbar #actorText{display:none!important}
+}
+
+
+/* V20. Unified tabbed right drawer. */
+.docBar,.contextShelf,#docBrowser{display:none!important}
+.rightPanelTabs{display:flex;flex:0 0 34px;height:34px;min-height:34px;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--line);background:#090b0d;scrollbar-width:none}
+.rightPanelTabs::-webkit-scrollbar{display:none}
+.rightPanelTab{flex:0 0 auto;min-width:72px;height:34px;border:0;border-right:1px solid var(--line);background:transparent;color:#68737d;padding:0 9px;font:800 7px/1 var(--mono);letter-spacing:.08em;white-space:nowrap}
+.rightPanelTab:hover{color:#aeb7bf;background:#0d1115}.rightPanelTab.active{color:var(--text);background:#11151a;box-shadow:inset 0 -2px 0 var(--accent)}
+.rightAuxPane{display:none;flex:1;min-height:0;overflow:hidden;background:#0a0c0e;flex-direction:column}
+.assets.right-tab-search>.rightAuxPane[data-right-pane="search"],.assets.right-tab-activity>.rightAuxPane[data-right-pane="activity"],.assets.right-tab-comments>.rightAuxPane[data-right-pane="comments"],.assets.right-tab-outline>.rightAuxPane[data-right-pane="outline"]{display:flex}
+.assets:not(.right-tab-media)>.liveSection,.assets:not(.right-tab-media)>.drop,.assets:not(.right-tab-media)>.assetlist,.assets:not(.right-tab-media)>.transport,.assets:not(.right-tab-media)>.mediaCollapsed{display:none!important}
+.assets.right-tab-media>.propertiesPanel,.assets.right-tab-search>.propertiesPanel,.assets.right-tab-activity>.propertiesPanel,.assets.right-tab-comments>.propertiesPanel,.assets.right-tab-outline>.propertiesPanel{display:none!important}
+.assets.right-tab-properties>.propertiesPanel{display:block!important;flex:1!important;min-height:0!important;overflow:auto!important}
+.assets.right-tab-media>.liveSection{display:block!important}.assets.right-tab-media>.drop{display:flex!important}.assets.right-tab-media>.assetlist{display:block!important;flex:1!important}.assets.right-tab-media>.transport{display:flex!important}
+.assets.right-tab-media.properties-mode>.liveSection{display:block!important}.assets.right-tab-media.properties-mode>.drop{display:flex!important}.assets.right-tab-media.properties-mode>.assetlist{display:block!important}.assets.right-tab-media.properties-mode>.transport{display:flex!important}
+.rightAuxPane .contextSearchRow{flex:0 0 40px;height:40px}.rightAuxPane .contextShelfResults{flex:1;min-height:0;overflow:auto;padding:4px 6px 8px}
+.rightDrawerRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:42px;padding:6px 7px;border-bottom:1px solid #151a1e;color:#a9b2ba;background:transparent}
+.rightDrawerRow:hover{background:#101418}.rightDrawerRowMain{min-width:0}.rightDrawerRowMain strong{display:block;font:800 8px/1.35 var(--mono);color:#b8c0c7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rightDrawerRowMain span{display:block;margin-top:3px;color:var(--dim);font:7px/1.35 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rightDrawerRow time{color:var(--dim);font:7px var(--mono)}
+.rightDrawerRow>button,.rightPanePager button{height:25px;border:1px solid var(--line);background:#0b0d0f;color:#84909a;padding:0 7px;font:800 7px var(--mono)}.rightDrawerRow>button:hover,.rightPanePager button:hover:not(:disabled){color:var(--text);border-color:#4f5963}.rightDrawerRow>button:disabled,.rightPanePager button:disabled{opacity:.35}
+.rightDrawerRowButton{width:100%;border:0;border-bottom:1px solid #151a1e;text-align:left;cursor:pointer}
+.rightPanePager{flex:0 0 32px;min-height:32px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:8px;color:var(--dim);font:700 7px var(--mono);background:#090b0d}.rightPanePager:empty{display:none}.rightPanePager button{width:28px;padding:0;font-size:13px}
+.rightPaneEmpty{padding:18px 12px;color:var(--dim);font:8px/1.55 var(--mono);text-align:center}
+@media(max-width:820px){.rightPanelTabs{flex-basis:36px;height:36px;min-height:36px}.rightPanelTab{height:36px;min-width:76px}.rightAuxPane .contextSearchRow{height:42px;flex-basis:42px}.rightDrawerRow{min-height:46px;padding:7px 9px}.rightPanePager{min-height:36px;flex-basis:36px}}
+
+
+/* V21. Drawer arrows indicate opening vs closing. */
+#historyRailToggle svg,#mediaToggle svg{transition:transform .16s ease}
+@media(max-width:820px){
+  .syncbar #historyRailToggle svg{transform:none!important}
+  body.left-mobile-open .syncbar #historyRailToggle svg,body.history-open .syncbar #historyRailToggle svg{transform:rotate(180deg)!important}
+  .syncbar #mediaToggle svg{transform:rotate(180deg)!important}
+  body:not(.media-collapsed) .syncbar #mediaToggle svg{transform:none!important}
 }
 </style>
 
 
-<style id="scratch-v20-desktop-docked-drawers">
-/* V20: desktop drawers dock into the workspace and push the editor; mobile stays overlay. */
-@media(min-width:821px){
-  main,body.history-open main,body.media-collapsed main,body.agent-open main{
-    display:grid!important;
-    grid-template-columns:0 minmax(0,1fr) 0!important;
-    grid-template-rows:minmax(0,1fr)!important;
-    align-items:stretch!important;
-    overflow:hidden!important;
-    transition:grid-template-columns .17s ease!important;
-  }
-  body.left-drawer-open main{grid-template-columns:280px minmax(0,1fr) 0!important}
-  body.right-drawer-open main{grid-template-columns:0 minmax(0,1fr) 380px!important}
-  body.left-drawer-open.right-drawer-open main{grid-template-columns:280px minmax(0,1fr) 380px!important}
-
-  .pad{
-    position:relative!important;
-    inset:auto!important;
-    grid-column:2!important;
-    grid-row:1!important;
-    width:auto!important;
-    height:auto!important;
-    min-width:0!important;
-    min-height:0!important;
-    max-width:none!important;
-    z-index:1!important;
-  }
-
-  .historyRail.workspaceNavRail{
-    position:relative!important;
-    inset:auto!important;
-    grid-column:1!important;
-    grid-row:1!important;
-    width:280px!important;
-    max-width:none!important;
-    min-width:0!important;
-    height:auto!important;
-    max-height:none!important;
-    display:none!important;
-    transform:none!important;
-    opacity:1!important;
-    visibility:visible!important;
-    pointer-events:auto!important;
-    box-shadow:none!important;
-    border-right:1px solid var(--line2)!important;
-    border-bottom:0!important;
-    z-index:3!important;
-  }
-  body.left-drawer-open .historyRail.workspaceNavRail{display:flex!important}
-
-  .assets,body.media-collapsed .assets,body:not(.media-collapsed) .assets{
-    position:relative!important;
-    inset:auto!important;
-    grid-column:3!important;
-    grid-row:1!important;
-    width:380px!important;
-    max-width:none!important;
-    min-width:0!important;
-    height:auto!important;
-    max-height:none!important;
-    display:none!important;
-    transform:none!important;
-    opacity:1!important;
-    visibility:visible!important;
-    pointer-events:auto!important;
-    box-shadow:none!important;
-    border-left:1px solid var(--line2)!important;
-    border-top:0!important;
-    z-index:3!important;
-  }
-  body.right-drawer-open .assets{display:flex!important;flex-direction:column!important}
-
-  /* Docked panels must meet the editor edge exactly; no floating gap or overlay shadow. */
-  body.left-drawer-open .pad{border-left:0!important}
-  body.right-drawer-open .pad{border-right:0!important}
-  .mobileMediaScrim{display:none!important}
-}
-</style>
 </body>
 </html>
