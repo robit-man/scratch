@@ -477,8 +477,8 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       <section class="rightAuxPane" data-right-pane="comments" aria-label="Comments"><div id="contextShelfComments" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="comments"></div></section>
       <section class="rightAuxPane inferencePane" data-right-pane="inference" aria-label="Inference">
         <div class="scratchInferenceDraft" id="scratchInferenceDraft" hidden></div>
-        <div class="scratchInferenceBridgeBar"><span id="scratchInferenceBridgeStatus">INFERENCE RUNTIME · NOT LOADED</span><button type="button" id="scratchInferenceOpenFull">OPEN FULL</button></div>
-        <iframe id="scratchInferenceFrame" class="scratchInferenceFrame" title="Open Inference Mesh" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <span id="scratchInferenceBridgeStatus" class="scratchInferenceBridgeStatus" aria-live="polite">INFERENCE RUNTIME · LOADING</span>
+        <iframe id="scratchInferenceFrame" class="scratchInferenceFrame" title="Open Inference Mesh" src="/inference/" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="clipboard-read; clipboard-write; local-network-access"></iframe>
       </section>
       <div class="mobileMediaPopover" id="mobileMediaPopover" role="dialog" aria-live="polite"></div>
       <div class="mediaCollapsed" id="mediaCollapsed" aria-label="Collapsed media summary"><div id="mediaCollapsedStack"></div></div>
@@ -4644,23 +4644,76 @@ let scratchInferenceDraftState=null,scratchInferenceDraftRaf=0;
 function scratchInferenceRuntimeUrl(){return new URL('/inference/',location.origin).href}
 function scratchInferenceFrame(){return $('#scratchInferenceFrame')}
 function scratchInferenceSetStatus(text,bad=false){const el=$('#scratchInferenceBridgeStatus');if(el){el.textContent=String(text||'');el.style.color=bad?'#db8383':''}}
+function scratchBridgeOimEvents(frame){
+  if(!frame?.contentWindow||frame.dataset.oimEventsBound==='1')return;
+  try{
+    const w=frame.contentWindow;frame.dataset.oimEventsBound='1';
+    for(const name of ['oim:state','oim:inference-chunk','oim:rpc-result'])w.addEventListener(name,e=>window.dispatchEvent(new CustomEvent(name,{detail:e.detail})));
+  }catch(_){frame.dataset.oimEventsBound='0'}
+}
+function scratchInstallOimFacade(){
+  if(window.ScratchInference?.__scratchFullPassthrough)return window.ScratchInference;
+  const api=Object.freeze({
+    __scratchFullPassthrough:true,
+    version:7,
+    call:async(method,params={})=>(await scratchInferenceApi()).call(method,params),
+    request:async(method,params={})=>(await scratchInferenceApi()).request?.(method,params)??(await scratchInferenceApi()).call(method,params),
+    infer:async(prompt,options={})=>(await scratchInferenceApi()).infer(prompt,options),
+    docs:async()=>{const x=await scratchInferenceApi();return x.docs()},
+    models:async()=>{const x=await scratchInferenceApi();return x.models()},
+    state:async()=>{const x=await scratchInferenceApi();return x.state()},
+    sessions:async()=>{const x=await scratchInferenceApi();return x.sessions()},
+    getSession:async id=>{const x=await scratchInferenceApi();return x.getSession(id)},
+    newSession:async title=>{const x=await scratchInferenceApi();return x.newSession(title)},
+    loadSession:async id=>{const x=await scratchInferenceApi();return x.loadSession(id)},
+    deleteSession:async id=>{const x=await scratchInferenceApi();return x.deleteSession(id)},
+    tools:async()=>{const x=await scratchInferenceApi();return x.tools()},
+    setTools:async options=>{const x=await scratchInferenceApi();return x.setTools(options||{})},
+    runTool:async(name,args={})=>{const x=await scratchInferenceApi();return x.runTool(name,args)},
+    registerTool:async spec=>{const x=await scratchInferenceApi();return x.registerTool(spec)},
+    probeCapabilities:async()=>{const x=await scratchInferenceApi();return x.probeCapabilities()},
+    join:async()=>{const x=await scratchInferenceApi();return x.join()},
+    bootstrap:async options=>{const x=await scratchInferenceApi();return x.bootstrap(options||{})},
+    share:async options=>{const x=await scratchInferenceApi();return x.share(options||{})},
+    getState:async()=>{const x=await scratchInferenceApi();return x.getState()},
+    listModels:async()=>{const x=await scratchInferenceApi();return x.listModels()},
+    ready:()=>{try{return scratchInferenceFrame()?.contentWindow?.OIM?.ready?.()||{ready:false}}catch(_){return{ready:false}}},
+    frame:()=>scratchInferenceFrame(),
+    open:()=>window.open(scratchInferenceRuntimeUrl(),'_blank','noopener')
+  });
+  window.ScratchInference=api;
+  if(!window.OIM)try{Object.defineProperty(window,'OIM',{value:api,writable:false,configurable:true})}catch(_){window.OIM=api}
+  return api;
+}
 function scratchEnsureInferenceFrame(){
   const frame=scratchInferenceFrame();if(!frame)return null;
+  scratchInstallOimFacade();
   if(!frame.dataset.runtimeBound){
     frame.dataset.runtimeBound='1';
-    frame.addEventListener('load',()=>{try{const api=frame.contentWindow?.OIM;if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}else scratchInferenceSetStatus('OIM LOADED · INITIALIZING')}catch(_){scratchInferenceSetStatus('OIM UI READY · BRIDGE REQUIRES SAME ORIGIN',true)}});
+    frame.addEventListener('load',()=>{
+      try{
+        scratchBridgeOimEvents(frame);
+        const api=frame.contentWindow?.OIM;
+        if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`FULL OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}
+        else scratchInferenceSetStatus('FULL OIM UI LOADED · INITIALIZING');
+      }catch(_){scratchInferenceSetStatus('FULL OIM UI READY · API BRIDGE REQUIRES SAME ORIGIN',true)}
+    });
   }
-  if(!frame.getAttribute('src')){frame.src=scratchInferenceRuntimeUrl();scratchInferenceSetStatus('OIM · LOADING FULL RUNTIME')}
+  if(!frame.getAttribute('src'))frame.src=scratchInferenceRuntimeUrl();
+  try{if(frame.contentWindow?.OIM)scratchBridgeOimEvents(frame)}catch(_){}
   return frame;
 }
-async function scratchInferenceApi(timeout=24000){
+async function scratchInferenceApi(timeout=30000){
   const frame=scratchEnsureInferenceFrame();if(!frame)throw new Error('Inference runtime frame is unavailable');
   const deadline=Date.now()+timeout;
   while(Date.now()<deadline){
-    try{const api=frame.contentWindow?.OIM;if(api?.infer&&api?.call){const r=api.ready?.()||{};scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`);return api}}catch(_){throw new Error('Inference runtime is not same-origin. Deploy Scratch and /inference/ under the same origin to enable block inference.')}
+    try{
+      const api=frame.contentWindow?.OIM;
+      if(api?.infer&&api?.call&&api?.sessions&&api?.tools){const r=api.ready?.()||{};scratchInferenceSetStatus(`FULL OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`);scratchBridgeOimEvents(frame);return api}
+    }catch(_){throw new Error('Inference runtime is not same-origin. Deploy Scratch and /inference/ under the same origin to enable the complete OIM passthrough.')}
     await new Promise(r=>setTimeout(r,180));
   }
-  throw new Error('Inference runtime did not become ready before timeout');
+  throw new Error('Complete Open Inference Mesh runtime did not become ready before timeout');
 }
 function scratchInferenceBlockSupported(id){const row=document.querySelector(`#blockDoc .docBlock[data-block-id="${CSS.escape(String(id))}"]`);return !!row?.querySelector('.blockEditable')}
 function scratchInferenceBlockText(id){const m=blockMeta(id);if(!m||!scratchInferenceBlockSupported(id))return'';return blockText(id).toString()}
@@ -4715,8 +4768,10 @@ entityActions=function(type,id){const arr=scratchEntityActionsV22Base(type,id)||
 const scratchRunEntityActionV22Base=runEntityAction;
 runEntityAction=function(type,id,action){if(type==='block'&&(action==='inference-expand'||action==='inference-research')){scratchRunBlockInference(id,action==='inference-research'?'research':'expand').catch(err=>scratchCompletionToast?.(err.message||String(err),true));return}return scratchRunEntityActionV22Base(type,id,action)};
 document.addEventListener('click',e=>{const b=e.target.closest?.('[data-inf-action]');if(!b)return;const a=b.dataset.infAction;if(a==='approve')scratchApproveInferenceDraft();else if(a==='deny')scratchDenyInferenceDraft();else if(a==='refine'){if(scratchInferenceDraftState){scratchInferenceDraftState.refining=!scratchInferenceDraftState.refining;scratchRenderInferenceDraft()}}else if(a==='submit-refine')scratchRefineInferenceDraft().catch(err=>scratchCompletionToast?.(err.message||String(err),true))},true);
-$('#scratchInferenceOpenFull')?.addEventListener('click',()=>window.open(scratchInferenceRuntimeUrl(),'_blank','noopener'));
-window.addEventListener('message',e=>{if(e.source!==scratchInferenceFrame()?.contentWindow)return;try{const api=scratchInferenceFrame()?.contentWindow?.OIM;if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}}catch(_){}});
+window.addEventListener('message',e=>{if(e.source!==scratchInferenceFrame()?.contentWindow)return;try{const api=scratchInferenceFrame()?.contentWindow?.OIM;if(api?.ready){const r=api.ready();scratchInferenceSetStatus(`FULL OIM READY · LOCAL ${r.local_models||0} · MESH ${r.mesh_models||0}`)}}catch(_){}});
+window.addEventListener('message',async e=>{const m=e.data;if(e.source!==window||e.origin!==location.origin||!m||m.type!=='oim:rpc'||!m.id||!m.method)return;try{const result=await (await scratchInferenceApi()).call(m.method,m.params||{});window.postMessage({type:'oim:rpc-result',id:m.id,ok:true,result},location.origin)}catch(err){window.postMessage({type:'oim:rpc-result',id:m.id,ok:false,error:String(err?.message||err)},location.origin)}});
+window.addEventListener('oim:rpc',async e=>{const m=e.detail||{};if(!m.id||!m.method)return;try{const result=await (await scratchInferenceApi()).call(m.method,m.params||{});window.dispatchEvent(new CustomEvent('oim:rpc-result',{detail:{id:m.id,ok:true,result}}))}catch(err){window.dispatchEvent(new CustomEvent('oim:rpc-result',{detail:{id:m.id,ok:false,error:String(err?.message||err)}}))}});
+setTimeout(()=>scratchEnsureInferenceFrame(),0);
 
 </script>
 
@@ -5042,11 +5097,10 @@ body.performance-mode .docBlock{content-visibility:auto;contain-intrinsic-size:4
 @media(max-width:820px){.rightPanelTabs{flex-basis:36px;height:36px;min-height:36px}.rightPanelTab{height:36px;min-width:76px}.rightAuxPane .contextSearchRow{height:42px;flex-basis:42px}.rightDrawerRow{min-height:46px;padding:7px 9px}.rightPanePager{min-height:36px;flex-basis:36px}}
 
 
-.inferencePane{position:relative;background:#050505!important}
-.scratchInferenceBridgeBar{flex:0 0 31px;min-height:31px;display:flex;align-items:center;gap:7px;padding:0 7px;border-bottom:1px solid var(--line);background:#090b0d;color:#68737d;font:800 7px/1 var(--mono);letter-spacing:.055em}
-.scratchInferenceBridgeBar span{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scratchInferenceBridgeBar button{height:23px;border:1px solid var(--line);background:#0d1013;color:#8b969f;padding:0 6px;font:800 7px var(--mono)}
-.scratchInferenceFrame{display:block;flex:1;min-height:0;width:100%;border:0;background:#050505}
-.scratchInferenceDraft{flex:0 0 auto;max-height:46%;overflow:auto;border-bottom:1px solid #2a2f34;background:#0b0e11;padding:8px}
+.inferencePane{position:relative!important;overflow:hidden!important;background:#050505!important}
+.scratchInferenceBridgeStatus{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.scratchInferenceFrame{display:block;position:absolute;inset:0;width:100%;height:100%;min-height:0;border:0;background:#050505}
+.scratchInferenceDraft{position:absolute;z-index:12;left:8px;right:8px;top:8px;max-height:min(52%,430px);overflow:auto;border:1px solid #303840;background:#0b0e11;padding:8px;box-shadow:0 14px 34px rgba(0,0,0,.48)}
 .scratchInferenceDraft[hidden]{display:none!important}.scratchInferenceDraftHead{display:flex;align-items:center;gap:7px;margin-bottom:7px}.scratchInferenceDraftHead strong{font:900 8px var(--mono);letter-spacing:.08em}.scratchInferenceDraftMeta{margin-left:auto;color:#65717a;font:7px var(--mono)}
 .scratchInferenceDraftSource{padding:6px 7px;margin-bottom:7px;border-left:2px solid #343c44;background:#080a0c;color:#77818a;font:8px/1.4 var(--mono);white-space:pre-wrap;max-height:72px;overflow:auto}.scratchInferenceDraftText{min-height:70px;max-height:230px;overflow:auto;padding:8px;border:1px solid #252b30;background:#07090b;color:#d8dde1;font:10px/1.5 var(--sans);white-space:pre-wrap;word-break:break-word}
 .scratchInferenceDraftActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}.scratchInferenceDraftActions button{height:27px;border:1px solid #303840;background:#0d1115;color:#aab4bc;padding:0 8px;font:800 7px var(--mono)}.scratchInferenceDraftActions button.primary{background:#d8dde1;color:#090b0d;border-color:#d8dde1}.scratchInferenceDraftActions button.danger{color:#e88f8f;border-color:#5a3434}.scratchInferenceDraftActions button:disabled{opacity:.4}
