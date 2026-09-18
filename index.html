@@ -475,6 +475,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       </section>
       <section class="rightAuxPane" data-right-pane="activity" aria-label="Workspace activity"><div id="contextShelfActivity" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="activity"></div></section>
       <section class="rightAuxPane" data-right-pane="comments" aria-label="Comments"><div id="contextShelfComments" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="comments"></div></section>
+      <section class="rightAuxPane" data-right-pane="outline" aria-label="Outline"><div id="contextShelfOutline" class="contextShelfResults"></div><div class="rightPanePager" data-right-pager="outline"></div></section>
       <section class="rightAuxPane inferencePane" data-right-pane="inference" aria-label="Inference">
         <div class="scratchInferenceDraft" id="scratchInferenceDraft" hidden></div>
         <span id="scratchInferenceBridgeStatus" class="scratchInferenceBridgeStatus" aria-live="polite">INFERENCE RUNTIME · LOADING</span>
@@ -4534,6 +4535,9 @@ function setRightPanelTab(tab,{open=true,focus=false}={}){
   if(focus&&tab==='search')setTimeout(()=>$('#contextShelfSearch')?.focus(),0);
 }
 function openRightPanelTab(tab){setRightPanelTab(tab,{open:true,focus:tab==='search'})}
+window.__scratchSetRightPanelTab=(tab,opts={})=>setRightPanelTab(tab,{open:opts.open!==false,focus:opts.focus??tab==='search'});
+window.__scratchOpenRightPanelTab=openRightPanelTab;
+if(!window.__scratchRightTabsCaptureBound){window.__scratchRightTabsCaptureBound=true;document.addEventListener('click',e=>{const b=e.target.closest?.('#rightPanelTabs [data-right-tab]');if(!b)return;e.preventDefault();e.stopPropagation();setRightPanelTab(b.dataset.rightTab,{open:true,focus:b.dataset.rightTab==='search'})},true)}
 window.openSearchShelf=()=>openRightPanelTab('search');window.openActivityShelf=()=>openRightPanelTab('activity');
 openShelf=function(name='search'){openRightPanelTab(name)};setShelfTab=function(name){setRightPanelTab(name,{open:true,focus:name==='search'})};closeShelf=function(){if(innerWidth<=820)setMediaCollapsed(true)};
 doSearch=scratchRightPanelSearch;renderShelf=()=>scratchRenderRightAux(scratchRightPanelState.tab);renderOutlineShelf=()=>{scratchRightPanelState.page.outline=0;scratchRenderRightAux('outline')};window.__scratchOpenShelf=openShelf;window.__scratchSetShelfTab=setShelfTab;window.__scratchRenderShelf=renderShelf;window.__scratchShelfTab=()=>scratchRightPanelState.tab;
