@@ -6602,11 +6602,25 @@ async function openMediaWorkspace(id){
   const session={id:meta.id,meta:{...meta},blob,url:URL.createObjectURL(blob),kind:mediaWorkspaceKind(meta),cleanup:null,undo:null,redo:null,save:null};
   activeMediaEditor=session;window.__scratchMediaWorkspaceActive=true;document.body.classList.add('media-workspace-mode');
   const wrap=$('#editorWrap');wrap?.classList.remove('structured-rich','structured-source','structured-canvas');wrap?.classList.add('structured-media');
-  const toolbar=$('#workspaceToolbar');if(toolbar)toolbar.hidden=false;scratchSetWorkspaceToolMode?.(session.kind);const cp=$('#canvasPageBar');if(cp)cp.hidden=true;
+  // Do not publish the media mode before its adapter has created s.image/s.audio/s.video.
+  // The editor-aware rail reads those project models, so an early mode handoff creates
+  // a temporal initialization race (activeMediaEditor exists while its project state does not).
+  const toolbar=$('#workspaceToolbar');if(toolbar)toolbar.hidden=false;const cp=$('#canvasPageBar');if(cp)cp.hidden=true;
   const title=$('#activeDocTitle');if(title)title.textContent=meta.name;mediaWorkspaceSetStatus(`${session.kind} · ${fmtBytes(meta.size||blob.size)}`);
   mediaWorkspaceBaseShell(session);
   const adapter=MEDIA_WORKSPACE_EDITORS[session.kind]||MEDIA_WORKSPACE_EDITORS.generic;
-  try{await adapter(session)}catch(err){console.error('media editor init',err);MEDIA_WORKSPACE_EDITORS.generic(session,err);toast(`<b>Media editor fallback.</b> ${escapeHtml(err.message||err)}`,'bad')}
+  let mountedMode=session.kind;
+  try{await adapter(session)}catch(err){
+    console.error('media editor init',err);
+    session.failedKind=session.kind;
+    session.kind='generic';
+    mountedMode='generic';
+    MEDIA_WORKSPACE_EDITORS.generic(session,err);
+    toast(`<b>Media editor fallback.</b> ${escapeHtml(err.message||err)}`,'bad')
+  }
+  // Text/PDF/generic adapters do not self-publish a mode. Image/video/audio do so only
+  // after their project state exists; repeating the final handoff is deliberately safe.
+  scratchSetWorkspaceToolMode?.(mountedMode);
   scheduleAgentStateRefresh?.('media-workspace');return true;
 }
 async function closeMediaWorkspace({restore=true}={}){
@@ -7176,20 +7190,48 @@ function scratchMediaOpenRailTab(name='project'){
 }
 function scratchMediaActionContext(s){
   if(!s)return'';
-  if(s.kind==='image'){const l=mediaImageActiveLayer(s),r=s.image.selection;return`${l?.name||'layer'}${r?` · ${Math.round(r.w)}×${Math.round(r.h)} px selection`:' · whole layer'}`}
-  if(s.kind==='audio'){const a=s.audio,[lo,hi]=mediaAudioSelectionRange(s),tracks=mediaAudioSelectedTracks(s);return`${tracks.map(t=>t.name).join(', ')||'track'} · ${mediaWorkspaceTime(lo)}–${mediaWorkspaceTime(hi)}`}
-  if(s.kind==='video'){const v=s.video;return`frame ${Math.round((v.selectedFrame||0)*v.fps)} · ${mediaWorkspaceTime(v.in)}–${mediaWorkspaceTime(v.out)}`}
+  // During adapter mount the session exists before its type-specific project model.
+  // Rail/context rendering must therefore tolerate a partially initialized editor.
+  if(s.kind==='image'){
+    if(!s.image)return`${s.meta?.name||'image'} · loading editor`;
+    const l=mediaImageActiveLayer(s),r=s.image.selection;return`${l?.name||'layer'}${r?` · ${Math.round(r.w)}×${Math.round(r.h)} px selection`:' · whole layer'}`
+  }
+  if(s.kind==='audio'){
+    if(!s.audio)return`${s.meta?.name||'audio'} · loading editor`;
+    const [lo,hi]=mediaAudioSelectionRange(s),tracks=mediaAudioSelectedTracks(s);return`${tracks.map(t=>t.name).join(', ')||'track'} · ${mediaWorkspaceTime(lo)}–${mediaWorkspaceTime(hi)}`
+  }
+  if(s.kind==='video'){
+    const v=s.video;if(!v)return`${s.meta?.name||'video'} · loading editor`;
+    return`frame ${Math.round((v.selectedFrame||0)*(v.fps||1))} · ${mediaWorkspaceTime(v.in)}–${mediaWorkspaceTime(v.out)}`
+  }
   return s.meta?.name||s.kind;
 }
 function scratchMediaRecordAction(s,label){if(!s)return;s.mediaActions||(s.mediaActions=[]);s.mediaActions.push({id:crypto.randomUUID?.()||String(Date.now()+Math.random()),label:String(label||'edit'),time:Date.now(),context:scratchMediaActionContext(s),kind:s.kind});if(s.mediaActions.length>300)s.mediaActions.splice(0,s.mediaActions.length-300);scratchRenderMediaRail()}
-function scratchMediaCurrentHistory(s){if(s?.kind==='image')return{s:s.image.history,i:s.image.historyIndex};if(s?.kind==='audio')return{s:s.audio.history,i:s.audio.historyIndex};if(s?.kind==='video')return{s:s.video.history,i:s.video.historyIndex};return{s:[],i:-1}}
+function scratchMediaCurrentHistory(s){
+  // Never assume the project model exists merely because activeMediaEditor.kind is set.
+  // openMediaWorkspace creates the session first and the adapter creates the model second.
+  const model=s?.kind==='image'?s.image:s?.kind==='audio'?s.audio:s?.kind==='video'?s.video:null;
+  if(!model)return{s:[],i:-1,loading:!!s};
+  const history=Array.isArray(model.history)?model.history:[];
+  const index=Number.isInteger(model.historyIndex)?model.historyIndex:(history.length?history.length-1:-1);
+  return{s:history,i:index,loading:false};
+}
 function scratchMediaHistoryLabel(h,i){return h?.label||`Edit ${i+1}`}
 function scratchMediaCheckpointList(s){if(!s)return[];let rows=scratchMediaCheckpointStore.get(s.id);if(!rows){rows=[];scratchMediaCheckpointStore.set(s.id,rows)}return rows}
 async function scratchMediaCaptureCheckpoint(s,label='Checkpoint'){
   if(!s)return;let state=null;
-  if(s.kind==='image'){const h=s.image.history[s.image.historyIndex];if(h)state={width:h.width,height:h.height,activeLayerId:h.activeLayerId,selection:h.selection?{...h.selection}:null,layers:h.layers.map(l=>({...l}))}}
-  else if(s.kind==='audio'){const a=s.audio;state={tracks:mediaAudioCloneProjectTracks(a.tracks),labels:a.labels.map(x=>({...x})),selection:[...a.selection],cursor:a.cursor,selectedTrackId:a.selectedTrackId,selectedTrackIds:[...a.selectedTrackIds],zoom:a.zoom,scrollTime:a.scrollTime,tempo:a.tempo,timeSig:[...a.timeSig]}}
-  else if(s.kind==='video')state={...mediaVideoStateSnapshot(s.video),crop:{...s.video.crop},cuts:[...s.video.cuts]};
+  if(s.kind==='image'){
+    const im=s.image;if(!im)return;
+    const h=im.history?.[im.historyIndex];if(h)state={width:h.width,height:h.height,activeLayerId:h.activeLayerId,selection:h.selection?{...h.selection}:null,layers:(h.layers||[]).map(l=>({...l}))}
+  }
+  else if(s.kind==='audio'){
+    const a=s.audio;if(!a)return;
+    state={tracks:mediaAudioCloneProjectTracks(a.tracks||[]),labels:(a.labels||[]).map(x=>({...x})),selection:[...(a.selection||[0,0])],cursor:a.cursor||0,selectedTrackId:a.selectedTrackId,selectedTrackIds:[...(a.selectedTrackIds||[])],zoom:a.zoom||1,scrollTime:a.scrollTime||0,tempo:a.tempo||120,timeSig:[...(a.timeSig||[4,4])]}
+  }
+  else if(s.kind==='video'){
+    const v=s.video;if(!v)return;
+    state={...mediaVideoStateSnapshot(v),crop:{...(v.crop||{x:0,y:0,w:1,h:1})},cuts:[...(v.cuts||[])]};
+  }
   else state={kind:s.kind};
   scratchMediaCheckpointList(s).unshift({id:crypto.randomUUID?.()||String(Date.now()),label:String(label||'Checkpoint'),time:Date.now(),context:scratchMediaActionContext(s),state});scratchMediaRecordAction(s,`checkpoint · ${label}`);scratchRenderMediaRail();
 }
@@ -7213,7 +7255,7 @@ function scratchRenderMediaRail(){
   scratchMediaRailEnsureDom();const s=activeMediaEditor;if(!document.body.classList.contains('media-workspace-mode'))return;
   const project=$('#mediaProjectRailList'),history=$('#mediaHistoryRailList'),cps=$('#mediaCheckpointRailList'),actions=$('#mediaActionRailList');
   if(project)project.innerHTML=scratchMediaProjectRows(s);
-  const hh=scratchMediaCurrentHistory(s);if(history){history.innerHTML=hh.s.length?hh.s.map((h,i)=>`<div class="mediaRailHistoryRow ${i===hh.i?'active':''}" data-media-history-index="${i}"><span class="mediaRailHistoryIndex">${i+1}</span><span class="mediaRailHistoryText"><strong>${escapeHtml(scratchMediaHistoryLabel(h,i))}</strong><small>${escapeHtml(scratchMediaActionContext(s))}</small></span><span class="mediaRailHistoryTime">${i===hh.i?'CURRENT':''}</span></div>`).join(''):'<div class="mediaRailEmpty">No editor history yet.</div>'}
+  const hh=scratchMediaCurrentHistory(s);if(history){history.innerHTML=hh.loading?'<div class="mediaRailEmpty">Initializing editor…</div>':hh.s.length?hh.s.map((h,i)=>`<div class="mediaRailHistoryRow ${i===hh.i?'active':''}" data-media-history-index="${i}"><span class="mediaRailHistoryIndex">${i+1}</span><span class="mediaRailHistoryText"><strong>${escapeHtml(scratchMediaHistoryLabel(h,i))}</strong><small>${escapeHtml(scratchMediaActionContext(s))}</small></span><span class="mediaRailHistoryTime">${i===hh.i?'CURRENT':''}</span></div>`).join(''):'<div class="mediaRailEmpty">No editor history yet.</div>'}
   const rows=scratchMediaCheckpointList(s);if(cps)cps.innerHTML=rows.length?rows.map(cp=>`<div class="mediaCheckpointRow" data-media-checkpoint-id="${escapeHtml(cp.id)}"><div class="mediaCheckpointTop"><strong>${escapeHtml(cp.label)}</strong><time>${new Date(cp.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time></div><div class="mediaCheckpointMeta">${escapeHtml(cp.context||'')}</div><div class="mediaCheckpointActions"><button data-media-checkpoint-act="restore">RESTORE</button><button data-media-checkpoint-act="rename">RENAME</button><button class="danger" data-media-checkpoint-act="delete">DELETE</button></div></div>`).join(''):'<div class="mediaRailEmpty">No checkpoints. Save one before a risky edit or effect chain.</div>';
   if(actions)actions.innerHTML=s?.mediaActions?.length?[...s.mediaActions].reverse().map(a=>`<div class="mediaActionRow" data-media-action-id="${escapeHtml(a.id)}"><strong>${escapeHtml(a.label)}</strong><small>${escapeHtml(a.context||'')}</small><time>${new Date(a.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</time></div>`).join(''):'<div class="mediaRailEmpty">Edit actions will appear here as they are committed.</div>';
   const pm=document.querySelector('[data-media-rail-meta="project"]');if(pm)pm.textContent=s?String(s.kind).toUpperCase():'';const hm=document.querySelector('[data-media-rail-meta="history"]');if(hm)hm.textContent=`${hh.s.length} STEP${hh.s.length===1?'':'S'}`;const cm=document.querySelector('[data-media-rail-meta="checkpoints"]');if(cm)cm.textContent=`${rows.length} SAVED`;const am=document.querySelector('[data-media-rail-meta="actions"]');if(am)am.textContent=`${s?.mediaActions?.length||0} ACTIONS`;
@@ -7246,9 +7288,18 @@ mediaVideoSnapshot=function(s,label='edit'){const r=mediaVideoSnapshotV4Base(s,l
 
 function scratchMediaEffectScope(s=activeMediaEditor){
   if(!s)return'No active editor';
-  if(s.kind==='audio'){const tracks=mediaAudioSelectedTracks(s),[lo,hi]=mediaAudioSelectionRange(s,{wholeIfEmpty:false}),empty=hi-lo<MEDIA_AUDIO_MIN_SELECTION;return`${tracks.length||1} selected track${tracks.length===1?'':'s'} · ${empty?'whole selected track (no time range)':mediaWorkspaceTime(lo)+'–'+mediaWorkspaceTime(hi)}`}
-  if(s.kind==='image'){const l=mediaImageActiveLayer(s),r=s.image.selection;return`${l?.name||'active layer'} · ${r?`${Math.round(r.w)}×${Math.round(r.h)} px selection`:'whole layer (no selection)'}`}
-  if(s.kind==='video'){const v=s.video;return`${mediaWorkspaceTime(v.in)}–${mediaWorkspaceTime(v.out)} export range · frame ${Math.round((v.selectedFrame||0)*v.fps)}`}
+  if(s.kind==='audio'){
+    if(!s.audio)return'Loading audio project…';
+    const tracks=mediaAudioSelectedTracks(s),[lo,hi]=mediaAudioSelectionRange(s,{wholeIfEmpty:false}),empty=hi-lo<MEDIA_AUDIO_MIN_SELECTION;return`${tracks.length||1} selected track${tracks.length===1?'':'s'} · ${empty?'whole selected track (no time range)':mediaWorkspaceTime(lo)+'–'+mediaWorkspaceTime(hi)}`
+  }
+  if(s.kind==='image'){
+    if(!s.image)return'Loading image project…';
+    const l=mediaImageActiveLayer(s),r=s.image.selection;return`${l?.name||'active layer'} · ${r?`${Math.round(r.w)}×${Math.round(r.h)} px selection`:'whole layer (no selection)'}`
+  }
+  if(s.kind==='video'){
+    const v=s.video;if(!v)return'Loading video project…';
+    return`${mediaWorkspaceTime(v.in)}–${mediaWorkspaceTime(v.out)} export range · frame ${Math.round((v.selectedFrame||0)*(v.fps||1))}`
+  }
   return s.meta?.name||s.kind;
 }
 function scratchMediaUpdateEffectScopes(s=activeMediaEditor){const txt=scratchMediaEffectScope(s);document.querySelectorAll('[data-media-effect-scope]').forEach(n=>n.textContent=txt)}
@@ -7522,7 +7573,7 @@ const mediaAudioEditorV5Base=MEDIA_WORKSPACE_EDITORS.audio;MEDIA_WORKSPACE_EDITO
 mediaAudioFindSilenceLabels=function(s,mono,start){const sr=s.audio.sampleRate,th=mediaAudioDbToGain(Number($('#mediaAudioAnalyzeSilenceThreshold')?.value)||-40),min=Math.max(1,(Number($('#mediaAudioAnalyzeSilenceMin')?.value)||.5)*sr);let i=0,n=0;while(i<mono.length){if(Math.abs(mono[i])>th){i++;continue}let j=i;while(j<mono.length&&Math.abs(mono[j])<=th)j++;if(j-i>=min)s.audio.labels.push({id:mediaAudioUid('label'),time:start+i/sr,text:`Silence ${++n}`});i=j}mediaAudioRenderLabels(s);mediaAudioDraw(s);mediaAudioAnalysisText(`${n} silence region(s) labeled`)};
 mediaAudioFindBeatLabels=function(s,mono,start){const sr=s.audio.sampleRate,win=Math.max(1,Math.floor(sr*.05)),energy=[];for(let i=0;i<mono.length;i+=win){let e=0;for(let j=i;j<Math.min(mono.length,i+win);j++)e+=mono[j]*mono[j];energy.push(e/win)}const avg=energy.reduce((x,y)=>x+y,0)/Math.max(1,energy.length),sensitivity=Math.max(.5,Number($('#mediaAudioAnalyzeBeatSensitivity')?.value)||2.4),gap=Math.max(.02,Number($('#mediaAudioAnalyzeBeatGap')?.value)||.18),th=avg*sensitivity;let n=0,last=-10;for(let i=1;i<energy.length-1;i++){const t=start+i*win/sr;if(energy[i]>th&&energy[i]>=energy[i-1]&&energy[i]>=energy[i+1]&&t-last>gap){s.audio.labels.push({id:mediaAudioUid('label'),time:t,text:`Beat ${++n}`});last=t}}mediaAudioRenderLabels(s);mediaAudioDraw(s);mediaAudioAnalysisText(`${n} transient/beat candidates labeled`)};
 
-function scratchMediaHistoryContextV5(s,h){if(!s||!h)return'';if(s.kind==='image')return`${h.width||s.image.width}×${h.height||s.image.height} · ${(h.layers||[]).length} layer${(h.layers||[]).length===1?'':'s'}`;if(s.kind==='audio'){const sel=h.selection||[0,0],tracks=h.tracks||[];return`${tracks.length} track${tracks.length===1?'':'s'} · ${mediaWorkspaceTime(Math.min(...sel))}–${mediaWorkspaceTime(Math.max(...sel))}`};if(s.kind==='video'){const c=h.color||{};return`${mediaWorkspaceTime(h.in||0)}–${mediaWorkspaceTime(h.out||0)} · ${((h.rotation||0)%360+360)%360}° · B${c.brightness||0} C${c.contrast||0} S${c.saturation||0}`};return''}
+function scratchMediaHistoryContextV5(s,h){if(!s||!h)return'';if(s.kind==='image')return`${h.width||s.image?.width||0}×${h.height||s.image?.height||0} · ${(h.layers||[]).length} layer${(h.layers||[]).length===1?'':'s'}`;if(s.kind==='audio'){const sel=h.selection||[0,0],tracks=h.tracks||[];return`${tracks.length} track${tracks.length===1?'':'s'} · ${mediaWorkspaceTime(Math.min(...sel))}–${mediaWorkspaceTime(Math.max(...sel))}`};if(s.kind==='video'){const c=h.color||{};return`${mediaWorkspaceTime(h.in||0)}–${mediaWorkspaceTime(h.out||0)} · ${((h.rotation||0)%360+360)%360}° · B${c.brightness||0} C${c.contrast||0} S${c.saturation||0}`};return''}
 function scratchMediaCheckpointFromHistoryV5(s,index){
   const h=scratchMediaCurrentHistory(s).s[index];if(!s||!h)return null;let state;
   if(s.kind==='image')state={width:h.width,height:h.height,activeLayerId:h.activeLayerId,selection:h.selection?{...h.selection}:null,layers:(h.layers||[]).map(l=>({...l}))};
@@ -7532,7 +7583,7 @@ function scratchMediaCheckpointFromHistoryV5(s,index){
   const cp={id:crypto.randomUUID?.()||String(Date.now()),label:`${scratchMediaHistoryLabel(h,index)} checkpoint`,time:Date.now(),context:scratchMediaHistoryContextV5(s,h),state};scratchMediaCheckpointList(s).unshift(cp);scratchMediaRecordAction(s,`checkpoint from history · ${scratchMediaHistoryLabel(h,index)}`);scratchRenderMediaRail();return cp
 }
 /* Replace the old current-state subtitle in history rows with snapshot metadata. */
-const scratchRenderMediaRailV5Base=scratchRenderMediaRail;scratchRenderMediaRail=function(){scratchRenderMediaRailV5Base();const s=activeMediaEditor,hh=scratchMediaCurrentHistory(s),host=$('#mediaHistoryRailList');if(host&&hh.s.length)host.querySelectorAll('[data-media-history-index]').forEach(row=>{const i=Number(row.dataset.mediaHistoryIndex),small=row.querySelector('small');if(small)small.textContent=scratchMediaHistoryContextV5(s,hh.s[i])});if(s?.kind==='video'){const project=$('#mediaProjectRailList'),c=s.video.color||{};if(project&&!project.querySelector('[data-media-video-color]')){const sec=document.createElement('div');sec.className='mediaProjectSection';sec.dataset.mediaVideoColor='1';sec.innerHTML=`<div class="mediaProjectSectionTitle">COLOR PIPELINE</div><div class="mediaProjectRow"><span class="mediaProjectIcon">◐</span><span class="mediaProjectName">Brightness / contrast</span><span class="mediaProjectMeta">${c.brightness||0} / ${c.contrast||0}</span></div><div class="mediaProjectRow"><span class="mediaProjectIcon">◎</span><span class="mediaProjectName">Saturation / hue</span><span class="mediaProjectMeta">${c.saturation||0}% / ${c.hue||0}°</span></div>`;project.appendChild(sec)}}};
+const scratchRenderMediaRailV5Base=scratchRenderMediaRail;scratchRenderMediaRail=function(){scratchRenderMediaRailV5Base();const s=activeMediaEditor,hh=scratchMediaCurrentHistory(s),host=$('#mediaHistoryRailList');if(host&&hh.s.length)host.querySelectorAll('[data-media-history-index]').forEach(row=>{const i=Number(row.dataset.mediaHistoryIndex),small=row.querySelector('small');if(small)small.textContent=scratchMediaHistoryContextV5(s,hh.s[i])});if(s?.kind==='video'&&s.video){const project=$('#mediaProjectRailList'),c=s.video.color||{};if(project&&!project.querySelector('[data-media-video-color]')){const sec=document.createElement('div');sec.className='mediaProjectSection';sec.dataset.mediaVideoColor='1';sec.innerHTML=`<div class="mediaProjectSectionTitle">COLOR PIPELINE</div><div class="mediaProjectRow"><span class="mediaProjectIcon">◐</span><span class="mediaProjectName">Brightness / contrast</span><span class="mediaProjectMeta">${c.brightness||0} / ${c.contrast||0}</span></div><div class="mediaProjectRow"><span class="mediaProjectIcon">◎</span><span class="mediaProjectName">Saturation / hue</span><span class="mediaProjectMeta">${c.saturation||0}% / ${c.hue||0}°</span></div>`;project.appendChild(sec)}}};
 
 /* Rail objects participate in the same captured entity context menu as stage objects. */
 document.addEventListener('contextmenu',e=>{if(!document.body.classList.contains('media-workspace-mode')||!e.target.closest('#historyRail'))return;const s=activeMediaEditor;if(!s)return;const row=e.target.closest('[data-media-project-kind]');if(row){let type='',id=row.dataset.mediaProjectId||'';if(row.dataset.mediaProjectKind==='image-layer')type='media-image-layer';else if(row.dataset.mediaProjectKind==='audio-track')type='media-audio-track';else if(row.dataset.mediaProjectKind==='audio-clip'){type='media-audio-selection';s.audio.cursor=Number(row.dataset.mediaProjectTime)||0;s.audio.selection=[s.audio.cursor,s.audio.cursor]}else if(row.dataset.mediaProjectKind==='video-marker'){type='media-video-frame';id=String(Number(row.dataset.mediaProjectTime)||0)}if(type){e.preventDefault();e.stopImmediatePropagation();openEntityContextMenu(type,id,e.clientX,e.clientY);return}}const hist=e.target.closest('[data-media-history-index]');if(hist){e.preventDefault();e.stopImmediatePropagation();const i=Number(hist.dataset.mediaHistoryIndex),label=scratchMediaHistoryLabel(scratchMediaCurrentHistory(s).s[i],i);openEntityContextMenu('media-history-step',String(i),e.clientX,e.clientY);return}const cp=e.target.closest('[data-media-checkpoint-id]');if(cp){e.preventDefault();e.stopImmediatePropagation();openEntityContextMenu('media-checkpoint',cp.dataset.mediaCheckpointId,e.clientX,e.clientY);return}const action=e.target.closest('[data-media-action-id]');if(action){e.preventDefault();e.stopImmediatePropagation();openEntityContextMenu('media-action-step',action.dataset.mediaActionId,e.clientX,e.clientY)}},true);
