@@ -501,8 +501,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
     </section>
     <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
     <button class="mobileMediaScrim" id="mobileMediaScrim" type="button" aria-label="Close files, media, or properties drawer"></button>
-    <section class="assets right-tab-media" id="mediaPanel" data-right-tab-active="media">
-      <span class="sr-only" id="mediaPanelTitle">Files + media</span><span class="sr-only" id="assetMeta">0 ITEMS</span>
+    <div class="assets right-tab-media" id="mediaPanel" data-right-tab-active="media">
       <div class="rightPanelTabs" id="rightPanelTabs" role="tablist" aria-label="Right drawer sections">
         <button class="rightPanelTab active" data-right-tab="media" type="button" aria-label="Media" title="Media" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg></button>
         <button class="rightPanelTab" data-right-tab="properties" type="button" aria-label="Properties" title="Properties" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg></button>
@@ -536,7 +535,7 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       </div>
       <div class="assetlist" id="assetList" data-agent-id="files"></div>
       <div class="transport" id="transportBar" data-agent-id="transports"></div>
-    </section>
+    </div>
     <aside class="agentSurface" id="agentSurface" aria-label="Agent control surface" data-agent-id="agent-surface">
       <div class="panelhead"><span class="paneltitle">Agent surface</span><span class="agentBadge">API v1</span><span class="panelmeta" id="agentReadyMeta">BOOTING</span></div>
       <div class="agentBody">
@@ -3205,7 +3204,7 @@ async function openAsset(id){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function renderAssets(){
   const token=++renderToken;const box=$('#assetList');for(const u of previewUrls.values())URL.revokeObjectURL(u);previewUrls.clear();box.innerHTML='';
-  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);$('#assetMeta').textContent=visible.length+' ITEM'+(visible.length===1?'':'S');updateCollapsedMediaSummary();
+  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);updateCollapsedMediaSummary();
   if(!visible.length){box.innerHTML='<div class="empty">No shared files yet.<br>Drop files above or paste an image from the clipboard.</div>';return}
   for(const m of visible){
     if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;card.dataset.agentFileId=m.id;card.draggable=true;card.setAttribute('data-agent-role','shared-file');
@@ -3545,12 +3544,11 @@ function blockPropertiesHtml(m){
   return h;
 }
 function updatePropertiesPanel(){
-  const panel=$('#mediaPanel'),box=$('#propertiesPanel'),title=$('#mediaPanelTitle'),meta=$('#assetMeta'),dockTitle=document.querySelector('.mobileMediaDockTitle');if(!panel||!box)return;
+  const panel=$('#mediaPanel'),box=$('#propertiesPanel'),dockTitle=document.querySelector('.mobileMediaDockTitle');if(!panel||!box)return;
   const target=propertyTarget(),props=!!target;panel.classList.toggle('properties-mode',props);
-  if(!props){box.innerHTML='';if(title)title.textContent='Files + media';if(meta){const n=[...assets.values()].filter(x=>!x.deleted).length;meta.textContent=n+' ITEM'+(n===1?'':'S')}if(dockTitle)dockTitle.textContent='Files + media';updateCollapsedMediaSummary();return}
-  if(title)title.textContent='Properties';
-  if(target.kind==='canvas'){const o=target.data;if(meta)meta.textContent=(o.type||'LAYER').toUpperCase();if(dockTitle)dockTitle.textContent='Properties · '+(o.type||'layer');box.innerHTML=canvasPropertiesHtml(o)}
-  else{const m=target.data;if(meta)meta.textContent=(m.type||'BLOCK').toUpperCase();if(dockTitle)dockTitle.textContent='Properties · '+(m.type||'block');box.innerHTML=blockPropertiesHtml(m)}
+  if(!props){box.innerHTML='';if(dockTitle)dockTitle.textContent='Files + media';updateCollapsedMediaSummary();return}
+  if(target.kind==='canvas'){const o=target.data;if(dockTitle)dockTitle.textContent='Properties · '+(o.type||'layer');box.innerHTML=canvasPropertiesHtml(o)}
+  else{const m=target.data;if(dockTitle)dockTitle.textContent='Properties · '+(m.type||'block');box.innerHTML=blockPropertiesHtml(m)}
   const compact=$('#mediaCollapsedStack');if(compact)compact.innerHTML='<div class="mediaCollapsedIcon on" title="Properties"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg></div>';
 }
 function normalizePropertyValue(el,value){const key=el.dataset.propKey;if(el.type==='checkbox')return el.checked;if(el.type==='number'||el.type==='range'){const n=Number(value);return Number.isFinite(n)?n:0}if(['x','y','w','h','rotation','z','fontSize','fontWeight','lineHeight','letterSpacing','padding','borderRadius','strokeWidth','brightness','contrast','saturate','grayscale','rows','cols','indent'].includes(key)){const n=Number(value);return Number.isFinite(n)?n:0}return value}
@@ -6036,14 +6034,13 @@ function scratchRightPanelPager(tab,total){
   box.innerHTML=`<button type="button" data-right-page="prev" data-right-page-tab="${tab}" ${page<=0?'disabled':''}>‹</button><span>${page+1} / ${pages} · ${total}</span><button type="button" data-right-page="next" data-right-page-tab="${tab}" ${page>=pages-1?'disabled':''}>›</button>`;
 }
 function scratchRightPanelSlice(tab,rows){const size=scratchRightPanelState.pageSize,total=rows.length,pages=Math.max(1,Math.ceil(total/size)),page=Math.max(0,Math.min(pages-1,scratchRightPanelState.page[tab]||0));scratchRightPanelState.page[tab]=page;scratchRightPanelPager(tab,total);return rows.slice(page*size,page*size+size)}
-function scratchRenderRightSearchResults(){const rows=scratchRightPanelState.searchResults||[],view=scratchRightPanelSlice('search',rows),box=$('#contextShelfSearchResults'),meta=$('#assetMeta');if(meta)meta.textContent=rows.length+' RESULT'+(rows.length===1?'':'S');if(!box)return;box.innerHTML=scratchRightPanelState.searchQuery?(view.length?view.map(r=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(r.name||r.title||r.type||'Result')}</strong><span>${escapeHtml(r.path||r.text||r.type||'')}</span></div>${r.id?`<button type="button" data-right-search-open="${escapeHtml(r.id)}">OPEN</button>`:''}</div>`).join(''):'<div class="rightPaneEmpty">No matches.</div>'):'<div class="rightPaneEmpty">Search the entire encrypted room.</div>'}
+function scratchRenderRightSearchResults(){const rows=scratchRightPanelState.searchResults||[],view=scratchRightPanelSlice('search',rows),box=$('#contextShelfSearchResults');if(!box)return;box.innerHTML=scratchRightPanelState.searchQuery?(view.length?view.map(r=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(r.name||r.title||r.type||'Result')}</strong><span>${escapeHtml(r.path||r.text||r.type||'')}</span></div>${r.id?`<button type="button" data-right-search-open="${escapeHtml(r.id)}">OPEN</button>`:''}</div>`).join(''):'<div class="rightPaneEmpty">No matches.</div>'):'<div class="rightPaneEmpty">Search the entire encrypted room.</div>'}
 function scratchRenderRightAux(tab=scratchRightPanelState.tab){
   const panel=$('#mediaPanel');if(!panel)return;
-  const title=$('#mediaPanelTitle'),meta=$('#assetMeta');if(title)title.textContent=scratchRightPanelTitle(tab);
-  if(tab==='media'){const n=[...assets.values()].filter(x=>!x.deleted).length;if(meta)meta.textContent=n+' ITEM'+(n===1?'':'S');return}
-  if(tab==='properties'){const t=propertyTarget?.();if(meta)meta.textContent=t?String(t.data?.type||t.kind||'selection').toUpperCase():'NO SELECTION';if(!t&&$('#propertiesPanel'))$('#propertiesPanel').innerHTML='<div class="rightPaneEmpty">Select a document block or canvas object to inspect its properties.</div>';return}
-  if(tab==='inference'){if(meta)meta.textContent=window.OIM?.ready?.().ready?'READY':'OIM';scratchRenderInferenceDraft?.();return}
-  const rows=scratchRightPanelRows(tab),view=scratchRightPanelSlice(tab,rows);if(meta)meta.textContent=rows.length+' ITEM'+(rows.length===1?'':'S');
+  if(tab==='media')return;
+  if(tab==='properties'){const t=propertyTarget?.();if(!t&&$('#propertiesPanel'))$('#propertiesPanel').innerHTML='<div class="rightPaneEmpty">Select a document block or canvas object to inspect its properties.</div>';return}
+  if(tab==='inference'){scratchRenderInferenceDraft?.();return}
+  const rows=scratchRightPanelRows(tab),view=scratchRightPanelSlice(tab,rows);
   if(tab==='activity'){
     const box=$('#contextShelfActivity');if(box)box.innerHTML=view.length?view.map(h=>`<div class="rightDrawerRow"><div class="rightDrawerRowMain"><strong>${escapeHtml(h.actorName||h.actor||'Peer')} · ${escapeHtml(h.type||'edit')}</strong><span>${escapeHtml(h.description||h.desc||h.docName||'Workspace change')}</span></div><time>${new Date(h.ts||h.time||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time></div>`).join(''):'<div class="rightPaneEmpty">No activity yet.</div>';
   }else if(tab==='comments'){
