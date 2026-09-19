@@ -337,8 +337,9 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
         <div class="docTree" id="docTree" data-agent-id="documents-tree"></div>
       </div>
       <div class="workspaceNavPane" data-left-pane="canvas">
+        <div class="workspaceNavHead workspaceCanvasHead"><span>CANVAS</span><span class="workspaceNavMeta" id="leftCanvasMeta">PAGES + LAYERS</span><div class="workspaceNavActions"><button class="iconbtn workspaceCreateBtn" id="leftNewCanvasBtn" type="button" aria-label="New canvas" title="New canvas"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></button></div></div>
         <div class="workspaceNavEmpty" id="leftCanvasEmpty">Open a canvas document to inspect pages and layers.</div>
-        <aside class="scratchPanel" id="scratchPanel" aria-label="Canvas pages and layers" data-agent-id="canvas-entities"><div class="scratchHead"><span>CANVAS</span><span class="scratchHeadMeta" id="scratchHeadMeta">0 LAYERS</span></div><section class="scratchSection"><div class="scratchSectionLabel"><span>PAGES</span><button class="scratchSectionAction" id="scratchAddPage" type="button" aria-label="New canvas page" title="New page"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></button></div><div class="scratchList" id="scratchPages"></div></section><section class="scratchSection"><div class="scratchSectionLabel">LAYERS</div><div class="scratchList" id="scratchLayers"></div></section></aside>
+        <aside class="scratchPanel" id="scratchPanel" aria-label="Canvas pages and layers" data-agent-id="canvas-entities"><div class="scratchHead"><span>CURRENT CANVAS</span><span class="scratchHeadMeta" id="scratchHeadMeta">0 LAYERS</span></div><section class="scratchSection"><div class="scratchSectionLabel"><span>PAGES</span><button class="scratchSectionAction" id="scratchAddPage" type="button" aria-label="New canvas page" title="New page"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></button></div><div class="scratchList" id="scratchPages"></div></section><section class="scratchSection"><div class="scratchSectionLabel">LAYERS</div><div class="scratchList" id="scratchLayers"></div></section></aside>
       </div>
       <div class="workspaceNavPane" data-left-pane="assets">
         <div class="workspaceNavHead"><span>ASSETS</span><button class="iconbtn" id="leftAssetRefresh" type="button" aria-label="Refresh assets"><svg viewBox="0 0 24 24"><path d="M20 6v6h-6M4 18v-6h6"/><path d="M18 9a7 7 0 0 0-12-2L4 9M6 15a7 7 0 0 0 12 2l2-2"/></svg></button></div>
@@ -6155,7 +6156,90 @@ async function scratchRefineInferenceDraft(){const s=scratchInferenceDraftState;
 const scratchEntityActionsV22Base=entityActions;entityActions=function(type,id){const arr=scratchEntityActionsV22Base(type,id)||[];if(type==='block'&&scratchInferenceBlockSupported(id)&&canEditDocument(blockMeta(id)?.docId)){const at=Math.min(1,arr.length);arr.splice(at,0,{id:'inference-expand',label:'EXPAND WITH INFERENCE'},{id:'inference-research',label:'RESEARCH WITH INFERENCE'},{sep:true})}return arr};
 const scratchRunEntityActionV22Base=runEntityAction;runEntityAction=function(type,id,action){if(type==='block'&&(action==='inference-expand'||action==='inference-research')){scratchRunBlockInference(id,action==='inference-research'?'research':'expand').catch(err=>scratchCompletionToast?.(err.message||String(err),true));return}return scratchRunEntityActionV22Base(type,id,action)};
 document.addEventListener('click',e=>{const b=e.target.closest?.('[data-inf-action]');if(!b)return;const a=b.dataset.infAction;if(a==='approve')scratchApproveInferenceDraft();else if(a==='deny')scratchDenyInferenceDraft();else if(a==='refine'){if(scratchInferenceDraftState){scratchInferenceDraftState.refining=!scratchInferenceDraftState.refining;scratchRenderInferenceDraft()}}else if(a==='submit-refine')scratchRefineInferenceDraft().catch(err=>scratchCompletionToast?.(err.message||String(err),true))},true);
+
 window.ScratchInference={get api(){return window.OIM||null},ready:()=>window.OIM?.ready?.()||{ready:false},infer:(...args)=>scratchInferenceApi().then(api=>api.infer(...args)),call:(...args)=>scratchInferenceApi().then(api=>api.call(...args)),source:()=>({sha256:$('#scratchInferenceNativeHost')?.dataset.sourceSha256||'',bytes:Number($('#scratchInferenceNativeHost')?.dataset.sourceBytes)||0,native:true,shadow:true})};
+
+/* V25. Tree-native document tabs + unified entity context actions. */
+function scratchCopyYText(source,target){
+  if(!source||!target)return;const delta=source.toDelta?.()||[];target.delete(0,target.length);if(delta.length)target.applyDelta(delta);
+}
+function scratchCloneBlockIntoDocument(src,targetDocId,{tabId=src.tabId||null,order=src.order}={}){
+  const id='blk-'+crypto.randomUUID(),copy=scratchClone(src)||{};delete copy.id;copy.docId=targetDocId;copy.tabId=tabId;copy.order=Number(order)||1000;copy.created=Date.now();copy.updated=Date.now();copy.deleted=false;yblocks.set(id,copy);
+  if(src.type==='table'){
+    const a=src.attrs||{},rows=Math.max(1,Number(a.rows)||3),cols=Math.max(1,Number(a.cols)||3);
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)scratchCopyYText(tableCellText(src.id,r,c),tableCellText(id,r,c));
+  }else scratchCopyYText(blockText(src.id),blockText(id));
+  return id;
+}
+function scratchDuplicateDocument(id,targetParent=null,{select=true,name=null}={}){
+  const src=fsEntry(id);if(!src||src.type!=='doc'||!canEditDocument(src.id))return null;
+  const parent=fsEntry(targetParent)?.type==='folder'?targetParent:(targetParent===null?src.parent||null:null),nid='doc-'+crypto.randomUUID(),base=name||((src.name||'Untitled')+' copy'),nm=safeName(uniqueEntryName(parent,'doc',base)),meta=scratchClone(src)||{};
+  delete meta.id;delete meta.trashed;delete meta.trashedAt;delete meta.trashedBy;meta.parent=parent;meta.name=nm;meta.textKey='doc:'+nid;meta.created=Date.now();meta.updated=Date.now();meta.deleted=false;
+  ydoc.transact(()=>{
+    yfs.set(nid,meta);
+    scratchCopyYText(docTextFor(src),ydoc.getText(meta.textKey));
+    if(docKind(src)==='canvas'){
+      const pages=pagesForDoc(src.id),pageMap=new Map(pages.map(x=>[x.id,'page-'+crypto.randomUUID()])),objects=canvasObjectsForDoc(src.id),objectMap=new Map(objects.map(x=>[x.id,'obj-'+crypto.randomUUID()]));
+      for(const page of pages){const pid=pageMap.get(page.id),p={...scratchClone(page),docId:nid,created:Date.now(),updated:Date.now(),deleted:false};delete p.id;ypages.set(pid,p)}
+      for(const obj of objects){const oid=objectMap.get(obj.id),o={...scratchClone(obj),docId:nid,pageId:pageMap.get(obj.pageId)||obj.pageId,parentId:obj.parentId?(objectMap.get(obj.parentId)||null):null,created:Date.now(),updated:Date.now(),deleted:false};delete o.id;ycanvas.set(oid,o);scratchCopyYText(canvasText(obj.id),canvasText(oid))}
+    }else{
+      const tabs=scratchTabsForDoc(src.id),tabMap=new Map(tabs.map(t=>[t.id,'tab-'+crypto.randomUUID()]));
+      for(const tab of tabs){const tid=tabMap.get(tab.id),t={...scratchClone(tab),docId:nid,parentId:tab.parentId?(tabMap.get(tab.parentId)||null):null,created:Date.now(),updated:Date.now(),deleted:false};delete t.id;ytabs.set(tid,t)}
+      const fallback=tabs[0]?.id||null;
+      for(const b of scratchDocAllBlocks(src.id)){const oldTab=b.tabId||fallback,newTab=oldTab?(tabMap.get(oldTab)||null):null;scratchCloneBlockIntoDocument(b,nid,{tabId:newTab,order:b.order})}
+      const setup=yworkspace?.get('pageSetup:'+src.id);if(setup)yworkspace.set('pageSetup:'+nid,{...scratchClone(setup),updated:Date.now()});
+    }
+  },LOCAL_ORIGIN);
+  if(docKind(src)==='canvas'&&!pagesForDoc(nid).length)ensureCanvasPage(nid);renderDocNavigator();renderDrivePane?.();if(select)selectDocument(nid,{focus:false});scratchRecordActivity?.('document-duplicate','Duplicated document',{sourceDocId:src.id,docId:nid});return nid;
+}
+function scratchDuplicateFolder(id,targetParent=null,{name=null}={}){
+  const src=fsEntry(id);if(!src||src.type!=='folder')return null;const parent=fsEntry(targetParent)?.type==='folder'?targetParent:(targetParent===null?src.parent||null:null),nid='folder-'+crypto.randomUUID(),base=name||((src.name||'Folder')+' copy'),nm=safeName(uniqueEntryName(parent,'folder',base)),copy=scratchClone(src)||{};delete copy.id;delete copy.trashed;delete copy.trashedAt;delete copy.trashedBy;copy.parent=parent;copy.name=nm;copy.created=Date.now();copy.updated=Date.now();copy.deleted=false;ydoc.transact(()=>yfs.set(nid,copy),LOCAL_ORIGIN);
+  for(const child of fsChildren(src.id)){if(child.type==='folder')scratchDuplicateFolder(child.id,nid,{name:child.name});else if(child.type==='doc')scratchDuplicateDocument(child.id,nid,{select:false,name:child.name})}
+  expandedFolders.add(nid);renderDocNavigator();renderDrivePane?.();scratchRecordActivity?.('folder-duplicate','Duplicated folder',{sourceFolderId:src.id,folderId:nid});return nid;
+}
+function scratchDuplicateTab(id){
+  const root=ytabs?.get(String(id));if(!root||root.deleted||!canEditDocument(root.docId))return null;const rows=scratchTabsForDoc(root.docId),children=new Map();for(const t of rows){const k=t.parentId||'';if(!children.has(k))children.set(k,[]);children.get(k).push(t)}for(const a of children.values())a.sort((x,y)=>(Number(x.order)||0)-(Number(y.order)||0));
+  const subtree=[],walk=tid=>{const t=rows.find(x=>x.id===tid);if(!t)return;subtree.push(t);for(const c of children.get(tid)||[])walk(c.id)};walk(String(id));const map=new Map(subtree.map(t=>[t.id,'tab-'+crypto.randomUUID()]));const sibs=(children.get(root.parentId||'')||[]),ri=sibs.findIndex(x=>x.id===String(id)),next=sibs[ri+1],rootOrder=next?((Number(root.order)||0)+(Number(next.order)||0))/2:(Number(root.order)||0)+1000;
+  ydoc.transact(()=>{
+    for(const t of subtree){const tid=map.get(t.id),copy={...scratchClone(t),name:t.id===String(id)?safeName((t.name||'Tab')+' copy'):t.name,parentId:t.id===String(id)?(t.parentId||null):(map.get(t.parentId)||t.parentId||null),order:t.id===String(id)?rootOrder:t.order,created:Date.now(),updated:Date.now(),deleted:false};delete copy.id;ytabs.set(tid,copy)}
+    const fallback=rows[0]?.id||null;for(const b of scratchDocAllBlocks(root.docId)){const logical=b.tabId||fallback;if(!map.has(logical))continue;scratchCloneBlockIntoDocument(b,root.docId,{tabId:map.get(logical),order:b.order})}
+  },LOCAL_ORIGIN);
+  const nid=map.get(String(id));scratchSetActiveTab(nid);scratchRecordActivity?.('tab-duplicate','Duplicated document tab',{docId:root.docId,sourceTabId:String(id),tabId:nid});return nid;
+}
+function scratchMoveTab(id,dir){
+  const t=ytabs?.get(String(id));if(!t||t.deleted||!canEditDocument(t.docId))return false;const siblings=scratchTabsForDoc(t.docId).filter(x=>(x.parentId||null)===(t.parentId||null)),i=siblings.findIndex(x=>x.id===String(id)),j=i+(dir<0?-1:1);if(i<0||j<0||j>=siblings.length)return false;const other=siblings[j],a=Number(t.order)||0,b=Number(other.order)||0;ydoc.transact(()=>{ytabs.set(String(id),{...t,order:b,updated:Date.now()});ytabs.set(other.id,{...other,order:a,updated:Date.now()})},LOCAL_ORIGIN);scratchRenderDocTabs();return true;
+}
+function scratchRenderNestedDocTabs(){
+  let panel=$('#scratchDocTabs');if(!isRichDoc()){panel?.remove();return}scratchEnsureTabs();const tree=$('#docTree'),docRow=tree?.querySelector(`.docRow[data-doc-id="${CSS.escape(activeDocId)}"]`);if(!tree||!docRow){panel?.remove();return}
+  if(!panel){panel=document.createElement('section');panel.id='scratchDocTabs';panel.className='scratchDocTabs scratchDocTabsNested'}docRow.insertAdjacentElement('afterend',panel);panel.hidden=false;
+  const rows=scratchTabsForDoc(),active=scratchActiveTab(),docIndent=parseFloat(getComputedStyle(docRow).getPropertyValue('--indent'))||4;panel.style.setProperty('--doc-tab-indent',`${docIndent}px`);
+  panel.innerHTML=`<div class="scratchDocTabsHead"><span>TABS</span><button type="button" data-tab-new aria-label="New document tab" title="New tab">+</button></div><div class="scratchDocTabList">${rows.map(t=>`<div class="scratchDocTabRow ${t.id===active?'active':''}" style="--tab-depth:${Math.min(8,scratchTabDepth(t.id,rows))}" data-entity-type="tab" data-tab-id="${escapeHtml(t.id)}"><span class="scratchTabTreeMark" aria-hidden="true"></span><button type="button" data-tab-open title="${escapeHtml(t.name||'Tab')}">${escapeHtml(t.name||'Tab')}</button><button type="button" data-tab-more aria-label="Actions for ${escapeHtml(t.name||'Tab')}">${scratchMenuSvg()}</button></div>`).join('')}</div>`;
+  panel.onclick=e=>{const add=e.target.closest('[data-tab-new]');if(add){e.preventDefault();e.stopPropagation();scratchCreateTab({name:'Tab '+(rows.length+1)});return}const row=e.target.closest('.scratchDocTabRow[data-tab-id]');if(!row)return;if(e.target.closest('[data-tab-more]')){e.preventDefault();e.stopPropagation();const r=e.target.closest('[data-tab-more]').getBoundingClientRect();openEntityContextMenu('tab',row.dataset.tabId,r.right,r.bottom);return}if(e.target.closest('[data-tab-open]')){e.preventDefault();e.stopPropagation();scratchSetActiveTab(row.dataset.tabId)}};
+}
+scratchRenderDocTabs=scratchRenderNestedDocTabs;
+const scratchRenderDocNavigatorNestedTabsBase=renderDocNavigator;
+renderDocNavigator=function(){const m=currentDocMeta?.();for(const f of folderPath(m?.parent||null))expandedFolders.add(f.id);scratchRenderDocNavigatorNestedTabsBase();queueMicrotask(()=>scratchRenderDocTabs())};
+const scratchRenderScratchNavigatorCanvasHeadBase=renderScratchNavigator;
+renderScratchNavigator=function(){scratchRenderScratchNavigatorCanvasHeadBase();const label=$('#scratchPanel .scratchHead>span:first-child'),meta=$('#leftCanvasMeta');if(label&&isCanvasDoc())label.textContent=currentDocMeta()?.name||'CURRENT CANVAS';if(meta)meta.textContent=isCanvasDoc()?`${pagesForDoc().length} PAGE${pagesForDoc().length===1?'':'S'}`:'PAGES + LAYERS'};
+
+const scratchEntityInfoV25Base=entityInfo;
+entityInfo=function(type,id){if(type==='tab'){const t=ytabs?.get(String(id));return t&&!t.deleted?{type:'document tab',name:t.name||'Tab',raw:{...t,id:String(id)}}:null}return scratchEntityInfoV25Base(type,id)};
+const scratchEntityActionsV25Base=entityActions;
+entityActions=function(type,id){
+  if(type==='tab'){const info=entityInfo(type,id);if(!info)return[];const t=info.raw,rows=scratchTabsForDoc(t.docId),siblings=rows.filter(x=>(x.parentId||null)===(t.parentId||null)),i=siblings.findIndex(x=>x.id===String(id)),depth=scratchTabDepth(String(id),rows),arr=[{id:'open',label:'OPEN TAB'}];if(canEditDocument(t.docId)){if(depth<2)arr.push({id:'new-subtab',label:'NEW SUBTAB'});arr.push({id:'duplicate',label:'DUPLICATE TAB + CONTENT'},{sep:true});if(i>0)arr.push({id:'move-up',label:'MOVE UP'});if(i>=0&&i<siblings.length-1)arr.push({id:'move-down',label:'MOVE DOWN'});arr.push({sep:true},{id:'rename',label:'RENAME'});if(rows.length>1)arr.push({id:'delete',label:'DELETE TAB',danger:true})}return arr}
+  const arr=scratchEntityActionsV25Base(type,id)||[],info=entityInfo(type,id);if(type==='doc'&&info?.raw?.type==='doc'&&canEditDocument(info.raw.id)){const at=arr.findIndex(x=>x.sep);arr.splice(at<0?arr.length:at,0,{id:'duplicate',label:'DUPLICATE DOCUMENT'})}else if(type==='folder'&&info?.raw){const at=arr.findIndex(x=>x.sep);arr.splice(at<0?arr.length:at,0,{id:'duplicate',label:'DUPLICATE FOLDER'})}return arr;
+};
+const scratchRunEntityActionV25Base=runEntityAction;
+runEntityAction=function(type,id,action){
+  if(type==='tab'){const t=ytabs?.get(String(id));if(!t||t.deleted)return;if(action==='open')scratchSetActiveTab(id);else if(!canEditDocument(t.docId))return;else if(action==='new-subtab')scratchCreateTab({docId:t.docId,parentId:String(id),name:'Subtab'});else if(action==='duplicate')scratchDuplicateTab(id);else if(action==='move-up')scratchMoveTab(id,-1);else if(action==='move-down')scratchMoveTab(id,1);else if(action==='rename'){const n=prompt('Tab name:',t.name||'Tab');if(n!=null&&String(n).trim())scratchRenameTab(id,n)}else if(action==='delete'){if(confirm(`Delete tab “${t.name||'Tab'}”? Its blocks will move to another tab.`))scratchDeleteTab(id)}return}
+  if(type==='doc'&&action==='duplicate'){scratchDuplicateDocument(id);return}if(type==='folder'&&action==='duplicate'){scratchDuplicateFolder(id);return}return scratchRunEntityActionV25Base(type,id,action);
+};
+// Right-click document tabs with the same captured entity menu used by canvas layers and rich blocks.
+document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('.scratchDocTabRow[data-tab-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const id=row.dataset.tabId;if(ytabs?.get(id)?.docId===activeDocId)scratchSetActiveTab(id);openEntityContextMenu('tab',id,e.clientX,e.clientY)},true);
+// Three-dot buttons on tree items and tabs now open that same menu rather than a second inline/prompt action UI.
+document.addEventListener('click',e=>{const docMenu=e.target.closest?.('.docItemMenu');if(docMenu){const row=docMenu.closest('.docRow[data-doc-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const type=row.dataset.docType==='folder'?'folder':'doc',r=docMenu.getBoundingClientRect();openEntityContextMenu(type,row.dataset.docId,r.right,r.bottom);return}const tabMenu=e.target.closest?.('.scratchDocTabRow [data-tab-more]');if(tabMenu){const row=tabMenu.closest('.scratchDocTabRow[data-tab-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const r=tabMenu.getBoundingClientRect();openEntityContextMenu('tab',row.dataset.tabId,r.right,r.bottom)}},true);
+const leftNewCanvasBtn=$('#leftNewCanvasBtn');if(leftNewCanvasBtn)leftNewCanvasBtn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=createCanvasDocument(activeFolderId);openLeftTab?.('canvas');return id};
+queueMicrotask(()=>{renderDocNavigator();scratchRenderDocTabs();renderScratchNavigator()});
 
 </script>
 
@@ -12162,6 +12246,21 @@ body.resizing-media #mediaPanel{transition:none!important}
   body.media-collapsed .mediaCollapsedIcon svg{width:16px!important;height:16px!important}
 }
 @media(max-width:820px){.workspaceSplitter{display:none!important}}
+
+
+/* V25. Tree-native document tabs and contextable workspace entities. */
+.workspaceCanvasHead{flex:0 0 34px}.workspaceCreateBtn{margin-left:0!important}.workspaceCreateBtn svg{width:14px!important;height:14px!important}
+.scratchDocTabsNested{display:block!important;flex:0 0 auto!important;max-height:230px!important;margin:0 0 1px!important;border:0!important;border-bottom:1px solid #171c21!important;background:#080b0e!important;overflow:auto!important}
+.scratchDocTabsNested .scratchDocTabsHead{height:25px!important;min-height:25px!important;padding:0 5px 0 calc(var(--doc-tab-indent,4px) + 26px)!important;border-bottom:1px solid #14191e!important;color:#65717a!important;background:#080b0e!important;font-size:6.5px!important}
+.scratchDocTabsNested .scratchDocTabsHead button{width:22px!important;height:20px!important;margin-left:auto!important;border:0!important;background:transparent!important;color:#77838d!important;font:700 15px/1 var(--mono)!important;display:grid!important;place-items:center!important}.scratchDocTabsNested .scratchDocTabsHead button:hover{background:#11161a!important;color:var(--text)!important}
+.scratchDocTabsNested .scratchDocTabList{padding:0 0 3px!important}
+.scratchDocTabsNested .scratchDocTabRow{position:relative;min-height:29px!important;height:29px!important;display:grid!important;grid-template-columns:16px minmax(0,1fr) 27px!important;align-items:center!important;gap:2px!important;padding:0 3px 0 calc(var(--doc-tab-indent,4px) + 19px + var(--tab-depth,0)*13px)!important;border:1px solid transparent!important;border-width:1px 0!important;background:transparent!important;color:#89949d!important}
+.scratchDocTabsNested .scratchDocTabRow:hover{background:#0e1216!important;color:#bcc4ca!important}.scratchDocTabsNested .scratchDocTabRow.active{background:#11161b!important;color:var(--text)!important;box-shadow:inset 2px 0 0 var(--accent)!important}
+.scratchTabTreeMark{width:12px;height:18px;position:relative;display:block}.scratchTabTreeMark::before{content:'';position:absolute;left:4px;top:0;bottom:7px;width:1px;background:#2a3137}.scratchTabTreeMark::after{content:'';position:absolute;left:4px;bottom:7px;width:7px;height:1px;background:#2a3137}
+.scratchDocTabsNested .scratchDocTabRow>[data-tab-open]{height:27px!important;min-width:0!important;width:100%!important;border:0!important;background:transparent!important;color:inherit!important;text-align:left!important;padding:0 4px!important;font:700 8px/1 var(--mono)!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.scratchDocTabsNested .scratchDocTabRow>[data-tab-more]{width:27px!important;height:27px!important;border:0!important;background:transparent!important;color:#64707a!important;padding:0!important;display:grid!important;place-items:center!important}.scratchDocTabsNested .scratchDocTabRow>[data-tab-more]:hover{background:#171c21!important;color:var(--text)!important}.scratchDocTabsNested .scratchDocTabRow>[data-tab-more] svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6}
+.docRow:has(+ .scratchDocTabsNested){border-bottom-color:#1b2228!important}.docRow:has(+ .scratchDocTabsNested).active{border-bottom-color:#28313a!important}
+@media(max-width:820px){.scratchDocTabsNested{max-height:180px!important}.scratchDocTabsNested .scratchDocTabRow{min-height:32px!important;height:32px!important}.scratchDocTabsNested .scratchDocTabRow>[data-tab-open],.scratchDocTabsNested .scratchDocTabRow>[data-tab-more]{height:30px!important}}
 </style>
 
 
