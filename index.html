@@ -9271,6 +9271,117 @@ document.addEventListener('focusin',e=>{const b=e.target.closest?.('.docBlock[da
 const scratchPdfRefreshChromeRouteV36Base=scratchPdfRefreshChrome;
 scratchPdfRefreshChrome=function(s){const r=scratchPdfRefreshChromeRouteV36Base(s);scratchScheduleRouteV36();return r};
 
+
+
+/* ==========================================================================\n   IMAGE WORKSTATION V37 — CANONICAL SOURCE INCLUSION + WORKSPACE FILE DROP\n   ========================================================================== */
+function scratchImageCanvasHasVisiblePixelsV37(canvas){
+  if(!canvas?.width||!canvas?.height)return false;
+  try{
+    const probe=document.createElement('canvas'),n=32;probe.width=n;probe.height=n;
+    const x=probe.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,n,n);x.drawImage(canvas,0,0,n,n);
+    const d=x.getImageData(0,0,n,n).data;for(let i=3;i<d.length;i+=4)if(d[i]>2)return true;
+  }catch(err){console.warn('image visibility probe failed',err);return true}
+  return false;
+}
+async function scratchImageDecodeCanonicalSourceV37(s){
+  const decoded=await mediaDecodeImageSource(s.blob),c=mediaImageLayerCanvas(decoded.width,decoded.height),x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(decoded.source,0,0,decoded.width,decoded.height);decoded.close?.();
+  const info={width:c.width,height:c.height,visible:scratchImageCanvasHasVisiblePixelsV37(c)};
+  s.__imageCanonicalSourceInfoV37=info;return{canvas:c,...info};
+}
+function scratchImageTagCanonicalLayerV37(s,l){
+  if(!l)return l;l.sourceAssetId=s.id;l.sourceName=s.meta?.name||'';l.sourceBlob=s.blob;l.smartObject=true;l.contentBounds={x:0,y:0,w:s.image.width,h:s.image.height};
+  scratchImageNormalizeLayerV33(s,l);return l;
+}
+async function scratchImageInstallCanonicalSourceV37(s,{initial=false,repair=false}={}){
+  const im=s?.image;if(!im||im.gif)return false;
+  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical image decode failed',err);return false}
+  if(initial){
+    im.width=decoded.width;im.height=decoded.height;
+    let l=im.layers?.[0];
+    if(!l){l=mediaImageNewLayer(s,s.meta?.name||'Background');im.layers=[l]}
+    l.canvas=decoded.canvas;l.name=s.meta?.name||l.name||'Background';l.offsetX=0;l.offsetY=0;l.visible=true;l.opacity=1;l.blend='source-over';l.locked=false;
+    scratchImageTagCanonicalLayerV37(s,l);im.activeLayerId=l.id;
+    mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);
+    const baseline=await scratchImageBuildSnapshotV34(s,'Original');baseline.__baseline=true;baseline.__canonicalSource=true;
+    s.__imageSourceBaselineV34=baseline;im.history=[baseline];im.historyIndex=0;
+    scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
+    requestAnimationFrame(()=>{if(activeMediaEditor===s){mediaImageFit(s);mediaImageComposite(s)}});
+    return true;
+  }
+  if(!repair||decoded.width!==im.width||decoded.height!==im.height)return false;
+  if(scratchImageCanvasHasVisiblePixelsV37(im.canvas)||!decoded.visible)return false;
+  let l=im.layers.find(q=>q.sourceAssetId===s.id);
+  if(l){l.canvas=decoded.canvas;l.offsetX=0;l.offsetY=0;l.visible=true;if(!Number.isFinite(Number(l.opacity))||Number(l.opacity)<=0)l.opacity=1;scratchImageTagCanonicalLayerV37(s,l)}
+  else{
+    l={id:mediaImageUid('source'),name:s.meta?.name||'Background',type:'raster',canvas:decoded.canvas,visible:true,opacity:1,blend:'source-over',locked:false,offsetX:0,offsetY:0};
+    scratchImageTagCanonicalLayerV37(s,l);im.layers.unshift(l);im.activeLayerId=im.activeLayerId||l.id;
+  }
+  mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);
+  const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered';
+  const repaired=await scratchImageBuildSnapshotV34(s,label);repaired.__baseline=idx===0;repaired.__canonicalSource=idx===0;
+  if(im.history.length)im.history[idx]=repaired;else{im.history=[repaired];im.historyIndex=0}
+  if(idx===0)s.__imageSourceBaselineV34=repaired;
+  s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,120);scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
+  console.warn('Recovered canonical source image into blank editor state',s.id);return true;
+}
+
+/* Preserve source identity in every future image history state. */
+const scratchImageLayerSnapshotV37Base=scratchImageLayerSnapshotV33;
+scratchImageLayerSnapshotV33=async function(s,l){
+  const out=await scratchImageLayerSnapshotV37Base(s,l);out.sourceAssetId=l.sourceAssetId||'';out.sourceName=l.sourceName||'';out.smartObject=!!l.smartObject;return out;
+};
+
+/* The adapter always begins with the actual clicked asset as layer zero. This runs
+   after all prior image-editor decorators, before persisted project restoration. */
+const mediaImageEditorV37Base=MEDIA_WORKSPACE_EDITORS.image;
+MEDIA_WORKSPACE_EDITORS.image=async function(s){
+  await mediaImageEditorV37Base(s);
+  if(!s.image?.gif)await scratchImageInstallCanonicalSourceV37(s,{initial:true});
+};
+
+/* A legacy/corrupt project is allowed to restore normal edits, but a completely
+   transparent document may not replace a visibly non-transparent canonical source. */
+const scratchMediaLoadProjectV37Base=scratchMediaLoadProjectV6;
+scratchMediaLoadProjectV6=async function(s){
+  const loaded=await scratchMediaLoadProjectV37Base(s);
+  if(s?.kind==='image'&&!s.image?.gif)await scratchImageInstallCanonicalSourceV37(s,{repair:true});
+  return loaded;
+};
+
+function scratchImageFileLikeV37(f){return !!f&&(String(f.type||'').toLowerCase().startsWith('image/')||/\.(png|jpe?g|webp|bmp|gif|avif|svg)$/i.test(String(f.name||'')))}
+function scratchImageDropPointV37(s,e){
+  const c=s?.image?.canvas,r=c?.getBoundingClientRect?.();if(!r||r.width<1||r.height<1)return{x:s.image.width/2,y:s.image.height/2};
+  if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)return{x:(e.clientX-r.left)*s.image.width/r.width,y:(e.clientY-r.top)*s.image.height/r.height};
+  return{x:s.image.width/2,y:s.image.height/2};
+}
+async function scratchImageImportLayerAtV37(s,file,point=null,ordinal=0){
+  const decoded=await mediaDecodeImageSource(file),im=s.image,l=mediaImageNewLayer(s,file.name||'Imported image'),sw=decoded.width,sh=decoded.height;
+  const scale=Math.min(1,im.width/Math.max(1,sw),im.height/Math.max(1,sh)),dw=Math.max(1,sw*scale),dh=Math.max(1,sh*scale),p=point||{x:im.width/2,y:im.height/2};
+  const dx=Math.round(p.x-dw/2+ordinal*12),dy=Math.round(p.y-dh/2+ordinal*12),x=l.canvas.getContext('2d',{willReadFrequently:true});
+  x.drawImage(decoded.source,dx,dy,dw,dh);decoded.close?.();l.sourceBlob=file;l.sourceName=file.name||'';l.sourceAssetId='';l.smartObject=true;l.contentBounds={x:dx,y:dy,w:dw,h:dh};l.name=file.name||l.name;
+  scratchImageNormalizeLayerV33(s,l);im.activeLayerId=l.id;mediaImageComposite(s);mediaImageRenderLayers(s);scratchImageRefreshProUiV33(s);await mediaImageSnapshot(s,'import image layer');return l;
+}
+/* Keep older callers working, but make imports use the same real layer path. */
+scratchImageImportLayerFileV33=async function(s,file,opts={}){return scratchImageImportLayerAtV37(s,file,opts?.point||null,opts?.ordinal||0)};
+
+/* Capture external file drops at window level so legacy document-level handlers
+   cannot swallow them. Internal layer-reorder drags contain no files and pass through. */
+window.addEventListener('dragover',e=>{
+  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!workspace||!document.body.classList.contains('media-workspace-mode'))return;
+  const items=[...(e.dataTransfer?.items||[])];if(!items.some(i=>i.kind==='file'))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';workspace.classList.add('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.add('mediaImageDropActive');
+},true);
+window.addEventListener('dragleave',e=>{if(!e.relatedTarget){$('#mediaWorkspace')?.classList.remove('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.remove('mediaImageDropActive')}},true);
+window.addEventListener('drop',e=>{
+  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!workspace||!document.body.classList.contains('media-workspace-mode'))return;
+  const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);if(!files.length)return;
+  e.preventDefault();e.stopImmediatePropagation();workspace.classList.remove('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.remove('mediaImageDropActive');
+  const point=scratchImageDropPointV37(s,e);(async()=>{for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);mediaImageComposite(s);mediaImageRenderLayers(s);scratchScheduleRouteV36?.()})().catch(err=>{console.error('image layer drop failed',err);toast('<b>Could not import image layer.</b> '+escapeHtml(err.message||err),'bad')});
+},true);
+
+const scratchImageDropStyleV37=document.getElementById('scratchImageDropStyleV37')||document.head.appendChild(Object.assign(document.createElement('style'),{id:'scratchImageDropStyleV37'}));
+scratchImageDropStyleV37.textContent=`#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorMain{outline:2px solid #75a8cf;outline-offset:-3px}#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorStage:after{content:'DROP IMAGE · NEW LAYER';position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:200;padding:7px 10px;border:1px solid #6688a2;background:rgba(8,12,15,.92);color:#bcd2e2;font:800 8px var(--mono);letter-spacing:.08em;pointer-events:none}`;
+
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(scratchRestoreRouteV36,0),{once:true});else setTimeout(scratchRestoreRouteV36,0);
 </script>
 
