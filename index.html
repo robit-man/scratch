@@ -2611,6 +2611,23 @@ function embedSrcdoc(body,title='Embedded content'){
 .canvasRemoteCursor.smoothPeerCursor{margin:0!important;color:var(--remote,#89939d)}
 </style>
 
+
+<style id="scratchV36RepairStyles">
+/* V36 — compact, Photoshop-like layer stack. The prior row-level blend/opacity
+   inspector is intentionally suppressed; those controls live once at panel top. */
+#mediaImageLayers{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0!important;overflow-x:hidden!important}
+.psLayersToolbar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:minmax(100px,1fr) minmax(160px,1.35fr);gap:6px;align-items:center;padding:5px 6px;border-bottom:1px solid #283038;background:#0a0d10;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.psLayersToolbar>select{height:28px;min-width:0;width:100%;border:1px solid #303941;background:#07090b;color:#b6c0c7;padding:0 6px;font:8px var(--mono)}
+.psLayersToolbar>label{display:grid;grid-template-columns:46px minmax(56px,1fr) 50px 10px;gap:4px;align-items:center;min-width:0;color:#77828b;font:700 7px var(--mono)}
+.psLayersToolbar input[type=range]{min-width:56px;width:100%}.psLayersToolbar .psOpacityNumber{width:50px!important;min-width:50px!important;height:27px!important}.psLayersToolbar em{font-style:normal;color:#66717a}
+.mediaImageLayerRow.ps.compact{display:grid!important;grid-template-columns:24px 38px 38px minmax(0,1fr) 28px 34px!important;grid-template-rows:42px!important;align-items:center!important;gap:4px!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;padding:3px 5px!important;border:1px solid transparent!important;border-bottom-color:#20272d!important;background:#0b0e11!important;box-shadow:none!important}
+.mediaImageLayerRow.ps.compact:hover{background:#10151a!important;border-color:#27313a!important}.mediaImageLayerRow.ps.compact.active{background:#182027!important;border-color:#4c5f6d!important;box-shadow:inset 3px 0 0 #78a9ce!important}
+.mediaImageLayerRow.ps.compact .psEye{grid-column:1!important;grid-row:1!important;width:24px!important;min-width:24px!important;height:30px!important}.mediaImageLayerRow.ps.compact .mediaImageLayerThumb:not(.mask){grid-column:2!important;grid-row:1!important}.mediaImageLayerRow.ps.compact .mediaImageLayerThumb.mask,.mediaImageLayerRow.ps.compact .mediaImageLayerThumb.empty{grid-column:3!important;grid-row:1!important}.mediaImageLayerRow.ps.compact .psLayerInfo{grid-column:4!important;grid-row:1!important;min-width:0!important;overflow:hidden!important}.mediaImageLayerRow.ps.compact .psLock{grid-column:5!important;grid-row:1!important;width:28px!important;min-width:28px!important}.mediaImageLayerRow.ps.compact .mediaImageLayerMini{grid-column:6!important;grid-row:1!important;width:34px!important;min-width:34px!important}.mediaImageLayerRow.ps.compact .psLayerControls,.mediaImageLayerRow.ps.compact>.psDrag{display:none!important}
+.mediaImageLayerRow.ps.compact .mediaImageLayerThumb{width:36px!important;height:36px!important}.mediaImageLayerRow.ps.compact .mediaImageLayerName{height:24px!important;min-width:0!important;width:100%!important;max-width:100%!important;padding:0 4px!important;font:800 9px var(--mono)!important}.mediaImageLayerRow.ps.compact .psLayerBadges{height:12px;display:flex;align-items:center;gap:3px;overflow:hidden}.mediaImageLayerRow.ps.compact .psLayerBadges span{font-size:6px!important;line-height:10px!important;padding:0 3px!important}
+.mediaImageGroupRow.ps.compact{display:grid!important;grid-template-columns:24px 24px minmax(0,1fr) 28px!important;gap:4px!important;align-items:center!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:4px 5px!important;background:#10161b!important;border:1px solid #283139!important}.mediaImageGroupRow.ps.compact input{min-width:0!important;width:100%!important;height:27px!important}
+@media(max-width:1050px){.psLayersToolbar{grid-template-columns:1fr}.mediaImageLayerRow.ps.compact{grid-template-columns:22px 34px 34px minmax(0,1fr) 26px 30px!important}.mediaImageLayerRow.ps.compact .mediaImageLayerThumb{width:32px!important;height:32px!important}}
+</style>
+
 </body></html>`;
 }
 function resolveEmbed(raw){
@@ -7220,7 +7237,7 @@ document.addEventListener('contextmenu',e=>{
   let type=null,id='';
   if(s.kind==='image'){const row=e.target.closest('.mediaImageLayerRow[data-image-layer-id]');if(row){type='media-image-layer';id=row.dataset.imageLayerId}else if(e.target.closest('#mediaImageOverlay,#mediaImageCanvas,#mediaImageViewport')){type='media-image-canvas';id='canvas'}}
   else if(s.kind==='video'){if(e.target.closest('#mediaVideoTimeline')){const t=mediaVideoTimelineTime(s.video,e,{snap:true});s.video.contextTime=t;type='media-video-frame';id=String(t)}else if(e.target.closest('#mediaVideoPreviewFrame')){type='media-video';id=s.id}}
-  else if(s.kind==='audio'){const canvas=e.target.closest('.mediaAudioTrackCanvas[data-track-id]'),row=e.target.closest('.mediaAudioTrack[data-track-id]');if(canvas){/* Compute against the live canvas BEFORE selecting the track: selection rerenders/replaces this canvas. */const t=mediaAudioTimeFromCanvas(s,canvas,e.clientX),trackId=canvas.dataset.trackId;mediaAudioSetSelectedTrack(s,trackId);s.audio.cursor=t;s.audio.selection=[t,t];mediaAudioDraw(s);type='media-audio-selection';id=trackId}else if(row){type='media-audio-track';id=row.dataset.trackId}else if(e.target.closest('.mediaAudioWorkbench')){type='media-audio-selection';id=s.audio.selectedTrackId||'selection'}}
+  else if(s.kind==='audio'){const canvas=e.target.closest('.mediaAudioTrackCanvas[data-track-id]'),row=e.target.closest('.mediaAudioTrack[data-track-id]');if(canvas){/* CONTEXT MENU CONTRACT: right-click is contextual only. It must never move the playhead, collapse a selection, or switch the selected track. Left-click/pointer tools own cursor + selection placement. */type='media-audio-selection';id=s.audio.selectedTrackId||canvas.dataset.trackId||'selection'}else if(row){type='media-audio-track';id=row.dataset.trackId}else if(e.target.closest('.mediaAudioWorkbench')){type='media-audio-selection';id=s.audio.selectedTrackId||'selection'}}
   else if(s.kind==='text'&&e.target.closest('#mediaTextEditor')){type='media-text';id=s.id}
   else if(s.kind==='pdf'&&e.target.closest('.mediaPdfFrame')){type='media-pdf';id=s.id}
   if(!type)return;e.preventDefault();e.stopImmediatePropagation();openEntityContextMenu(type,id,e.clientX,e.clientY)
@@ -9143,6 +9160,118 @@ MEDIA_WORKSPACE_EDITORS.video=async function(s){await v32VideoEditorBase(s);v32n
 window.addEventListener('resize',()=>{const s=activeMediaEditor;if(s?.kind==='video'&&s.video?.mt)requestAnimationFrame(()=>v32renderOverlay(s))},{passive:true});
 })();
 
+
+
+/* ============================================================================
+   V36 — durable deep links + compact Photoshop layer stack + audio context rules
+   -----------------------------------------------------------------------------
+   URL state lives in query parameters so the room secret remains the untouched
+   hash fragment. history.replaceState() keeps the URL current without reloads.
+   ============================================================================ */
+const SCRATCH_ROUTE_KEYS_V36=['view','doc','tab','asset','editor','page','component','time','selection','left','right'];
+let scratchRouteApplyingV36=false,scratchRouteTimerV36=0,scratchRouteRestoredV36=false;
+function scratchRouteCleanV36(u){for(const k of SCRATCH_ROUTE_KEYS_V36)u.searchParams.delete(k);return u}
+function scratchRouteComponentV36(){
+  const s=activeMediaEditor;
+  if(s){
+    if(s.kind==='image'&&s.image?.activeLayerId)return'layer:'+s.image.activeLayerId;
+    if(s.kind==='pdf'&&s.pdf?.selectedOverlayId)return'overlay:'+s.pdf.selectedOverlayId;
+    if(s.kind==='docx'&&Number.isInteger(s.docx?.selectedIndex))return'docx:'+s.docx.selectedIndex;
+    if(s.kind==='audio'&&s.audio?.selectedTrackId)return'track:'+s.audio.selectedTrackId;
+    if(s.kind==='video'&&s.video?.mt?.selectedClipId)return'clip:'+s.video.mt.selectedClipId;
+    return'';
+  }
+  if(isCanvasDoc?.()&&selectedCanvasObjectId)return'object:'+selectedCanvasObjectId;
+  if(activeBlockId)return'block:'+activeBlockId;
+  return'';
+}
+function scratchWriteRouteV36(){
+  if(scratchRouteApplyingV36)return;
+  try{
+    const u=scratchRouteCleanV36(new URL(location.href)),p=u.searchParams,s=activeMediaEditor;
+    if(s){
+      p.set('view','media');p.set('asset',s.id);p.set('editor',s.kind);
+      const comp=scratchRouteComponentV36();if(comp)p.set('component',comp);
+      if(s.kind==='pdf'&&s.pdf){p.set('page',String((Number(s.pdf.selectedPage)||0)+1))}
+      else if(s.kind==='audio'&&s.audio){p.set('time',(Number(s.audio.cursor)||0).toFixed(3));const sel=s.audio.selection||[];if(sel.length===2&&Math.abs((Number(sel[1])||0)-(Number(sel[0])||0))>.0005)p.set('selection',`${Number(sel[0]||0).toFixed(3)},${Number(sel[1]||0).toFixed(3)}`)}
+      else if(s.kind==='video'&&s.video?.mt)p.set('time',(Number(s.video.mt.playhead)||0).toFixed(3));
+      else if(s.kind==='docx'&&s.docx)p.set('page',String((Number(s.docx.activeSection)||0)+1));
+    }else{
+      p.set('view',isCanvasDoc?.()?'canvas':'document');if(activeDocId)p.set('doc',activeDocId);
+      if(isCanvasDoc?.()){if(activeCanvasPageId)p.set('page',activeCanvasPageId)}else{const tab=scratchActiveTab?.(activeDocId);if(tab)p.set('tab',tab)}
+      const comp=scratchRouteComponentV36();if(comp)p.set('component',comp);
+    }
+    if(typeof leftTab==='string'&&leftTab)p.set('left',leftTab);
+    if(typeof scratchRightPanelState==='object'&&scratchRightPanelState?.tab)p.set('right',scratchRightPanelState.tab);
+    history.replaceState(history.state,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash);
+  }catch(err){console.warn('route write failed',err)}
+}
+function scratchScheduleRouteV36(delay=40){if(scratchRouteApplyingV36)return;clearTimeout(scratchRouteTimerV36);scratchRouteTimerV36=setTimeout(scratchWriteRouteV36,delay)}
+function scratchRoutePartsV36(){const p=new URL(location.href).searchParams;return{view:p.get('view')||'',doc:p.get('doc')||'',tab:p.get('tab')||'',asset:p.get('asset')||'',editor:p.get('editor')||'',page:p.get('page')||'',component:p.get('component')||'',time:p.get('time')||'',selection:p.get('selection')||'',left:p.get('left')||'',right:p.get('right')||''}}
+function scratchRouteApplyMediaFocusV36(s,r){
+  if(!s)return;
+  const [ctype,cid='']=String(r.component||'').split(':',2);
+  if(s.kind==='image'&&ctype==='layer'&&s.image?.layers?.some(l=>l.id===cid)){s.image.activeLayerId=cid;mediaImageComposite(s);mediaImageRenderLayers(s);mediaImageUpdateContext?.(s)}
+  else if(s.kind==='pdf'&&s.pdf){const pg=Math.max(0,Math.min(s.pdf.pages.length-1,(Number(r.page)||1)-1));s.pdf.selectedPage=pg;if(ctype==='overlay'&&(s.pdf.overlays?.[s.pdf.pages[pg]?.id]||[]).some(o=>o.id===cid))s.pdf.selectedOverlayId=cid;scratchPdfRender(s,{preserveScroll:false,scrollToSelected:true})}
+  else if(s.kind==='docx'&&s.docx){if(ctype==='docx')s.docx.selectedIndex=Math.max(0,Number(cid)||0);if(r.page)s.docx.activeSection=Math.max(0,(Number(r.page)||1)-1);scratchDocxRender(s);requestAnimationFrame(()=>document.querySelector(`.docxComponent[data-docx-block="${s.docx.selectedIndex}"]`)?.scrollIntoView?.({block:'start'}))}
+  else if(s.kind==='audio'&&s.audio){if(ctype==='track'&&s.audio.tracks?.some(t=>t.id===cid)){s.audio.selectedTrackId=cid;s.audio.selectedTrackIds=new Set([cid])}if(r.time!=='')s.audio.cursor=Math.max(0,Math.min(mediaAudioProjectDuration(s),Number(r.time)||0));if(r.selection){const q=r.selection.split(',').map(Number);if(q.length===2&&q.every(Number.isFinite))s.audio.selection=[Math.min(q[0],q[1]),Math.max(q[0],q[1])]}else s.audio.selection=[s.audio.cursor,s.audio.cursor];mediaAudioRender(s)}
+  else if(s.kind==='video'&&s.video?.mt){const mt=s.video.mt;if(ctype==='clip'){for(const l of mt.lanes){if(l.clips?.some(c=>c.id===cid)){mt.selectedLaneId=l.id;mt.selectedClipId=cid;break}}}if(r.time!=='')scratchVideoMtSeekV28(s,Number(r.time)||0,{quiet:true});scratchVideoMtRenderV28(s);scratchVideoMtCompositeV28(s,mt.playhead)}
+}
+async function scratchRestoreRouteV36(){
+  if(scratchRouteRestoredV36)return;scratchRouteRestoredV36=true;const r=scratchRoutePartsV36();if(!r.asset&&!r.doc){scratchScheduleRouteV36(0);return}
+  scratchRouteApplyingV36=true;
+  try{
+    if(r.view==='media'&&r.asset){
+      for(let i=0;i<160&&!assets?.get?.(r.asset);i++)await new Promise(res=>setTimeout(res,125));
+      if(assets?.get?.(r.asset)){await openMediaWorkspace(r.asset);scratchRouteApplyMediaFocusV36(activeMediaEditor,r)}
+    }else if(r.doc){
+      for(let i=0;i<160&&!fsEntry?.(r.doc);i++)await new Promise(res=>setTimeout(res,75));
+      if(fsEntry?.(r.doc)){selectDocument(r.doc,{persist:true,focus:false,quiet:true});if(r.tab)scratchSetActiveTab?.(r.tab);
+        if(r.view==='canvas'||isCanvasDoc?.()){
+          if(r.page&&ypages?.get?.(r.page)?.docId===activeDocId)activeCanvasPageId=r.page;
+          const [ctype,cid='']=String(r.component||'').split(':',2);if(ctype==='object'&&ycanvas?.get?.(cid)?.docId===activeDocId){selectedCanvasObjectId=cid;propertySelection={kind:'canvas',id:cid}}renderCanvasPageTabs?.();renderCanvas?.();updatePropertiesPanel?.();
+        }else{const [ctype,cid='']=String(r.component||'').split(':',2);if(ctype==='block'&&blockMeta?.(cid)?.docId===activeDocId){activeBlockId=cid;propertySelection={kind:'block',id:cid};renderStructuredWorkspace?.();requestAnimationFrame(()=>document.querySelector(`[data-block-id="${CSS.escape(cid)}"]`)?.scrollIntoView?.({block:'center'}))}}
+      }
+    }
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
+  }catch(err){console.warn('route restore failed',err)}finally{scratchRouteApplyingV36=false;scratchScheduleRouteV36(0)}
+}
+
+/* Keep deep-link state authoritative after the final wrappers in this module. */
+const scratchSelectDocumentRouteV36Base=selectDocument;
+selectDocument=function(id,opts={}){const ok=scratchSelectDocumentRouteV36Base(id,opts);if(ok)scratchScheduleRouteV36();return ok};
+const scratchSetActiveTabRouteV36Base=scratchSetActiveTab;
+scratchSetActiveTab=function(id){const ok=scratchSetActiveTabRouteV36Base(id);if(ok)scratchScheduleRouteV36();return ok};
+const scratchOpenMediaWorkspaceRouteV36Base=openMediaWorkspace;
+openMediaWorkspace=async function(id){const ok=await scratchOpenMediaWorkspaceRouteV36Base(id);if(ok)scratchScheduleRouteV36();return ok};window.__scratchOpenMediaWorkspace=openMediaWorkspace;
+const scratchCloseMediaWorkspaceRouteV36Base=closeMediaWorkspace;
+closeMediaWorkspace=async function(opts={}){const r=await scratchCloseMediaWorkspaceRouteV36Base(opts);scratchScheduleRouteV36();return r};window.__scratchCloseMediaWorkspace=closeMediaWorkspace;
+const scratchOpenLeftTabRouteV36Base=openLeftTab;
+openLeftTab=function(name){const r=scratchOpenLeftTabRouteV36Base(name);scratchScheduleRouteV36();return r};
+const scratchSetRightPanelTabRouteV36Base=setRightPanelTab;
+setRightPanelTab=function(tab,opts={}){const r=scratchSetRightPanelTabRouteV36Base(tab,opts);scratchScheduleRouteV36();return r};
+
+/* Photoshop-style Layers panel: blend + opacity are panel-level controls for the
+   active layer. Individual rows stay compact and editable instead of exploding
+   into mini inspectors. */
+mediaImageRenderLayers=function(s){
+  const host=$('#mediaImageLayers');if(!host)return;const im=s.image;scratchImageNormalizeDocV33(s);let active=im.layers.find(l=>l.id===im.activeLayerId)||im.layers[im.layers.length-1]||null;if(active&&!im.activeLayerId)im.activeLayerId=active.id;
+  const toolbar=active?`<div class="psLayersToolbar"><select aria-label="Active layer blend mode" data-image-layer-blend="${escapeHtml(active.id)}">${IMAGE_PRO_BLEND_MODES_V33.map(m=>`<option value="${m}" ${m===active.blend?'selected':''}>${m.toUpperCase()}</option>`).join('')}</select><label><span>OPACITY</span><input data-image-layer-opacity="${escapeHtml(active.id)}" type="range" min="0" max="1" step=".01" value="${active.opacity}"><input class="psOpacityNumber" data-image-layer-opacity-num="${escapeHtml(active.id)}" type="number" min="0" max="100" step="1" value="${Math.round((active.opacity??1)*100)}"><em>%</em></label></div>`:'';
+  const row=l=>`<div class="mediaImageLayerRow ps compact ${l.id===im.activeLayerId?'active':''}" draggable="true" data-image-layer-id="${escapeHtml(l.id)}"><button class="psEye" data-image-layer-act="toggle" title="Visibility">${l.visible?'●':'○'}</button><canvas class="mediaImageLayerThumb" data-image-layer-thumb="${escapeHtml(l.id)}"></canvas>${l.maskCanvas?`<canvas class="mediaImageLayerThumb mask" data-image-mask-thumb="${escapeHtml(l.id)}" data-image-pro-row="mask" data-layer-id="${escapeHtml(l.id)}"></canvas>`:'<span class="mediaImageLayerThumb empty"></span>'}<div class="psLayerInfo"><input class="mediaImageLayerName" data-image-layer-name="${escapeHtml(l.id)}" value="${escapeHtml(l.name)}"><div class="psLayerBadges">${scratchImageLayerBadgesV34(l)}</div></div><button class="psLock" data-image-layer-act="lock" title="Lock layer">${l.locked?'▣':'□'}</button><button class="mediaImageLayerMini ${l.effects?.length?'on':''}" data-image-pro-row="fx" data-layer-id="${escapeHtml(l.id)}" title="Effects">FX</button></div>`;
+  const grouped=new Set(),parts=[];for(const g of [...im.groups].reverse()){const ls=[...im.layers].filter(l=>l.groupId===g.id).reverse();if(!ls.length)continue;ls.forEach(l=>grouped.add(l.id));parts.push(`<div class="mediaImageGroupRow ps compact" data-image-group-id="${escapeHtml(g.id)}"><button data-image-group-collapse="${escapeHtml(g.id)}">${g.collapsed?'▸':'▾'}</button><button data-image-group-visibility="${escapeHtml(g.id)}">${g.visible!==false?'●':'○'}</button><input data-image-group-name="${escapeHtml(g.id)}" value="${escapeHtml(g.name)}"><button data-image-group-delete="${escapeHtml(g.id)}">×</button></div>${g.collapsed?'':ls.map(row).join('')}`)}
+  parts.push([...im.layers].reverse().filter(l=>!grouped.has(l.id)).map(row).join(''));host.innerHTML=toolbar+(parts.join('')||'<div class="mediaCropReadout">No layers.</div>');scratchImageRenderLayerThumbsV34(s);mediaImageHistogram(s);scratchScheduleRouteV36();
+};
+
+/* URL state follows meaningful focus changes but is debounced so pointer motion
+   and timeline playback never spam history or force navigation. */
+document.addEventListener('click',e=>{if(e.target.closest?.('[data-page-id],[data-tab-open],[data-image-layer-id],[data-pdf-page-index],[data-pdf-page-select],[data-docx-block],[data-docx-select],[data-vmt-clip],[data-vmt-track],[data-right-tab],[data-left-tab]'))setTimeout(()=>scratchScheduleRouteV36(),0)},false);
+document.addEventListener('pointerup',e=>{if(e.target.closest?.('#canvasStage,.mediaAudioTrackCanvas,.videoMtTrack,#mediaVideoPreviewFrame,.pdfPageViewport,.pdfOverlayComponent'))setTimeout(()=>scratchScheduleRouteV36(),0)},false);
+document.addEventListener('focusin',e=>{const b=e.target.closest?.('.docBlock[data-block-id]');if(b){activeBlockId=b.dataset.blockId;scratchScheduleRouteV36()}},false);
+const scratchPdfRefreshChromeRouteV36Base=scratchPdfRefreshChrome;
+scratchPdfRefreshChrome=function(s){const r=scratchPdfRefreshChromeRouteV36Base(s);scratchScheduleRouteV36();return r};
+
+if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(scratchRestoreRouteV36,0),{once:true});else setTimeout(scratchRestoreRouteV36,0);
 </script>
 
 
