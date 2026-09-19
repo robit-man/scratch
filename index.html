@@ -6346,7 +6346,7 @@ function scratchToggleSyncLeftDrawer(){
     if(document.body.classList.contains('history-open'))setHistoryOpen(false);
   }else{
     scratchCloseMobileSecondarySurfaces?.('left');
-    openLeftTab?.(typeof leftTab==='string'&&leftTab?leftTab:'files');
+    window.__scratchOpenLeftTab?.(document.querySelector('[data-left-tab].active')?.dataset.leftTab||'files');
     document.body.classList.add('left-mobile-open');
   }
   scratchSyncDrawerAria();
@@ -6529,7 +6529,7 @@ runEntityAction=function(type,id,action){
 document.addEventListener('contextmenu',e=>{const row=e.target.closest?.('.scratchDocTabRow[data-tab-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const id=row.dataset.tabId;if(ytabs?.get(id)?.docId===activeDocId)scratchSetActiveTab(id);openEntityContextMenu('tab',id,e.clientX,e.clientY)},true);
 // Three-dot buttons on tree items and tabs now open that same menu rather than a second inline/prompt action UI.
 document.addEventListener('click',e=>{const docMenu=e.target.closest?.('.docItemMenu');if(docMenu){const row=docMenu.closest('.docRow[data-doc-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const type=row.dataset.docType==='folder'?'folder':'doc',r=docMenu.getBoundingClientRect();openEntityContextMenu(type,row.dataset.docId,r.right,r.bottom);return}const tabMenu=e.target.closest?.('.scratchDocTabRow [data-tab-more]');if(tabMenu){const row=tabMenu.closest('.scratchDocTabRow[data-tab-id]');if(!row)return;e.preventDefault();e.stopImmediatePropagation();const r=tabMenu.getBoundingClientRect();openEntityContextMenu('tab',row.dataset.tabId,r.right,r.bottom)}},true);
-const leftNewCanvasBtn=$('#leftNewCanvasBtn');if(leftNewCanvasBtn)leftNewCanvasBtn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=createCanvasDocument(activeFolderId);openLeftTab?.('canvas');return id};
+const leftNewCanvasBtn=$('#leftNewCanvasBtn');if(leftNewCanvasBtn)leftNewCanvasBtn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=createCanvasDocument(activeFolderId);window.__scratchOpenLeftTab?.('canvas');return id};
 queueMicrotask(()=>{renderDocNavigator();scratchRenderDocTabs();renderScratchNavigator()});
 
 
@@ -7761,6 +7761,8 @@ async function scratchMediaPersistProjectV6(s,{manual=false,quiet=false}={}){
   const prior=scratchMediaProjectSavingV6.get(s.id);if(prior){await prior;if(!s.__mediaProjectDirty&&!manual)return true}
   const work=(async()=>{
     const payload=scratchMediaProjectPayloadV6(s);if(!payload)return false;
+    /* V42: image state is persisted as the authoritative document, independently of history. */
+    if(s.kind==='image'&&s.image&&!s.image.gif)payload.imageDocument=await scratchImageSerializeDocumentV42(s);
     const packed=await scratchMediaPackValueV6(payload),raw=enc.encode(JSON.stringify(packed)),packet=await encryptBytes(raw,scratchMediaProjectAadV6(s.id));
     await idbPut('files',scratchMediaProjectKeyV6(s.id),packet);
     const meta=assets.get(s.id);if(meta&&!meta.deleted){
@@ -7788,7 +7790,10 @@ async function scratchMediaLoadProjectV6(s){
     if(payload?.format!=='scratch-media-project'||payload.assetId!==s.id||payload.kind!==s.kind)return false;
     if(payload.sourceSha&&s.meta?.sha&&payload.sourceSha!==s.meta.sha)return false;
     s.mediaActions=Array.isArray(payload.actions)?payload.actions:[];scratchMediaCheckpointStore.set(s.id,Array.isArray(payload.checkpoints)?payload.checkpoints:[]);
-    if(s.kind==='image'&&s.image&&Array.isArray(payload.history)&&payload.history.length){s.image.history=payload.history;s.image.historyIndex=Math.max(0,Math.min(payload.history.length-1,Number(payload.historyIndex)));await mediaImageRestore(s,s.image.historyIndex)}
+    if(s.kind==='image'&&s.image){
+      if(s.image.gif&&Array.isArray(payload.history)&&payload.history.length){s.image.history=payload.history;s.image.historyIndex=Math.max(0,Math.min(payload.history.length-1,Number(payload.historyIndex)));await mediaImageRestore(s,s.image.historyIndex)}
+      else if(!s.image.gif)await scratchImageLoadProjectV42(s,payload);
+    }
     else if(s.kind==='audio'&&s.audio&&Array.isArray(payload.history)&&payload.history.length){s.audio.history=payload.history;s.audio.historyIndex=Math.max(0,Math.min(payload.history.length-1,Number(payload.historyIndex)));mediaAudioRestore(s,s.audio.historyIndex);mediaAudioHistoryUi?.(s)}
     else if(s.kind==='video'&&s.video&&Array.isArray(payload.history)&&payload.history.length){s.video.history=payload.history;s.video.historyIndex=Math.max(0,Math.min(payload.history.length-1,Number(payload.historyIndex)));mediaVideoRestore(s,s.video.historyIndex)}
     else if(s.kind==='text'&&payload.text){s.textProject={value:String(payload.text.value??''),history:Array.isArray(payload.text.history)?payload.text.history:[],historyIndex:Number.isInteger(payload.text.historyIndex)?payload.text.historyIndex:-1};const el=$('#mediaTextEditor');if(el)el.value=s.textProject.value}
@@ -8760,9 +8765,6 @@ scratchWorkspaceToolbarMarkup=function(mode){let html=scratchWorkspaceToolbarMar
 const scratchRenderWorkspaceContextV33Base=scratchRenderWorkspaceContext;
 scratchRenderWorkspaceContext=function(mode){scratchRenderWorkspaceContextV33Base(mode);if(mode==='image'){const h=$('#workspaceContextTools'),s=activeMediaEditor;if(h&&s?.image&&!h.querySelector('[data-image-tool="transform"]'))h.insertAdjacentHTML('beforeend','<button data-image-tool="transform">TRANSFORM</button><button data-image-tool="lasso">LASSO</button><button data-image-tool="gradient">GRADIENT</button><button data-image-tool="heal">HEAL</button>')}};
 async function scratchImageImportLayerFileV33(s,file){const decoded=await mediaDecodeImageSource(file),im=s.image,l=mediaImageNewLayer(s,file.name||'Imported image'),x=l.canvas.getContext('2d'),sw=decoded.width,sh=decoded.height,scale=Math.min(1,im.width/sw,im.height/sh),dw=Math.max(1,sw*scale),dh=Math.max(1,sh*scale),dx=(im.width-dw)/2,dy=(im.height-dh)/2;x.drawImage(decoded.source,dx,dy,dw,dh);decoded.close?.();l.sourceBlob=file;l.contentBounds={x:dx,y:dy,w:dw,h:dh};l.name=file.name||l.name;l.smartObject=true;mediaImageComposite(s);mediaImageRenderLayers(s);await mediaImageSnapshot(s,'import image layer');scratchImageRefreshProUiV33(s)}
-document.addEventListener('dragover',e=>{const s=activeMediaEditor;if(s?.kind!=='image'||!document.body.classList.contains('media-workspace-mode'))return;if([...(e.dataTransfer?.items||[])].some(i=>i.kind==='file'&&i.type.startsWith('image/'))){e.preventDefault();e.dataTransfer.dropEffect='copy';$('#mediaImageViewport')?.classList.add('mediaImageDropActive')}},true);
-document.addEventListener('dragleave',e=>{if(!e.relatedTarget)$('#mediaImageViewport')?.classList.remove('mediaImageDropActive')},true);
-document.addEventListener('drop',async e=>{const s=activeMediaEditor;if(s?.kind!=='image'||!document.body.classList.contains('media-workspace-mode'))return;const files=[...(e.dataTransfer?.files||[])].filter(f=>f.type.startsWith('image/'));if(!files.length)return;e.preventDefault();e.stopImmediatePropagation();$('#mediaImageViewport')?.classList.remove('mediaImageDropActive');for(const f of files)await scratchImageImportLayerFileV33(s,f)},true);
 document.addEventListener('click',async e=>{const s=activeMediaEditor;if(s?.kind!=='image')return;const b=e.target.closest?.('[data-image-pro-act],[data-image-fx-remove],[data-image-pro-row],[data-image-group-act]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();await mediaImageClick(e,s)},true);
 document.addEventListener('input',e=>{const s=activeMediaEditor;if(s?.kind!=='image')return;if(e.target.closest?.('#mediaImageProRoot')||e.target.matches?.('[data-image-group-opacity],[data-image-group-name]'))mediaImageInput(e,s)},true);
 document.addEventListener('change',e=>{const s=activeMediaEditor;if(s?.kind!=='image')return;if(e.target.closest?.('#mediaImageProRoot')||e.target.matches?.('[data-image-group-opacity],[data-image-group-name]'))mediaImageInput(e,s)},true);
@@ -8812,6 +8814,8 @@ const mediaImageEditorV34Base=MEDIA_WORKSPACE_EDITORS.image;
 MEDIA_WORKSPACE_EDITORS.image=async function(s){
   await mediaImageEditorV34Base(s);
   const im=s.image;if(!im)return;
+  /* V42: the initially decoded asset is the canonical source layer before any baseline is captured. */
+  const sourceLayer=im.layers?.[0];if(sourceLayer){sourceLayer.sourceAssetId=s.id;sourceLayer.sourceName=s.meta?.name||'';sourceLayer.smartObject=true;sourceLayer.__canonicalSource=true;}
   const baseline=await scratchImageBuildSnapshotV34(s,'Original');
   s.__imageSourceBaselineV34=baseline;
   im.history=[baseline];im.historyIndex=0;
@@ -8834,20 +8838,6 @@ function scratchImageEnsureDisplayV35(s,{fit=false}={}){
     return true;
   }catch(err){console.error('image display recovery',err);return false}
 }
-const scratchMediaLoadProjectV35Base=scratchMediaLoadProjectV6;
-scratchMediaLoadProjectV6=async function(s){
-  const ok=await scratchMediaLoadProjectV35Base(s);
-  if(s?.kind==='image'&&s.image){
-    const structurallyValid=scratchImageEnsureDisplayV35(s,{fit:true});
-    if(!structurallyValid&&s.__imageSourceBaselineV34){
-      s.image.history=[s.__imageSourceBaselineV34];s.image.historyIndex=0;
-      await mediaImageRestore(s,0);
-      scratchImageEnsureDisplayV35(s,{fit:true});
-    }
-  }
-  return ok;
-};
-
 const mediaImageSnapshotV34Base=mediaImageSnapshot;
 mediaImageSnapshot=async function(s,label='Edit'){
   const r=await mediaImageSnapshotV34Base(s,label),im=s?.image,baseline=s?.__imageSourceBaselineV34;if(!im||!baseline)return r;
@@ -8857,21 +8847,6 @@ mediaImageSnapshot=async function(s,label='Edit'){
   let idx=im.history.indexOf(current);if(idx<0)idx=im.history.length-1;im.historyIndex=idx;
   scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();return im.history[im.historyIndex];
 };
-const scratchMediaLoadProjectV34Base=scratchMediaLoadProjectV6;
-scratchMediaLoadProjectV6=async function(s){
-  const ok=await scratchMediaLoadProjectV34Base(s);
-  if(s?.kind!=='image'||!s.image||!s.__imageSourceBaselineV34)return ok;
-  const im=s.image,baseline=s.__imageSourceBaselineV34,old=Array.isArray(im.history)?im.history:[],oldIndex=Math.max(0,Math.min(old.length-1,Number(im.historyIndex)||0)),oldCurrent=old[oldIndex];
-  let hist=old.filter(scratchImageSnapshotValidV34),idx=hist.indexOf(oldCurrent);
-  if(!hist.length){hist=[baseline];idx=0}
-  else if(String(hist[0]?.label||'').trim().toLowerCase()==='original'||hist[0]?.__baseline){const wasFirst=idx===0;hist[0]=baseline;if(wasFirst)idx=0}
-  else{hist.unshift(baseline);if(idx>=0)idx+=1;else idx=Math.min(hist.length-1,Math.max(1,oldIndex+1))}
-  while(hist.length>MEDIA_IMAGE_HISTORY_LIMIT)hist.splice(1,1);
-  im.history=hist;im.historyIndex=Math.max(0,Math.min(hist.length-1,idx<0?hist.length-1:idx));
-  await mediaImageRestore(s,im.historyIndex);
-  scratchImageHistoryButtonsV34(s);return ok;
-};
-
 function scratchImageSnapMoveV34(s,d,p,e){
   const im=s.image,l=mediaImageActiveLayer(s),z=Math.max(.05,im.zoom||1),rawDx=p.x-d.start.x,rawDy=p.y-d.start.y;
   let dx=rawDx,dy=rawDy,fx=null,fy=null;
@@ -9201,7 +9176,7 @@ function scratchWriteRouteV36(){
       if(isCanvasDoc?.()){if(activeCanvasPageId)p.set('page',activeCanvasPageId)}else{const tab=scratchActiveTab?.(activeDocId);if(tab)p.set('tab',tab)}
       const comp=scratchRouteComponentV36();if(comp)p.set('component',comp);
     }
-    if(typeof leftTab==='string'&&leftTab)p.set('left',leftTab);
+    {const lt=document.querySelector('[data-left-tab].active')?.dataset.leftTab;if(lt)p.set('left',lt);}
     if(typeof scratchRightPanelState==='object'&&scratchRightPanelState?.tab)p.set('right',scratchRightPanelState.tab);
     history.replaceState(history.state,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash);
   }catch(err){console.warn('route write failed',err)}
@@ -9233,7 +9208,7 @@ async function scratchRestoreRouteV36(){
         }else{const [ctype,cid='']=String(r.component||'').split(':',2);if(ctype==='block'&&blockMeta?.(cid)?.docId===activeDocId){activeBlockId=cid;propertySelection={kind:'block',id:cid};renderStructuredWorkspace?.();requestAnimationFrame(()=>document.querySelector(`[data-block-id="${CSS.escape(cid)}"]`)?.scrollIntoView?.({block:'center'}))}}
       }
     }
-    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))window.__scratchOpenLeftTab?.(r.left);
     if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
   }catch(err){console.warn('route restore failed',err)}finally{scratchRouteApplyingV36=false;scratchScheduleRouteV36(0)}
 }
@@ -9247,8 +9222,8 @@ const scratchOpenMediaWorkspaceRouteV36Base=openMediaWorkspace;
 openMediaWorkspace=async function(id){const ok=await scratchOpenMediaWorkspaceRouteV36Base(id);if(ok)scratchScheduleRouteV36();return ok};window.__scratchOpenMediaWorkspace=openMediaWorkspace;
 const scratchCloseMediaWorkspaceRouteV36Base=closeMediaWorkspace;
 closeMediaWorkspace=async function(opts={}){const r=await scratchCloseMediaWorkspaceRouteV36Base(opts);scratchScheduleRouteV36();return r};window.__scratchCloseMediaWorkspace=closeMediaWorkspace;
-const scratchOpenLeftTabRouteV36Base=openLeftTab;
-openLeftTab=function(name){const r=scratchOpenLeftTabRouteV36Base(name);scratchScheduleRouteV36();return r};
+const scratchOpenLeftTabRouteV36Base=window.__scratchOpenLeftTab;
+window.__scratchOpenLeftTab=function(name){const r=scratchOpenLeftTabRouteV36Base?.(name);scratchScheduleRouteV36();return r};
 const scratchSetRightPanelTabRouteV36Base=setRightPanelTab;
 setRightPanelTab=function(tab,opts={}){const r=scratchSetRightPanelTabRouteV36Base(tab,opts);scratchScheduleRouteV36();return r};
 
@@ -9274,79 +9249,10 @@ scratchPdfRefreshChrome=function(s){const r=scratchPdfRefreshChromeRouteV36Base(
 
 
 /* ==========================================================================\n   IMAGE WORKSTATION V37 — CANONICAL SOURCE INCLUSION + WORKSPACE FILE DROP\n   ========================================================================== */
-function scratchImageCanvasHasVisiblePixelsV37(canvas){
-  if(!canvas?.width||!canvas?.height)return false;
-  try{
-    const probe=document.createElement('canvas'),n=32;probe.width=n;probe.height=n;
-    const x=probe.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,n,n);x.drawImage(canvas,0,0,n,n);
-    const d=x.getImageData(0,0,n,n).data;for(let i=3;i<d.length;i+=4)if(d[i]>2)return true;
-  }catch(err){console.warn('image visibility probe failed',err);return true}
-  return false;
-}
-async function scratchImageDecodeCanonicalSourceV37(s){
-  const decoded=await mediaDecodeImageSource(s.blob),c=mediaImageLayerCanvas(decoded.width,decoded.height),x=c.getContext('2d',{willReadFrequently:true});
-  x.drawImage(decoded.source,0,0,decoded.width,decoded.height);decoded.close?.();
-  const info={width:c.width,height:c.height,visible:scratchImageCanvasHasVisiblePixelsV37(c)};
-  s.__imageCanonicalSourceInfoV37=info;return{canvas:c,...info};
-}
-function scratchImageTagCanonicalLayerV37(s,l){
-  if(!l)return l;l.sourceAssetId=s.id;l.sourceName=s.meta?.name||'';l.sourceBlob=s.blob;l.smartObject=true;l.contentBounds={x:0,y:0,w:s.image.width,h:s.image.height};
-  scratchImageNormalizeLayerV33(s,l);return l;
-}
-async function scratchImageInstallCanonicalSourceV37(s,{initial=false,repair=false}={}){
-  const im=s?.image;if(!im||im.gif)return false;
-  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical image decode failed',err);return false}
-  if(initial){
-    im.width=decoded.width;im.height=decoded.height;
-    let l=im.layers?.[0];
-    if(!l){l=mediaImageNewLayer(s,s.meta?.name||'Background');im.layers=[l]}
-    l.canvas=decoded.canvas;l.name=s.meta?.name||l.name||'Background';l.offsetX=0;l.offsetY=0;l.visible=true;l.opacity=1;l.blend='source-over';l.locked=false;
-    scratchImageTagCanonicalLayerV37(s,l);im.activeLayerId=l.id;
-    mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);
-    const baseline=await scratchImageBuildSnapshotV34(s,'Original');baseline.__baseline=true;baseline.__canonicalSource=true;
-    s.__imageSourceBaselineV34=baseline;im.history=[baseline];im.historyIndex=0;
-    scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
-    requestAnimationFrame(()=>{if(activeMediaEditor===s){mediaImageFit(s);mediaImageComposite(s)}});
-    return true;
-  }
-  if(!repair||decoded.width!==im.width||decoded.height!==im.height)return false;
-  if(scratchImageCanvasHasVisiblePixelsV37(im.canvas)||!decoded.visible)return false;
-  let l=im.layers.find(q=>q.sourceAssetId===s.id);
-  if(l){l.canvas=decoded.canvas;l.offsetX=0;l.offsetY=0;l.visible=true;if(!Number.isFinite(Number(l.opacity))||Number(l.opacity)<=0)l.opacity=1;scratchImageTagCanonicalLayerV37(s,l)}
-  else{
-    l={id:mediaImageUid('source'),name:s.meta?.name||'Background',type:'raster',canvas:decoded.canvas,visible:true,opacity:1,blend:'source-over',locked:false,offsetX:0,offsetY:0};
-    scratchImageTagCanonicalLayerV37(s,l);im.layers.unshift(l);im.activeLayerId=im.activeLayerId||l.id;
-  }
-  mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);
-  const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered';
-  const repaired=await scratchImageBuildSnapshotV34(s,label);repaired.__baseline=idx===0;repaired.__canonicalSource=idx===0;
-  if(im.history.length)im.history[idx]=repaired;else{im.history=[repaired];im.historyIndex=0}
-  if(idx===0)s.__imageSourceBaselineV34=repaired;
-  s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,120);scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
-  console.warn('Recovered canonical source image into blank editor state',s.id);return true;
-}
-
 /* Preserve source identity in every future image history state. */
 const scratchImageLayerSnapshotV37Base=scratchImageLayerSnapshotV33;
 scratchImageLayerSnapshotV33=async function(s,l){
   const out=await scratchImageLayerSnapshotV37Base(s,l);out.sourceAssetId=l.sourceAssetId||'';out.sourceName=l.sourceName||'';out.smartObject=!!l.smartObject;return out;
-};
-
-/* The adapter always begins with the actual clicked asset as layer zero. This runs
-   after all prior image-editor decorators, before persisted project restoration. */
-const mediaImageEditorV37Base=MEDIA_WORKSPACE_EDITORS.image;
-MEDIA_WORKSPACE_EDITORS.image=async function(s){
-  await mediaImageEditorV37Base(s);
-  if(!s.image?.gif)await scratchImageInstallCanonicalSourceV37(s,{initial:true});
-};
-
-/* A legacy/corrupt project is allowed to restore normal edits, but a completely
-   transparent document may not replace a visibly non-transparent canonical source. */
-const scratchMediaLoadProjectV37Base=scratchMediaLoadProjectV6;
-scratchMediaLoadProjectV6=async function(s){
-  const loaded=await scratchMediaLoadProjectV37Base(s);
-  if(s?.kind==='image'&&!s.image?.gif)await scratchImageInstallCanonicalSourceV37(s,{repair:true});
-  return loaded;
 };
 
 function scratchImageFileLikeV37(f){return !!f&&(String(f.type||'').toLowerCase().startsWith('image/')||/\.(png|jpe?g|webp|bmp|gif|avif|svg)$/i.test(String(f.name||'')))}
@@ -9365,19 +9271,6 @@ async function scratchImageImportLayerAtV37(s,file,point=null,ordinal=0){
 /* Keep older callers working, but make imports use the same real layer path. */
 scratchImageImportLayerFileV33=async function(s,file,opts={}){return scratchImageImportLayerAtV37(s,file,opts?.point||null,opts?.ordinal||0)};
 
-/* Capture external file drops at window level so legacy document-level handlers
-   cannot swallow them. Internal layer-reorder drags contain no files and pass through. */
-window.addEventListener('dragover',e=>{
-  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!workspace||!document.body.classList.contains('media-workspace-mode'))return;
-  const items=[...(e.dataTransfer?.items||[])];if(!items.some(i=>i.kind==='file'))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';workspace.classList.add('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.add('mediaImageDropActive');
-},true);
-window.addEventListener('dragleave',e=>{if(!e.relatedTarget){$('#mediaWorkspace')?.classList.remove('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.remove('mediaImageDropActive')}},true);
-window.addEventListener('drop',e=>{
-  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!workspace||!document.body.classList.contains('media-workspace-mode'))return;
-  const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);if(!files.length)return;
-  e.preventDefault();e.stopImmediatePropagation();workspace.classList.remove('mediaImageWorkspaceDropV37');$('#mediaImageViewport')?.classList.remove('mediaImageDropActive');
-  const point=scratchImageDropPointV37(s,e);(async()=>{for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);mediaImageComposite(s);mediaImageRenderLayers(s);scratchScheduleRouteV36?.()})().catch(err=>{console.error('image layer drop failed',err);toast('<b>Could not import image layer.</b> '+escapeHtml(err.message||err),'bad')});
-},true);
 
 const scratchImageDropStyleV37=document.getElementById('scratchImageDropStyleV37')||document.head.appendChild(Object.assign(document.createElement('style'),{id:'scratchImageDropStyleV37'}));
 scratchImageDropStyleV37.textContent=`#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorMain{outline:2px solid #75a8cf;outline-offset:-3px}#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorStage:after{content:'DROP IMAGE · NEW LAYER';position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:200;padding:7px 10px;border:1px solid #6688a2;background:rgba(8,12,15,.92);color:#bcd2e2;font:800 8px var(--mono);letter-spacing:.08em;pointer-events:none}`;
@@ -9385,87 +9278,6 @@ scratchImageDropStyleV37.textContent=`#mediaWorkspace.mediaImageWorkspaceDropV37
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(scratchRestoreRouteV36,0),{once:true});else setTimeout(scratchRestoreRouteV36,0);
 
 /* ==========================================================================\n   IMAGE WORKSTATION V38 — OPEN-STABILITY + ASSET-PANEL LAYER DROP\n   ========================================================================== */
-function scratchImageResetCanonicalLayerV38(s,l,decoded){
-  const im=s.image;
-  l.canvas=decoded.canvas;
-  l.name=s.meta?.name||l.name||'Background';
-  l.type='raster';
-  l.visible=true;
-  l.opacity=1;
-  l.blend='source-over';
-  l.locked=false;
-  l.offsetX=0;l.offsetY=0;
-  l.groupId='';l.clipped=false;l.lockAlpha=false;
-  l.maskCanvas=null;l.maskEnabled=false;l.maskLinked=true;
-  l.effects=[];
-  l.styles=scratchImageDefaultStylesV33();
-  l.transform=scratchImageDefaultTransformV33(s);
-  l.contentBounds={x:0,y:0,w:im.width,h:im.height};
-  scratchImageTagCanonicalLayerV37(s,l);
-  return l;
-}
-async function scratchImageForceVisibleCanonicalV38(s,{persist=true,reason='open repair'}={}){
-  const im=s?.image;
-  if(!im||im.gif||activeMediaEditor!==s)return false;
-  const sourceInfo=s.__imageCanonicalSourceInfoV37;
-  /* A transparent source is legitimately transparent; do not invent pixels. */
-  if(sourceInfo&&sourceInfo.visible===false)return false;
-  if(scratchImageCanvasHasVisiblePixelsV37(im.canvas))return false;
-  let decoded;
-  try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('image source reassert failed',err);return false}
-  if(!decoded.visible)return false;
-  if(im.width!==decoded.width||im.height!==decoded.height){im.width=decoded.width;im.height=decoded.height}
-  let layer=im.layers?.find(l=>l.sourceAssetId===s.id);
-  if(!layer){
-    layer=mediaImageNewLayer(s,s.meta?.name||'Background');
-    /* mediaImageNewLayer appends; keep the canonical source as the bottom layer. */
-    const i=im.layers.indexOf(layer);if(i>=0)im.layers.splice(i,1);
-    im.layers.unshift(layer);
-  }
-  scratchImageResetCanonicalLayerV38(s,layer,decoded);
-  if(!im.activeLayerId||!im.layers.some(l=>l.id===im.activeLayerId))im.activeLayerId=layer.id;
-  scratchImageNormalizeDocV33(s);
-  mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33(s);
-  /* If a malformed legacy layer stack still suppresses the source, place the repaired
-     source at the top. This happens only when the final composite is still transparent. */
-  if(!scratchImageCanvasHasVisiblePixelsV37(im.canvas)){
-    im.layers=im.layers.filter(l=>l!==layer);im.layers.push(layer);im.activeLayerId=layer.id;
-    mediaImageComposite(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33(s);
-  }
-  if(!scratchImageCanvasHasVisiblePixelsV37(im.canvas))return false;
-  const idx=Math.max(0,Math.min((im.history?.length||1)-1,Number(im.historyIndex)||0));
-  const snap=await scratchImageBuildSnapshotV34(s,im.history?.[idx]?.label||'Recovered source');
-  snap.__baseline=idx===0;snap.__canonicalSource=idx===0;
-  if(!Array.isArray(im.history)||!im.history.length){im.history=[snap];im.historyIndex=0}else{im.history[idx]=snap;im.historyIndex=idx}
-  if(idx===0)s.__imageSourceBaselineV34=snap;
-  scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
-  if(persist){s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,80)}
-  console.warn('Reasserted canonical source after transparent image-project restore',s.id,reason);
-  return true;
-}
-
-/* This is intentionally the outermost project-load wrapper. The source is painted by
-   the adapter first; legacy project restoration may then replace it. Validate the
-   final post-restore composite, and check again after browser paint to catch any late
-   microtask/RAF writer. */
-const scratchMediaLoadProjectV38Base=scratchMediaLoadProjectV6;
-scratchMediaLoadProjectV6=async function(s){
-  const loaded=await scratchMediaLoadProjectV38Base(s);
-  if(s?.kind==='image'&&!s.image?.gif){
-    await scratchImageForceVisibleCanonicalV38(s,{persist:true,reason:'project load'});
-    const guard=()=>{if(activeMediaEditor===s)scratchImageForceVisibleCanonicalV38(s,{persist:true,reason:'late open pass'}).catch(console.error)};
-    queueMicrotask(guard);
-    requestAnimationFrame(()=>requestAnimationFrame(guard));
-    setTimeout(guard,120);
-  }
-  return loaded;
-};
-
-function scratchImageAssetDragIdV38(dt){
-  if(!dt)return'';
-  try{return String(dt.getData('application/x-scratch-asset')||'')}catch(_){return''}
-}
-function scratchImageHasAssetDragV38(dt){return !!dt&&[...(dt.types||[])].includes('application/x-scratch-asset')}
 async function scratchImageImportAssetLayerV38(s,assetId,point=null){
   const meta=assets.get(String(assetId));
   if(!meta||meta.deleted)throw new Error('asset unavailable');
@@ -9480,24 +9292,6 @@ function scratchImageSetDropUiV38(on,label='DROP IMAGE · NEW LAYER'){
   const ws=$('#mediaWorkspace'),vp=$('#mediaImageViewport');ws?.classList.toggle('mediaImageWorkspaceDropV37',!!on);vp?.classList.toggle('mediaImageDropActive',!!on);if(ws)ws.dataset.imageDropLabel=on?label:'';
 }
 
-/* Asset cards already publish application/x-scratch-asset. Unlike OS file drags,
-   DataTransfer.files is empty, so this dedicated capture path materializes the existing
-   encrypted asset and inserts it directly as a smart/editable layer. */
-window.addEventListener('dragover',e=>{
-  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');
-  if(s?.kind!=='image'||!workspace||!scratchImageHasAssetDragV38(e.dataTransfer))return;
-  e.preventDefault();e.stopPropagation();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';scratchImageSetDropUiV38(true,'DROP ASSET · NEW LAYER');
-},true);
-window.addEventListener('drop',e=>{
-  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');
-  if(s?.kind!=='image'||!workspace||!scratchImageHasAssetDragV38(e.dataTransfer))return;
-  const assetId=scratchImageAssetDragIdV38(e.dataTransfer);if(!assetId)return;
-  e.preventDefault();e.stopImmediatePropagation();scratchImageSetDropUiV38(false);
-  const point=scratchImageDropPointV37(s,e);
-  scratchImageImportAssetLayerV38(s,assetId,point).catch(err=>{console.error('asset image layer drop failed',err);toast('<b>Could not add asset as image layer.</b> '+escapeHtml(err.message||err),'bad')});
-},true);
-
-window.addEventListener('dragend',()=>scratchImageSetDropUiV38(false),true);
 
 /* ==========================================================================
    V39 — AUTHORITATIVE LIVE ROUTE STATE + RELOAD RESTORE + CANVAS DESELECT
@@ -9587,7 +9381,7 @@ function scratchRouteWriteV39({force=false}={}){
       else{const tab=scratchActiveTab?.(activeDocId);if(tab)p.set('stab',String(tab))}
       const focus=scratchRouteFocusV39();if(focus)p.set('focus',focus);
     }
-    if(typeof leftTab==='string'&&leftTab)p.set('left',leftTab);
+    {const lt=document.querySelector('[data-left-tab].active')?.dataset.leftTab;if(lt)p.set('left',lt);}
     if(typeof scratchRightPanelState==='object'&&scratchRightPanelState?.tab)p.set('right',scratchRightPanelState.tab);
     const href=u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash;
     if(!force&&href===scratchRouteLastHrefV39)return false;
@@ -9664,7 +9458,7 @@ async function scratchRouteRestoreV39(){
         }
       }
     }
-    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))window.__scratchOpenLeftTab?.(r.left);
     if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
     if(r.rail&&activeMediaEditor&&['project','history'].includes(r.rail))scratchMediaOpenRailTab?.(r.rail);
   }catch(err){console.warn('live route restore failed',err)}finally{
@@ -9829,7 +9623,7 @@ async function scratchRestoreDurableMediaRouteV40(){
       await openMediaWorkspace(assetId);
       if(activeMediaEditor?.id===assetId){scratchRouteApplyMediaV39(activeMediaEditor,r);scratchActiveMediaNodeV40=scratchMediaFileNodeForAssetV40(assetId)?.id||r.mfile||'';restored=true;break}
     }
-    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))window.__scratchOpenLeftTab?.(r.left);
     if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
     if(r.rail&&activeMediaEditor&&['project','history'].includes(r.rail))scratchMediaOpenRailTab?.(r.rail);
   }catch(err){console.warn('durable media route restore failed',err)}finally{
@@ -9842,74 +9636,7 @@ async function scratchRestoreDurableMediaRouteV40(){
 }
 if(scratchInitialMediaRouteV40)setTimeout(()=>scratchRestoreDurableMediaRouteV40(),0);
 
-/* IMAGE OPEN INVARIANT ----------------------------------------------------
-   A saved project may add/edit layers, but on initial open it may not silently replace
-   the actual clicked image with a legacy blank/background-only stack. The check is based
-   on canonical layer identity, not merely on whether *some* opaque pixel exists. */
-let scratchImageOpenRepairGenerationV40=0;
-async function scratchImageEnsureCanonicalOnOpenV40(s,{persist=true}={}){
-  const im=s?.image;if(!im||im.gif||activeMediaEditor!==s)return false;
-  let layer=im.layers?.find(l=>String(l.sourceAssetId||'')===String(s.id));
-  const sourceVisible=s.__imageCanonicalSourceInfoV37?.visible;
-  const layerUsable=!!(layer?.canvas&&layer.canvas.width>0&&layer.canvas.height>0&&(sourceVisible===false||scratchImageCanvasHasVisiblePixelsV37(layer.canvas)));
-  if(layerUsable)return false;
-  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical image reopen repair failed',err);return false}
-  if(decoded.visible===false&&sourceVisible===false)return false;
-  const priorActive=im.activeLayerId;
-  if(!layer){
-    layer=mediaImageNewLayer(s,s.meta?.name||'Source');const at=im.layers.indexOf(layer);if(at>=0)im.layers.splice(at,1);im.layers.unshift(layer);
-  }
-  scratchImageResetCanonicalLayerV38(s,layer,decoded);layer.name=s.meta?.name||layer.name||'Source';
-  if(priorActive&&im.layers.some(l=>l.id===priorActive))im.activeLayerId=priorActive;else im.activeLayerId=layer.id;
-  scratchImageNormalizeDocV33(s);mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);
-  /* Replace the current persisted state in-place instead of creating a fake extra edit. */
-  if(Array.isArray(im.history)&&im.history.length){
-    const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered source';
-    const snap=await scratchImageBuildSnapshotV34(s,label);snap.__baseline=idx===0;if(idx===0)snap.__canonicalSource=true;im.history[idx]=snap;if(idx===0)s.__imageSourceBaselineV34=snap;
-    scratchImageHistoryButtonsV34?.(s);scratchRenderMediaRail?.();
-  }
-  if(persist){s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,100)}
-  return true;
-}
-const scratchOpenMediaWorkspaceV40ImageBase=openMediaWorkspace;
-openMediaWorkspace=async function(id){
-  const generation=++scratchImageOpenRepairGenerationV40,r=await scratchOpenMediaWorkspaceV40ImageBase(id),s=activeMediaEditor;
-  if(r&&s?.kind==='image'&&!s.image?.gif){
-    const pass=()=>{if(generation===scratchImageOpenRepairGenerationV40&&activeMediaEditor===s)scratchImageEnsureCanonicalOnOpenV40(s,{persist:true}).catch(console.error)};
-    await pass();[60,180,450,900,1600].forEach(ms=>setTimeout(pass,ms));
-  }
-  return r;
-};
-window.__scratchOpenMediaWorkspace=openMediaWorkspace;
-
-/* ASSET / FILE → IMAGE LAYER DND ----------------------------------------
-   Publish the canonical asset id from every asset representation, then own image drops
-   in capture phase so nested editor handlers cannot consume or cancel the transfer. */
-document.addEventListener('dragstart',e=>{
-  const src=e.target?.closest?.('#assetList .card[data-id],[data-asset-id]');if(!src||!e.dataTransfer)return;
-  let id=src.dataset.id||src.dataset.assetId||'';
-  if(src.dataset.docType==='media'){const n=scratchMediaFileNodeV40(src.dataset.docId);id=n?.assetId||id}
-  if(!id||!assets?.get?.(id))return;
-  try{e.dataTransfer.setData('application/x-scratch-asset',String(id));e.dataTransfer.setData('text/plain',String(id));e.dataTransfer.effectAllowed='copy'}catch(_){}
-},true);
-function scratchImageDropAssetIdV40(dt){
-  if(!dt)return'';let id='';try{id=dt.getData('application/x-scratch-asset')||''}catch(_){}
-  if(!id)try{const t=String(dt.getData('text/plain')||'').trim();if(assets?.get?.(t))id=t}catch(_){}
-  return String(id||'');
-}
-function scratchImageDropEligibleV40(dt){if(!dt)return false;const types=[...(dt.types||[])];return !!(scratchImageDropAssetIdV40(dt)||dt.files?.length||types.includes('application/x-scratch-asset')||types.includes('Files'))}
-document.addEventListener('dragover',e=>{
-  const s=activeMediaEditor,ws=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!ws||!scratchImageDropEligibleV40(e.dataTransfer))return;
-  e.preventDefault();e.stopImmediatePropagation();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';scratchImageSetDropUiV38?.(true,scratchImageDropAssetIdV40(e.dataTransfer)?'DROP ASSET · NEW LAYER':'DROP IMAGE · NEW LAYER');
-},true);
-document.addEventListener('drop',e=>{
-  const s=activeMediaEditor,ws=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!ws||!scratchImageDropEligibleV40(e.dataTransfer))return;
-  e.preventDefault();e.stopImmediatePropagation();scratchImageSetDropUiV38?.(false);const point=scratchImageDropPointV37(s,e),assetId=scratchImageDropAssetIdV40(e.dataTransfer);
-  (async()=>{
-    if(assetId){await scratchImageImportAssetLayerV38(s,assetId,point);return}
-    const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);
-  })().catch(err=>{console.error('image workspace drop failed',err);toast('<b>Could not add image layer.</b> '+escapeHtml(err.message||err),'bad')});
-},true);
+/* V42 owns image document initialization and image-editor drag/drop. */
 
 /* TRUE-SIZE COLLABORATIVE POINTERS + STRUCTURED DOCUMENT POINTERS -------- */
 const scratchPeerStyleV40=document.getElementById('scratchPeerStyleV40')||document.head.appendChild(Object.assign(document.createElement('style'),{id:'scratchPeerStyleV40'}));
@@ -9946,194 +9673,120 @@ document.addEventListener('scroll',()=>requestAnimationFrame(scratchRenderDocPee
 if(scratchInitialMediaRouteV40)setTimeout(()=>scratchRestoreDurableMediaRouteV40(),40);
 
 
+
 /* ==========================================================================
-   IMAGE WORKSTATION V41 — AUTHORITATIVE SOURCE / DND / PROJECT PERSISTENCE
+   IMAGE WORKSTATION V42 — SINGLE-OWNER DOCUMENT / RESTORE / DROP PIPELINE
    --------------------------------------------------------------------------
-   Fixes three regressions at the boundary where they actually occur:
-   1. Unified Editor History must still schedule encrypted project persistence.
-   2. A restored legacy image project may not erase/cover the clicked source with
-      a broken placeholder state after the initial paint.
-   3. Asset drags retain their canonical asset id even when the browser withholds
-      custom DataTransfer payloads during dragover.
+   Ownership rules:
+   - s.image is the authoritative live ImageDocument.
+   - encrypted project payload.imageDocument is the authoritative persisted document.
+   - history is undo/redo metadata/state, never the primary database for the document.
+   - #mediaEditorStage owns all external image drops while the image editor is active.
+   - the canonical opened asset is tagged once as sourceAssetId and is never recovered
+     through delayed timers or post-paint heuristics.
    ========================================================================== */
-
-/* Unified-history V31 replaced the V6 action wrapper and accidentally removed the
-   autosave side effect. Put persistence back at the current, final action boundary. */
-const scratchMediaRecordActionV41Base=scratchMediaRecordAction;
-scratchMediaRecordAction=function(s,label){
-  const r=scratchMediaRecordActionV41Base(s,label);
-  if(s&&String(label||'').trim().toLowerCase()!=='original')scratchMediaSchedulePersistV6?.(s,180);
-  return r;
-};
-
-function scratchImageCanvasStatsV41(canvas){
-  const out={alpha:0,variance:0,mean:0,samples:0};
-  if(!canvas?.width||!canvas?.height)return out;
-  try{
-    const n=24,p=document.createElement('canvas');p.width=n;p.height=n;
-    const x=p.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,n,n);x.drawImage(canvas,0,0,n,n);
-    const d=x.getImageData(0,0,n,n).data;let sum=0,sum2=0,alpha=0,count=0;
-    for(let i=0;i<d.length;i+=4){const a=d[i+3]/255;if(a>.01)alpha++;const y=(.299*d[i]+.587*d[i+1]+.114*d[i+2]);sum+=y;sum2+=y*y;count++}
-    const mean=count?sum/count:0;out.alpha=count?alpha/count:0;out.mean=mean;out.variance=count?Math.max(0,sum2/count-mean*mean):0;out.samples=count;
-  }catch(err){console.warn('image stats probe failed',err);out.alpha=1;out.variance=1}
-  return out;
+function scratchImageDocLayerV42(s,l){
+  return scratchImageLayerSnapshotV33(s,l).then(q=>{q.sourceAssetId=l.sourceAssetId||'';q.sourceName=l.sourceName||'';q.smartObject=!!l.smartObject;q.__canonicalSource=!!l.__canonicalSource;if(q.sourceAssetId)q.sourceBlob=null;return q});
 }
-function scratchImageLayerIsLegacyPlaceholderV41(l,sourceStats){
-  if(!l?.canvas||l.sourceAssetId)return false;
-  const name=String(l.name||'').trim().toLowerCase(),named=/^(background|layer\s*1|source|image)$/.test(name);
-  const st=scratchImageCanvasStatsV41(l.canvas),sourceDetailed=(sourceStats?.variance||0)>80;
-  const blankish=st.alpha<.01||(sourceDetailed&&st.variance<8);
-  return named&&blankish;
+async function scratchImageSerializeDocumentV42(s){
+  const im=s?.image;if(!im||im.gif)return null;scratchImageNormalizeDocV33(s);
+  return{format:'scratch-image-document',version:2,sourceAssetId:s.id,sourceSha:s.meta?.sha||'',width:im.width,height:im.height,activeLayerId:im.activeLayerId,
+    selection:im.selection?{...im.selection}:null,selectionRle:scratchImageRleEncodeV33(im.selectionMask),groups:scratchImageClonePlainV33(im.groups||[]),guides:scratchImageClonePlainV33(im.guides||[]),showGrid:!!im.showGrid,gridSize:im.gridSize||32,brush:scratchImageClonePlainV33(im.brush||{}),
+    layers:await Promise.all((im.layers||[]).map(l=>scratchImageDocLayerV42(s,l)))};
 }
-function scratchImageNormalizeCanonicalPresentationV41(s,l){
-  if(!l)return;
-  l.visible=true;l.opacity=1;l.blend='source-over';l.locked=false;l.offsetX=0;l.offsetY=0;
-  l.groupId='';l.clipped=false;l.maskEnabled=false;
-  if(l.transform){l.transform={...scratchImageDefaultTransformV33(s),x:0,y:0,scaleX:1,scaleY:1,rotation:0,flipX:false,flipY:false}}
+async function scratchImageHydrateLayerV42(s,src,w,h){
+  const plain=scratchImageClonePlainV33(src||{}),c=await scratchImageBlobCanvasV33(src?.blob,w,h),l={...plain,canvas:c};delete l.blob;delete l.maskBlob;
+  if(src?.maskBlob?.size)l.maskCanvas=await scratchImageBlobCanvasV33(src.maskBlob,w,h);
+  scratchImageNormalizeLayerV33(s,l);return l;
 }
-async function scratchImageReconcileCanonicalV41(s,{persist=true,reason='open'}={}){
-  const im=s?.image;if(!im||im.gif||activeMediaEditor!==s)return false;
-  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical source reconcile decode failed',err);return false}
-  const sourceStats=scratchImageCanvasStatsV41(decoded.canvas),sourceVisible=decoded.visible!==false;
-  if(im.width!==decoded.width||im.height!==decoded.height){
-    /* A legacy broken project can carry a 1x1/zero-ish document. The clicked asset
-       owns the initial document geometry; valid edited projects keep matching geometry. */
-    const obviouslyBroken=!Number.isFinite(Number(im.width))||!Number.isFinite(Number(im.height))||im.width<2||im.height<2;
-    if(obviouslyBroken){im.width=decoded.width;im.height=decoded.height}
+async function scratchImageCanonicalLayerV42(s,w=s.image.width,h=s.image.height){
+  const decoded=await mediaDecodeImageSource(s.blob),c=mediaImageLayerCanvas(w||decoded.width,h||decoded.height),x=c.getContext('2d',{willReadFrequently:true});
+  x.drawImage(decoded.source,0,0,c.width,c.height);decoded.close?.();
+  const l={id:mediaImageUid('source'),name:s.meta?.name||'Source',type:'raster',canvas:c,visible:true,opacity:1,blend:'source-over',locked:false,offsetX:0,offsetY:0,sourceAssetId:s.id,sourceName:s.meta?.name||'',smartObject:true,__canonicalSource:true,contentBounds:{x:0,y:0,w:c.width,h:c.height}};
+  scratchImageNormalizeLayerV33(s,l);return l;
+}
+function scratchImageLegacyLayerLooksBlankV42(canvas){
+  if(!canvas?.width||!canvas?.height)return true;try{const x=canvas.getContext('2d',{willReadFrequently:true}),w=canvas.width,h=canvas.height,step=Math.max(1,Math.floor(Math.sqrt((w*h)/4096))),d=x.getImageData(0,0,w,h).data;let n=0,a=0,min=255,max=0;for(let y=0;y<h;y+=step)for(let xx=0;xx<w;xx+=step){const i=(y*w+xx)*4,al=d[i+3];if(!al)continue;const v=(d[i]+d[i+1]+d[i+2])/3;a+=al;n++;if(v<min)min=v;if(v>max)max=v}return !n||a/(n*255)<.01||(max-min)<3}catch(_){return false}}
+async function scratchImageApplyDocumentV42(s,doc,{legacy=false}={}){
+  const im=s.image;if(!im||!doc)return false;let w=Math.max(1,Number(doc.width)||im.width||1),h=Math.max(1,Number(doc.height)||im.height||1),layers=[];
+  for(const src of doc.layers||[])try{layers.push(await scratchImageHydrateLayerV42(s,src,w,h))}catch(err){console.warn('image layer hydrate skipped',src?.name,err)}
+  const tagged=layers.find(l=>String(l.sourceAssetId||'')===String(s.id));
+  if(legacy&&!tagged){
+    /* One-time migration only: old projects did not store source identity. A sole
+       blank/placeholder raster may not replace the actual file that was opened. */
+    if(layers.length===1&&scratchImageLegacyLayerLooksBlankV42(layers[0].canvas))layers=[];
+    const source=await scratchImageCanonicalLayerV42(s,w,h);layers.unshift(source);
   }
-  let changed=false,layer=im.layers?.find(q=>String(q.sourceAssetId||'')===String(s.id));
-  if(layer){
-    const layerStats=scratchImageCanvasStatsV41(layer.canvas);
-    if(sourceVisible&&layerStats.alpha<.01){layer.canvas=decoded.canvas;changed=true}
-  }else{
-    const candidate=(im.layers||[]).find(q=>scratchImageLayerIsLegacyPlaceholderV41(q,sourceStats));
-    if(candidate){
-      candidate.canvas=decoded.canvas;layer=candidate;changed=true;
-    }else{
-      layer={id:mediaImageUid('source'),name:s.meta?.name||'Source',type:'raster',canvas:decoded.canvas,visible:true,opacity:1,blend:'source-over',locked:false,offsetX:0,offsetY:0};
-      scratchImageNormalizeLayerV33(s,layer);im.layers||(im.layers=[]);im.layers.unshift(layer);changed=true;
-    }
+  if(!layers.length)layers=[await scratchImageCanonicalLayerV42(s,w,h)];
+  im.width=w;im.height=h;im.layers=layers;im.activeLayerId=layers.some(l=>l.id===doc.activeLayerId)?doc.activeLayerId:layers.at(-1)?.id;
+  im.groups=scratchImageClonePlainV33(doc.groups||[]);im.guides=scratchImageClonePlainV33(doc.guides||[]);im.showGrid=!!doc.showGrid;im.gridSize=Math.max(4,Number(doc.gridSize)||32);im.brush={...(im.brush||{}),...(scratchImageClonePlainV33(doc.brush||{}))};
+  im.selection=doc.selection?{...doc.selection}:null;im.selectionMask=scratchImageRleDecodeV33(doc.selectionRle,w*h);im.selectionRuns=im.selectionMask?scratchImageMaskRunsV28(im.selectionMask,w,h):null;im.selectionMaskCanvas=im.selectionMask?scratchImageMaskCanvasV33(im,im.selectionMask):null;
+  scratchImageNormalizeDocV33(s);mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);return true;
+}
+async function scratchImageLoadProjectV42(s,payload){
+  const im=s.image;if(!im||im.gif)return false;
+  const hasDocument=payload?.imageDocument?.format==='scratch-image-document'&&
+    (!payload.imageDocument.sourceAssetId||payload.imageDocument.sourceAssetId===s.id)&&
+    (!payload.imageDocument.sourceSha||!s.meta?.sha||payload.imageDocument.sourceSha===s.meta.sha);
+  let restored=false;
+  if(hasDocument)restored=await scratchImageApplyDocumentV42(s,payload.imageDocument,{legacy:false});
+  if(!restored){
+    /* V42 migration boundary: legacy history is NEVER a document loader. The
+       canonical asset decoded by the adapter remains the live document. This is
+       deliberately strict: it removes the historical second writer responsible
+       for the source-image flash/disappear race. */
+    const l=im.layers?.[0];if(l){l.sourceAssetId=s.id;l.sourceName=s.meta?.name||'';l.smartObject=true;l.__canonicalSource=true;l.visible=true;l.opacity=1}
+    mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);
   }
-  scratchImageTagCanonicalLayerV37(s,layer);layer.name=layer.name&&String(layer.name).toLowerCase()!=='background'?layer.name:(s.meta?.name||'Source');
-
-  /* The most common corrupt state was a single canonical layer whose presentation
-     attributes restored hidden/zero-opacity/off-canvas. A one-layer image document
-     must show its source. This does not disturb intentional multi-layer compositions. */
-  if((im.layers?.length||0)===1){
-    const before=JSON.stringify({v:layer.visible,o:layer.opacity,b:layer.blend,x:layer.offsetX,y:layer.offsetY,g:layer.groupId,m:layer.maskEnabled,t:layer.transform});
-    scratchImageNormalizeCanonicalPresentationV41(s,layer);
-    changed=changed||before!==JSON.stringify({v:layer.visible,o:layer.opacity,b:layer.blend,x:layer.offsetX,y:layer.offsetY,g:layer.groupId,m:layer.maskEnabled,t:layer.transform});
-  }
-
-  scratchImageNormalizeDocV33(s);mediaImageComposite(s);
-  let compStats=scratchImageCanvasStatsV41(im.canvas);
-  /* If the source is detailed but the restored composition is still essentially a
-     flat/transparent placeholder, keep every existing layer but promote the source
-     above them so the opened file cannot disappear. The layers remain editable and
-     can be reordered by the user; nothing is discarded. */
-  const compositionBroken=sourceVisible&&(compStats.alpha<.01||((sourceStats.variance||0)>80&&compStats.variance<8));
-  if(compositionBroken){
-    scratchImageNormalizeCanonicalPresentationV41(s,layer);
-    const idx=im.layers.indexOf(layer);if(idx>=0&&idx!==im.layers.length-1){im.layers.splice(idx,1);im.layers.push(layer)}
-    im.activeLayerId=layer.id;mediaImageComposite(s);compStats=scratchImageCanvasStatsV41(im.canvas);changed=true;
-  }
-  mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);
-  if(!changed)return false;
-
-  /* Repair the currently selected snapshot in-place so refresh cannot reintroduce the
-     same bad state. Then persist immediately, not only through the debounce. */
-  if(Array.isArray(im.history)&&im.history.length){
-    const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered source';
-    const snap=await scratchImageBuildSnapshotV34(s,label);snap.__baseline=idx===0;if(idx===0)snap.__canonicalSource=true;im.history[idx]=snap;im.historyIndex=idx;if(idx===0)s.__imageSourceBaselineV34=snap;
-  }else{
-    const snap=await scratchImageBuildSnapshotV34(s,'Original');snap.__baseline=true;snap.__canonicalSource=true;im.history=[snap];im.historyIndex=0;s.__imageSourceBaselineV34=snap;
-  }
-  scratchImageHistoryButtonsV34?.(s);scratchRenderMediaRail?.();s.__mediaProjectDirty=true;
-  if(persist)await scratchMediaPersistProjectV6?.(s,{quiet:true});
-  console.warn('Reconciled image source/project state',s.id,reason);
-  return true;
+  /* History is secondary. Only a project already written in the V42 document
+     format may restore its edit history. A legacy project receives a fresh,
+     immutable source baseline rather than importing potentially corrupt states. */
+  const baseline=s.__imageSourceBaselineV34||await scratchImageBuildSnapshotV34(s,'Original');baseline.__baseline=true;baseline.__canonicalSource=true;
+  if(restored&&Array.isArray(payload?.history)&&payload.history.length){
+    const old=payload.history.filter(scratchImageSnapshotValidV34),oldIndex=Math.max(0,Math.min(old.length-1,Number(payload.historyIndex)||0));let hist=[],idx=0;
+    if(old.length){const firstIsBaseline=String(old[0]?.label||'').trim().toLowerCase()==='original'||old[0]?.__baseline===true;hist=firstIsBaseline?[baseline,...old.slice(1)]:[baseline,...old];idx=firstIsBaseline?oldIndex:oldIndex+1}else hist=[baseline];
+    while(hist.length>MEDIA_IMAGE_HISTORY_LIMIT)hist.splice(1,1);im.history=hist;im.historyIndex=Math.max(0,Math.min(hist.length-1,idx));
+  }else{im.history=[baseline];im.historyIndex=0}
+  s.__imageSourceBaselineV34=baseline;
+  scratchImageHistoryButtonsV34?.(s);scratchRenderMediaRail?.();
+  if(!hasDocument||!restored){s.__mediaProjectDirty=true;queueMicrotask(()=>scratchMediaPersistProjectV6(s,{quiet:true}).catch(console.error))}
+  return restored;
 }
 
-/* Run reconciliation after every final project load. This is later than all previous
-   load decorators and therefore validates the state the user will actually see. */
-const scratchMediaLoadProjectV41Base=scratchMediaLoadProjectV6;
-scratchMediaLoadProjectV6=async function(s){
-  const loaded=await scratchMediaLoadProjectV41Base(s);
-  if(s?.kind==='image'&&!s.image?.gif)await scratchImageReconcileCanonicalV41(s,{persist:true,reason:'project restore'});
-  return loaded;
-};
-
-/* Also guard late route/project callbacks without continuously rewriting good state. */
-const scratchOpenMediaWorkspaceV41Base=openMediaWorkspace;
-openMediaWorkspace=async function(id){
-  const r=await scratchOpenMediaWorkspaceV41Base(id),s=activeMediaEditor;
-  if(r&&s?.kind==='image'&&!s.image?.gif){
-    const token=Symbol('image-open');s.__imageOpenTokenV41=token;
-    const pass=()=>{if(activeMediaEditor===s&&s.__imageOpenTokenV41===token)scratchImageReconcileCanonicalV41(s,{persist:true,reason:'late open'}).catch(console.error)};
-    await pass();setTimeout(pass,80);setTimeout(pass,280);setTimeout(pass,900);
-  }
-  return r;
-};
-window.__scratchOpenMediaWorkspace=openMediaWorkspace;
-
-/* Asset drag identity fallback. Firefox may expose the custom type but return an empty
-   getData() value until drop. Track the source explicitly so viewport drops still work. */
-let scratchImageDraggedAssetV41='';
+/* One image-stage drag owner. No window/document capture-phase drop handlers. */
+let scratchImageDraggedAssetV42='';
+function scratchImageDragAssetIdV42(dt){let id='';try{id=String(dt?.getData?.('application/x-scratch-asset')||dt?.getData?.('text/x-scratch-asset-id')||'')}catch(_){}return id||scratchImageDraggedAssetV42}
+function scratchImageDragEligibleV42(dt){const types=[...(dt?.types||[])];return !!(scratchImageDraggedAssetV42||types.includes('application/x-scratch-asset')||types.includes('text/x-scratch-asset-id')||types.includes('Files')||dt?.files?.length)}
 document.addEventListener('dragstart',e=>{
-  const src=e.target?.closest?.('#assetList .card[data-id],[data-asset-id]');if(!src)return;
-  let id=String(src.dataset.id||src.dataset.assetId||'');
-  if(src.dataset.docType==='media'&&src.dataset.docId){const n=scratchMediaFileNodeV40?.(src.dataset.docId);id=String(n?.assetId||id)}
-  if(!id||!assets?.get?.(id))return;scratchImageDraggedAssetV41=id;
-  try{e.dataTransfer?.setData('application/x-scratch-asset',id);e.dataTransfer?.setData('text/x-scratch-asset-id',id);e.dataTransfer.effectAllowed='copy'}catch(_){}
-  /* Native IMG dragging can otherwise become the drag source instead of its asset card. */
-  src.querySelectorAll?.('img').forEach(img=>img.draggable=false);
+  const src=e.target?.closest?.('#assetList .card[data-id],#docTree .docRow[data-doc-type="media"][data-asset-id],[data-asset-id]');if(!src||!e.dataTransfer)return;
+  let id=String(src.dataset.id||src.dataset.assetId||'');if(src.dataset.docType==='media'&&src.dataset.docId){const n=scratchMediaFileNodeV40?.(src.dataset.docId);id=String(n?.assetId||id)}
+  if(!id||!assets?.get?.(id))return;scratchImageDraggedAssetV42=id;try{e.dataTransfer.setData('application/x-scratch-asset',id);e.dataTransfer.setData('text/x-scratch-asset-id',id);e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='copy'}catch(_){ }
 },true);
-const scratchImageDropAssetIdV41Base=scratchImageDropAssetIdV40;
-scratchImageDropAssetIdV40=function(dt){
-  let id=scratchImageDropAssetIdV41Base?.(dt)||'';
-  if(!id)try{id=String(dt?.getData?.('text/x-scratch-asset-id')||'')}catch(_){}
-  return String(id||scratchImageDraggedAssetV41||'');
-};
-const scratchImageDropEligibleV41Base=scratchImageDropEligibleV40;
-scratchImageDropEligibleV40=function(dt){return !!scratchImageDraggedAssetV41||scratchImageDropEligibleV41Base(dt)};
-window.addEventListener('dragend',()=>{scratchImageDraggedAssetV41='';scratchImageSetDropUiV38?.(false)},true);
-window.addEventListener('drop',()=>setTimeout(()=>{scratchImageDraggedAssetV41=''},0),true);
-
-/* Bind the actual requested viewport/canvas-wrap drop surfaces as first-class targets.
-   The document capture handler remains as a workspace fallback. */
-function scratchImageBindViewportDropV41(s){
-  const vp=$('#mediaImageViewport'),wrap=$('#mediaImageCanvasWrap');if(!vp)return;
-  for(const el of [vp,wrap].filter(Boolean)){
-    if(el.dataset.imageDropV41==='1')continue;el.dataset.imageDropV41='1';
-    el.addEventListener('dragenter',e=>{if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;e.preventDefault();scratchImageSetDropUiV38?.(true,scratchImageDropAssetIdV40(e.dataTransfer)?'DROP ASSET · NEW LAYER':'DROP IMAGE · NEW LAYER')});
-    el.addEventListener('dragover',e=>{if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy'});
-    el.addEventListener('drop',e=>{
-      if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;
-      e.preventDefault();e.stopPropagation();scratchImageSetDropUiV38?.(false);
-      const point=scratchImageDropPointV37(s,e),assetId=scratchImageDropAssetIdV40(e.dataTransfer);
-      (async()=>{
-        if(assetId){await scratchImageImportAssetLayerV38(s,assetId,point);await scratchMediaPersistProjectV6(s,{quiet:true});return}
-        const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);if(files.length)await scratchMediaPersistProjectV6(s,{quiet:true});
-      })().catch(err=>{console.error('image viewport drop failed',err);toast('<b>Could not add image layer.</b> '+escapeHtml(err.message||err),'bad')});
-    });
-  }
+window.addEventListener('dragend',()=>{scratchImageDraggedAssetV42='';scratchImageSetDropUiV38?.(false)},true);
+function scratchImageBindStageDropV42(){
+  const stage=$('#mediaEditorStage');if(!stage||stage.dataset.imageDropOwnerV42==='1')return;stage.dataset.imageDropOwnerV42='1';
+  /* Bind exactly once to the persistent stage, but resolve the current editor at
+     event time. Never close over a file/session that can later become inactive. */
+  const over=e=>{const s=activeMediaEditor;if(s?.kind!=='image'||!scratchImageDragEligibleV42(e.dataTransfer))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';scratchImageSetDropUiV38?.(true,scratchImageDragAssetIdV42(e.dataTransfer)?'DROP ASSET · NEW LAYER':'DROP IMAGE · NEW LAYER')};
+  stage.addEventListener('dragenter',over);stage.addEventListener('dragover',over);
+  stage.addEventListener('dragleave',e=>{if(!stage.contains(e.relatedTarget))scratchImageSetDropUiV38?.(false)});
+  stage.addEventListener('drop',e=>{
+    const s=activeMediaEditor;if(s?.kind!=='image'||!scratchImageDragEligibleV42(e.dataTransfer))return;e.preventDefault();e.stopPropagation();scratchImageSetDropUiV38?.(false);
+    const point=scratchImageDropPointV37(s,e),assetId=scratchImageDragAssetIdV42(e.dataTransfer),files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);
+    (async()=>{if(assetId){await scratchImageImportAssetLayerV38(s,assetId,point)}else{for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i)}if(assetId||files.length)await scratchMediaPersistProjectV6(s,{quiet:true})})().catch(err=>{console.error('image stage drop failed',err);toast('<b>Could not add image layer.</b> '+escapeHtml(err.message||err),'bad')}).finally(()=>{scratchImageDraggedAssetV42=''});
+  });
 }
-const mediaImageEditorV41Base=MEDIA_WORKSPACE_EDITORS.image;
+const mediaImageEditorV42Base=MEDIA_WORKSPACE_EDITORS.image;
 MEDIA_WORKSPACE_EDITORS.image=async function(s){
-  await mediaImageEditorV41Base(s);scratchImageBindViewportDropV41(s);
-  /* The base adapter has just painted the clicked asset. Keep that visible until the
-     authoritative project load finishes; do not allow a later UI-only refresh to zero it. */
-  if(!s.image?.gif)await scratchImageReconcileCanonicalV41(s,{persist:false,reason:'adapter mount'});
+  await mediaImageEditorV42Base(s);if(!s.image)return;
+  if(!s.image.gif){const l=s.image.layers?.[0];if(l){l.sourceAssetId=s.id;l.sourceName=s.meta?.name||'';l.smartObject=true;l.__canonicalSource=true}}
+  scratchImageBindStageDropV42();mediaImageComposite(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);
 };
 
-/* Existing asset cards are always explicit drag sources after any render. */
-const renderAssetsV41Base=renderAssets;
-renderAssets=async function(){
-  const r=await renderAssetsV41Base();
-  document.querySelectorAll('#assetList .card[data-id]').forEach(card=>{card.draggable=true;card.querySelectorAll('img').forEach(img=>img.draggable=false)});
-  document.querySelectorAll('[data-asset-id]').forEach(row=>row.draggable=true);
-  return r;
-};
+/* Asset cards are explicit drag sources at render time; preview images never own drag. */
+const renderAssetsV42Base=renderAssets;
+renderAssets=async function(){const r=await renderAssetsV42Base();document.querySelectorAll('#assetList .card[data-id],[data-asset-id]').forEach(el=>{el.draggable=true;el.querySelectorAll?.('img').forEach(img=>img.draggable=false)});return r};
+window.__scratchImagePipelineVersion='V42';
 
 </script>
 
