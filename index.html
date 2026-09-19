@@ -9945,6 +9945,196 @@ document.addEventListener('scroll',()=>requestAnimationFrame(scratchRenderDocPee
 /* Re-run the requested media route after all V40 wrappers exist. */
 if(scratchInitialMediaRouteV40)setTimeout(()=>scratchRestoreDurableMediaRouteV40(),40);
 
+
+/* ==========================================================================
+   IMAGE WORKSTATION V41 — AUTHORITATIVE SOURCE / DND / PROJECT PERSISTENCE
+   --------------------------------------------------------------------------
+   Fixes three regressions at the boundary where they actually occur:
+   1. Unified Editor History must still schedule encrypted project persistence.
+   2. A restored legacy image project may not erase/cover the clicked source with
+      a broken placeholder state after the initial paint.
+   3. Asset drags retain their canonical asset id even when the browser withholds
+      custom DataTransfer payloads during dragover.
+   ========================================================================== */
+
+/* Unified-history V31 replaced the V6 action wrapper and accidentally removed the
+   autosave side effect. Put persistence back at the current, final action boundary. */
+const scratchMediaRecordActionV41Base=scratchMediaRecordAction;
+scratchMediaRecordAction=function(s,label){
+  const r=scratchMediaRecordActionV41Base(s,label);
+  if(s&&String(label||'').trim().toLowerCase()!=='original')scratchMediaSchedulePersistV6?.(s,180);
+  return r;
+};
+
+function scratchImageCanvasStatsV41(canvas){
+  const out={alpha:0,variance:0,mean:0,samples:0};
+  if(!canvas?.width||!canvas?.height)return out;
+  try{
+    const n=24,p=document.createElement('canvas');p.width=n;p.height=n;
+    const x=p.getContext('2d',{willReadFrequently:true});x.clearRect(0,0,n,n);x.drawImage(canvas,0,0,n,n);
+    const d=x.getImageData(0,0,n,n).data;let sum=0,sum2=0,alpha=0,count=0;
+    for(let i=0;i<d.length;i+=4){const a=d[i+3]/255;if(a>.01)alpha++;const y=(.299*d[i]+.587*d[i+1]+.114*d[i+2]);sum+=y;sum2+=y*y;count++}
+    const mean=count?sum/count:0;out.alpha=count?alpha/count:0;out.mean=mean;out.variance=count?Math.max(0,sum2/count-mean*mean):0;out.samples=count;
+  }catch(err){console.warn('image stats probe failed',err);out.alpha=1;out.variance=1}
+  return out;
+}
+function scratchImageLayerIsLegacyPlaceholderV41(l,sourceStats){
+  if(!l?.canvas||l.sourceAssetId)return false;
+  const name=String(l.name||'').trim().toLowerCase(),named=/^(background|layer\s*1|source|image)$/.test(name);
+  const st=scratchImageCanvasStatsV41(l.canvas),sourceDetailed=(sourceStats?.variance||0)>80;
+  const blankish=st.alpha<.01||(sourceDetailed&&st.variance<8);
+  return named&&blankish;
+}
+function scratchImageNormalizeCanonicalPresentationV41(s,l){
+  if(!l)return;
+  l.visible=true;l.opacity=1;l.blend='source-over';l.locked=false;l.offsetX=0;l.offsetY=0;
+  l.groupId='';l.clipped=false;l.maskEnabled=false;
+  if(l.transform){l.transform={...scratchImageDefaultTransformV33(s),x:0,y:0,scaleX:1,scaleY:1,rotation:0,flipX:false,flipY:false}}
+}
+async function scratchImageReconcileCanonicalV41(s,{persist=true,reason='open'}={}){
+  const im=s?.image;if(!im||im.gif||activeMediaEditor!==s)return false;
+  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical source reconcile decode failed',err);return false}
+  const sourceStats=scratchImageCanvasStatsV41(decoded.canvas),sourceVisible=decoded.visible!==false;
+  if(im.width!==decoded.width||im.height!==decoded.height){
+    /* A legacy broken project can carry a 1x1/zero-ish document. The clicked asset
+       owns the initial document geometry; valid edited projects keep matching geometry. */
+    const obviouslyBroken=!Number.isFinite(Number(im.width))||!Number.isFinite(Number(im.height))||im.width<2||im.height<2;
+    if(obviouslyBroken){im.width=decoded.width;im.height=decoded.height}
+  }
+  let changed=false,layer=im.layers?.find(q=>String(q.sourceAssetId||'')===String(s.id));
+  if(layer){
+    const layerStats=scratchImageCanvasStatsV41(layer.canvas);
+    if(sourceVisible&&layerStats.alpha<.01){layer.canvas=decoded.canvas;changed=true}
+  }else{
+    const candidate=(im.layers||[]).find(q=>scratchImageLayerIsLegacyPlaceholderV41(q,sourceStats));
+    if(candidate){
+      candidate.canvas=decoded.canvas;layer=candidate;changed=true;
+    }else{
+      layer={id:mediaImageUid('source'),name:s.meta?.name||'Source',type:'raster',canvas:decoded.canvas,visible:true,opacity:1,blend:'source-over',locked:false,offsetX:0,offsetY:0};
+      scratchImageNormalizeLayerV33(s,layer);im.layers||(im.layers=[]);im.layers.unshift(layer);changed=true;
+    }
+  }
+  scratchImageTagCanonicalLayerV37(s,layer);layer.name=layer.name&&String(layer.name).toLowerCase()!=='background'?layer.name:(s.meta?.name||'Source');
+
+  /* The most common corrupt state was a single canonical layer whose presentation
+     attributes restored hidden/zero-opacity/off-canvas. A one-layer image document
+     must show its source. This does not disturb intentional multi-layer compositions. */
+  if((im.layers?.length||0)===1){
+    const before=JSON.stringify({v:layer.visible,o:layer.opacity,b:layer.blend,x:layer.offsetX,y:layer.offsetY,g:layer.groupId,m:layer.maskEnabled,t:layer.transform});
+    scratchImageNormalizeCanonicalPresentationV41(s,layer);
+    changed=changed||before!==JSON.stringify({v:layer.visible,o:layer.opacity,b:layer.blend,x:layer.offsetX,y:layer.offsetY,g:layer.groupId,m:layer.maskEnabled,t:layer.transform});
+  }
+
+  scratchImageNormalizeDocV33(s);mediaImageComposite(s);
+  let compStats=scratchImageCanvasStatsV41(im.canvas);
+  /* If the source is detailed but the restored composition is still essentially a
+     flat/transparent placeholder, keep every existing layer but promote the source
+     above them so the opened file cannot disappear. The layers remain editable and
+     can be reordered by the user; nothing is discarded. */
+  const compositionBroken=sourceVisible&&(compStats.alpha<.01||((sourceStats.variance||0)>80&&compStats.variance<8));
+  if(compositionBroken){
+    scratchImageNormalizeCanonicalPresentationV41(s,layer);
+    const idx=im.layers.indexOf(layer);if(idx>=0&&idx!==im.layers.length-1){im.layers.splice(idx,1);im.layers.push(layer)}
+    im.activeLayerId=layer.id;mediaImageComposite(s);compStats=scratchImageCanvasStatsV41(im.canvas);changed=true;
+  }
+  mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);
+  if(!changed)return false;
+
+  /* Repair the currently selected snapshot in-place so refresh cannot reintroduce the
+     same bad state. Then persist immediately, not only through the debounce. */
+  if(Array.isArray(im.history)&&im.history.length){
+    const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered source';
+    const snap=await scratchImageBuildSnapshotV34(s,label);snap.__baseline=idx===0;if(idx===0)snap.__canonicalSource=true;im.history[idx]=snap;im.historyIndex=idx;if(idx===0)s.__imageSourceBaselineV34=snap;
+  }else{
+    const snap=await scratchImageBuildSnapshotV34(s,'Original');snap.__baseline=true;snap.__canonicalSource=true;im.history=[snap];im.historyIndex=0;s.__imageSourceBaselineV34=snap;
+  }
+  scratchImageHistoryButtonsV34?.(s);scratchRenderMediaRail?.();s.__mediaProjectDirty=true;
+  if(persist)await scratchMediaPersistProjectV6?.(s,{quiet:true});
+  console.warn('Reconciled image source/project state',s.id,reason);
+  return true;
+}
+
+/* Run reconciliation after every final project load. This is later than all previous
+   load decorators and therefore validates the state the user will actually see. */
+const scratchMediaLoadProjectV41Base=scratchMediaLoadProjectV6;
+scratchMediaLoadProjectV6=async function(s){
+  const loaded=await scratchMediaLoadProjectV41Base(s);
+  if(s?.kind==='image'&&!s.image?.gif)await scratchImageReconcileCanonicalV41(s,{persist:true,reason:'project restore'});
+  return loaded;
+};
+
+/* Also guard late route/project callbacks without continuously rewriting good state. */
+const scratchOpenMediaWorkspaceV41Base=openMediaWorkspace;
+openMediaWorkspace=async function(id){
+  const r=await scratchOpenMediaWorkspaceV41Base(id),s=activeMediaEditor;
+  if(r&&s?.kind==='image'&&!s.image?.gif){
+    const token=Symbol('image-open');s.__imageOpenTokenV41=token;
+    const pass=()=>{if(activeMediaEditor===s&&s.__imageOpenTokenV41===token)scratchImageReconcileCanonicalV41(s,{persist:true,reason:'late open'}).catch(console.error)};
+    await pass();setTimeout(pass,80);setTimeout(pass,280);setTimeout(pass,900);
+  }
+  return r;
+};
+window.__scratchOpenMediaWorkspace=openMediaWorkspace;
+
+/* Asset drag identity fallback. Firefox may expose the custom type but return an empty
+   getData() value until drop. Track the source explicitly so viewport drops still work. */
+let scratchImageDraggedAssetV41='';
+document.addEventListener('dragstart',e=>{
+  const src=e.target?.closest?.('#assetList .card[data-id],[data-asset-id]');if(!src)return;
+  let id=String(src.dataset.id||src.dataset.assetId||'');
+  if(src.dataset.docType==='media'&&src.dataset.docId){const n=scratchMediaFileNodeV40?.(src.dataset.docId);id=String(n?.assetId||id)}
+  if(!id||!assets?.get?.(id))return;scratchImageDraggedAssetV41=id;
+  try{e.dataTransfer?.setData('application/x-scratch-asset',id);e.dataTransfer?.setData('text/x-scratch-asset-id',id);e.dataTransfer.effectAllowed='copy'}catch(_){}
+  /* Native IMG dragging can otherwise become the drag source instead of its asset card. */
+  src.querySelectorAll?.('img').forEach(img=>img.draggable=false);
+},true);
+const scratchImageDropAssetIdV41Base=scratchImageDropAssetIdV40;
+scratchImageDropAssetIdV40=function(dt){
+  let id=scratchImageDropAssetIdV41Base?.(dt)||'';
+  if(!id)try{id=String(dt?.getData?.('text/x-scratch-asset-id')||'')}catch(_){}
+  return String(id||scratchImageDraggedAssetV41||'');
+};
+const scratchImageDropEligibleV41Base=scratchImageDropEligibleV40;
+scratchImageDropEligibleV40=function(dt){return !!scratchImageDraggedAssetV41||scratchImageDropEligibleV41Base(dt)};
+window.addEventListener('dragend',()=>{scratchImageDraggedAssetV41='';scratchImageSetDropUiV38?.(false)},true);
+window.addEventListener('drop',()=>setTimeout(()=>{scratchImageDraggedAssetV41=''},0),true);
+
+/* Bind the actual requested viewport/canvas-wrap drop surfaces as first-class targets.
+   The document capture handler remains as a workspace fallback. */
+function scratchImageBindViewportDropV41(s){
+  const vp=$('#mediaImageViewport'),wrap=$('#mediaImageCanvasWrap');if(!vp)return;
+  for(const el of [vp,wrap].filter(Boolean)){
+    if(el.dataset.imageDropV41==='1')continue;el.dataset.imageDropV41='1';
+    el.addEventListener('dragenter',e=>{if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;e.preventDefault();scratchImageSetDropUiV38?.(true,scratchImageDropAssetIdV40(e.dataTransfer)?'DROP ASSET · NEW LAYER':'DROP IMAGE · NEW LAYER')});
+    el.addEventListener('dragover',e=>{if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;e.preventDefault();if(e.dataTransfer)e.dataTransfer.dropEffect='copy'});
+    el.addEventListener('drop',e=>{
+      if(activeMediaEditor!==s||!scratchImageDropEligibleV40(e.dataTransfer))return;
+      e.preventDefault();e.stopPropagation();scratchImageSetDropUiV38?.(false);
+      const point=scratchImageDropPointV37(s,e),assetId=scratchImageDropAssetIdV40(e.dataTransfer);
+      (async()=>{
+        if(assetId){await scratchImageImportAssetLayerV38(s,assetId,point);await scratchMediaPersistProjectV6(s,{quiet:true});return}
+        const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);if(files.length)await scratchMediaPersistProjectV6(s,{quiet:true});
+      })().catch(err=>{console.error('image viewport drop failed',err);toast('<b>Could not add image layer.</b> '+escapeHtml(err.message||err),'bad')});
+    });
+  }
+}
+const mediaImageEditorV41Base=MEDIA_WORKSPACE_EDITORS.image;
+MEDIA_WORKSPACE_EDITORS.image=async function(s){
+  await mediaImageEditorV41Base(s);scratchImageBindViewportDropV41(s);
+  /* The base adapter has just painted the clicked asset. Keep that visible until the
+     authoritative project load finishes; do not allow a later UI-only refresh to zero it. */
+  if(!s.image?.gif)await scratchImageReconcileCanonicalV41(s,{persist:false,reason:'adapter mount'});
+};
+
+/* Existing asset cards are always explicit drag sources after any render. */
+const renderAssetsV41Base=renderAssets;
+renderAssets=async function(){
+  const r=await renderAssetsV41Base();
+  document.querySelectorAll('#assetList .card[data-id]').forEach(card=>{card.draggable=true;card.querySelectorAll('img').forEach(img=>img.draggable=false)});
+  document.querySelectorAll('[data-asset-id]').forEach(row=>row.draggable=true);
+  return r;
+};
+
 </script>
 
 
