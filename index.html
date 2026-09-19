@@ -9383,6 +9383,331 @@ const scratchImageDropStyleV37=document.getElementById('scratchImageDropStyleV37
 scratchImageDropStyleV37.textContent=`#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorMain{outline:2px solid #75a8cf;outline-offset:-3px}#mediaWorkspace.mediaImageWorkspaceDropV37 .mediaEditorStage:after{content:'DROP IMAGE · NEW LAYER';position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:200;padding:7px 10px;border:1px solid #6688a2;background:rgba(8,12,15,.92);color:#bcd2e2;font:800 8px var(--mono);letter-spacing:.08em;pointer-events:none}`;
 
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',()=>setTimeout(scratchRestoreRouteV36,0),{once:true});else setTimeout(scratchRestoreRouteV36,0);
+
+/* ==========================================================================\n   IMAGE WORKSTATION V38 — OPEN-STABILITY + ASSET-PANEL LAYER DROP\n   ========================================================================== */
+function scratchImageResetCanonicalLayerV38(s,l,decoded){
+  const im=s.image;
+  l.canvas=decoded.canvas;
+  l.name=s.meta?.name||l.name||'Background';
+  l.type='raster';
+  l.visible=true;
+  l.opacity=1;
+  l.blend='source-over';
+  l.locked=false;
+  l.offsetX=0;l.offsetY=0;
+  l.groupId='';l.clipped=false;l.lockAlpha=false;
+  l.maskCanvas=null;l.maskEnabled=false;l.maskLinked=true;
+  l.effects=[];
+  l.styles=scratchImageDefaultStylesV33();
+  l.transform=scratchImageDefaultTransformV33(s);
+  l.contentBounds={x:0,y:0,w:im.width,h:im.height};
+  scratchImageTagCanonicalLayerV37(s,l);
+  return l;
+}
+async function scratchImageForceVisibleCanonicalV38(s,{persist=true,reason='open repair'}={}){
+  const im=s?.image;
+  if(!im||im.gif||activeMediaEditor!==s)return false;
+  const sourceInfo=s.__imageCanonicalSourceInfoV37;
+  /* A transparent source is legitimately transparent; do not invent pixels. */
+  if(sourceInfo&&sourceInfo.visible===false)return false;
+  if(scratchImageCanvasHasVisiblePixelsV37(im.canvas))return false;
+  let decoded;
+  try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('image source reassert failed',err);return false}
+  if(!decoded.visible)return false;
+  if(im.width!==decoded.width||im.height!==decoded.height){im.width=decoded.width;im.height=decoded.height}
+  let layer=im.layers?.find(l=>l.sourceAssetId===s.id);
+  if(!layer){
+    layer=mediaImageNewLayer(s,s.meta?.name||'Background');
+    /* mediaImageNewLayer appends; keep the canonical source as the bottom layer. */
+    const i=im.layers.indexOf(layer);if(i>=0)im.layers.splice(i,1);
+    im.layers.unshift(layer);
+  }
+  scratchImageResetCanonicalLayerV38(s,layer,decoded);
+  if(!im.activeLayerId||!im.layers.some(l=>l.id===im.activeLayerId))im.activeLayerId=layer.id;
+  scratchImageNormalizeDocV33(s);
+  mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33(s);
+  /* If a malformed legacy layer stack still suppresses the source, place the repaired
+     source at the top. This happens only when the final composite is still transparent. */
+  if(!scratchImageCanvasHasVisiblePixelsV37(im.canvas)){
+    im.layers=im.layers.filter(l=>l!==layer);im.layers.push(layer);im.activeLayerId=layer.id;
+    mediaImageComposite(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33(s);
+  }
+  if(!scratchImageCanvasHasVisiblePixelsV37(im.canvas))return false;
+  const idx=Math.max(0,Math.min((im.history?.length||1)-1,Number(im.historyIndex)||0));
+  const snap=await scratchImageBuildSnapshotV34(s,im.history?.[idx]?.label||'Recovered source');
+  snap.__baseline=idx===0;snap.__canonicalSource=idx===0;
+  if(!Array.isArray(im.history)||!im.history.length){im.history=[snap];im.historyIndex=0}else{im.history[idx]=snap;im.historyIndex=idx}
+  if(idx===0)s.__imageSourceBaselineV34=snap;
+  scratchImageHistoryButtonsV34(s);scratchRenderMediaRail?.();
+  if(persist){s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,80)}
+  console.warn('Reasserted canonical source after transparent image-project restore',s.id,reason);
+  return true;
+}
+
+/* This is intentionally the outermost project-load wrapper. The source is painted by
+   the adapter first; legacy project restoration may then replace it. Validate the
+   final post-restore composite, and check again after browser paint to catch any late
+   microtask/RAF writer. */
+const scratchMediaLoadProjectV38Base=scratchMediaLoadProjectV6;
+scratchMediaLoadProjectV6=async function(s){
+  const loaded=await scratchMediaLoadProjectV38Base(s);
+  if(s?.kind==='image'&&!s.image?.gif){
+    await scratchImageForceVisibleCanonicalV38(s,{persist:true,reason:'project load'});
+    const guard=()=>{if(activeMediaEditor===s)scratchImageForceVisibleCanonicalV38(s,{persist:true,reason:'late open pass'}).catch(console.error)};
+    queueMicrotask(guard);
+    requestAnimationFrame(()=>requestAnimationFrame(guard));
+    setTimeout(guard,120);
+  }
+  return loaded;
+};
+
+function scratchImageAssetDragIdV38(dt){
+  if(!dt)return'';
+  try{return String(dt.getData('application/x-scratch-asset')||'')}catch(_){return''}
+}
+function scratchImageHasAssetDragV38(dt){return !!dt&&[...(dt.types||[])].includes('application/x-scratch-asset')}
+async function scratchImageImportAssetLayerV38(s,assetId,point=null){
+  const meta=assets.get(String(assetId));
+  if(!meta||meta.deleted)throw new Error('asset unavailable');
+  if(!String(meta.type||'').toLowerCase().startsWith('image/')&&!/\.(png|jpe?g|webp|bmp|gif|avif|svg)$/i.test(meta.name||''))throw new Error('drop an image asset into the image editor');
+  const blob=await materializeAsset(meta.id),decoded=await mediaDecodeImageSource(blob),im=s.image,l=mediaImageNewLayer(s,meta.name||'Image layer'),sw=decoded.width,sh=decoded.height;
+  const scale=Math.min(1,im.width/Math.max(1,sw),im.height/Math.max(1,sh)),dw=Math.max(1,sw*scale),dh=Math.max(1,sh*scale),p=point||{x:im.width/2,y:im.height/2},dx=Math.round(p.x-dw/2),dy=Math.round(p.y-dh/2);
+  const x=l.canvas.getContext('2d',{willReadFrequently:true});x.drawImage(decoded.source,dx,dy,dw,dh);decoded.close?.();
+  l.sourceBlob=blob;l.sourceName=meta.name||'';l.sourceAssetId=meta.id;l.smartObject=true;l.contentBounds={x:dx,y:dy,w:dw,h:dh};l.name=meta.name||l.name;
+  scratchImageNormalizeLayerV33(s,l);im.activeLayerId=l.id;mediaImageComposite(s);mediaImageRenderLayers(s);scratchImageRefreshProUiV33(s);await mediaImageSnapshot(s,'import asset layer');scratchScheduleRouteV36?.();return l;
+}
+function scratchImageSetDropUiV38(on,label='DROP IMAGE · NEW LAYER'){
+  const ws=$('#mediaWorkspace'),vp=$('#mediaImageViewport');ws?.classList.toggle('mediaImageWorkspaceDropV37',!!on);vp?.classList.toggle('mediaImageDropActive',!!on);if(ws)ws.dataset.imageDropLabel=on?label:'';
+}
+
+/* Asset cards already publish application/x-scratch-asset. Unlike OS file drags,
+   DataTransfer.files is empty, so this dedicated capture path materializes the existing
+   encrypted asset and inserts it directly as a smart/editable layer. */
+window.addEventListener('dragover',e=>{
+  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');
+  if(s?.kind!=='image'||!workspace||!scratchImageHasAssetDragV38(e.dataTransfer))return;
+  e.preventDefault();e.stopPropagation();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';scratchImageSetDropUiV38(true,'DROP ASSET · NEW LAYER');
+},true);
+window.addEventListener('drop',e=>{
+  const s=activeMediaEditor,workspace=e.target?.closest?.('#mediaWorkspace');
+  if(s?.kind!=='image'||!workspace||!scratchImageHasAssetDragV38(e.dataTransfer))return;
+  const assetId=scratchImageAssetDragIdV38(e.dataTransfer);if(!assetId)return;
+  e.preventDefault();e.stopImmediatePropagation();scratchImageSetDropUiV38(false);
+  const point=scratchImageDropPointV37(s,e);
+  scratchImageImportAssetLayerV38(s,assetId,point).catch(err=>{console.error('asset image layer drop failed',err);toast('<b>Could not add asset as image layer.</b> '+escapeHtml(err.message||err),'bad')});
+},true);
+
+window.addEventListener('dragend',()=>scratchImageSetDropUiV38(false),true);
+
+/* ==========================================================================
+   V39 — AUTHORITATIVE LIVE ROUTE STATE + RELOAD RESTORE + CANVAS DESELECT
+   --------------------------------------------------------------------------
+   - route state is written only with history.replaceState: no navigation churn
+   - capability/query security parameters and the encrypted room hash are retained
+   - restore runs only after local state + workspace initialization are complete
+   - image/audio editor-local view state is round-tripped, not just the asset id
+   - a periodic fingerprint catches focus changes from every editor without forcing
+     every individual tool to know about routing
+   ========================================================================== */
+const SCRATCH_ROUTE_KEYS_V39=[
+  'ws','sdoc','stab','asset','editor','page','focus','t','sel','isel','left','right',
+  'rail','tool','zoom','sx','sy','scroll','tracks'
+];
+let scratchRouteBootReadyV39=false;
+let scratchRouteRestoreDoneV39=false;
+let scratchRouteRestoreInFlightV39=false;
+let scratchRouteApplyingV39=false;
+let scratchRouteTimerV39=0;
+let scratchRoutePollTimerV39=0;
+let scratchRouteLastHrefV39='';
+
+function scratchRouteNumV39(v,fallback=0){const n=Number(v);return Number.isFinite(n)?n:fallback}
+function scratchRouteRoundV39(v,d=3){const n=Number(v);return Number.isFinite(n)?n.toFixed(d):'0'}
+function scratchRouteParseV39(){
+  const p=new URL(location.href).searchParams;
+  const oldView=p.get('view')||'';
+  return{
+    ws:p.get('ws')||oldView,
+    sdoc:p.get('sdoc')||(oldView&&p.get('doc')?p.get('doc'):''),
+    stab:p.get('stab')||p.get('tab')||'',
+    asset:p.get('asset')||'',editor:p.get('editor')||'',
+    page:p.get('page')||'',focus:p.get('focus')||p.get('component')||'',
+    t:p.get('t')||p.get('time')||'',sel:p.get('sel')||p.get('selection')||'',isel:p.get('isel')||'',
+    left:p.get('left')||'',right:p.get('right')||'',rail:p.get('rail')||'',tool:p.get('tool')||'',
+    zoom:p.get('zoom')||'',sx:p.get('sx')||'',sy:p.get('sy')||'',scroll:p.get('scroll')||'',tracks:p.get('tracks')||''
+  };
+}
+function scratchRouteClearV39(u){
+  /* Clear only UI-routing fields. Never touch role/cap/exp/doc or the room hash. */
+  for(const k of SCRATCH_ROUTE_KEYS_V39)u.searchParams.delete(k);
+  for(const k of ['view','tab','component','time','selection'])u.searchParams.delete(k);
+  return u;
+}
+function scratchRouteFocusV39(){
+  const s=activeMediaEditor;
+  if(s){
+    if(s.kind==='image'&&s.image?.activeLayerId)return'layer:'+s.image.activeLayerId;
+    if(s.kind==='pdf'&&s.pdf?.selectedOverlayId)return'overlay:'+s.pdf.selectedOverlayId;
+    if(s.kind==='docx'&&Number.isInteger(s.docx?.selectedIndex))return'docx:'+s.docx.selectedIndex;
+    if(s.kind==='audio'&&s.audio?.selectedTrackId)return'track:'+s.audio.selectedTrackId;
+    if(s.kind==='video'&&s.video?.mt?.selectedClipId)return'clip:'+s.video.mt.selectedClipId;
+    return'';
+  }
+  if(isCanvasDoc?.()&&selectedCanvasObjectId)return'object:'+selectedCanvasObjectId;
+  if(activeBlockId)return'block:'+activeBlockId;
+  return'';
+}
+function scratchRouteWriteV39({force=false}={}){
+  if(scratchRouteApplyingV39||scratchRouteApplyingV36)return false;
+  try{
+    const u=scratchRouteClearV39(new URL(location.href)),p=u.searchParams,s=activeMediaEditor;
+    if(s&&document.body.classList.contains('media-workspace-mode')){
+      p.set('ws','media');p.set('asset',String(s.id));p.set('editor',String(s.kind));
+      const focus=scratchRouteFocusV39();if(focus)p.set('focus',focus);
+      if(scratchMediaRailTab)p.set('rail',String(scratchMediaRailTab));
+      if(s.kind==='image'&&s.image){
+        const im=s.image,vp=$('#mediaImageViewport');
+        if(im.tool)p.set('tool',String(im.tool));p.set('zoom',scratchRouteRoundV39(im.zoom||1,4));
+        if(vp){p.set('sx',String(Math.round(vp.scrollLeft||0)));p.set('sy',String(Math.round(vp.scrollTop||0)))}
+        if(im.selection){const r=im.selection;p.set('isel',[r.x,r.y,r.w,r.h].map(v=>scratchRouteRoundV39(v,2)).join(','))}
+        if(im.gif?.current!=null)p.set('page',String((Number(im.gif.current)||0)+1));
+      }else if(s.kind==='audio'&&s.audio){
+        const a=s.audio,stack=$('#mediaAudioTrackStack');
+        if(a.tool)p.set('tool',String(a.tool));p.set('t',scratchRouteRoundV39(a.cursor||0,4));p.set('zoom',scratchRouteRoundV39(a.zoom||1,4));p.set('scroll',scratchRouteRoundV39(a.scrollTime||0,4));
+        if(stack)p.set('sy',String(Math.round(stack.scrollTop||0)));
+        const sel=Array.isArray(a.selection)?a.selection:[];if(sel.length===2)p.set('sel',`${scratchRouteRoundV39(sel[0],4)},${scratchRouteRoundV39(sel[1],4)}`);
+        const ids=[...(a.selectedTrackIds instanceof Set?a.selectedTrackIds:[])];if(ids.length)p.set('tracks',ids.join(','));
+      }else if(s.kind==='video'&&s.video?.mt){
+        p.set('t',scratchRouteRoundV39(s.video.mt.playhead||0,4));if(s.video.mt.tool)p.set('tool',String(s.video.mt.tool));
+      }else if(s.kind==='pdf'&&s.pdf){p.set('page',String((Number(s.pdf.selectedPage)||0)+1));}
+      else if(s.kind==='docx'&&s.docx){p.set('page',String((Number(s.docx.activeSection)||0)+1));}
+    }else{
+      const canvas=!!isCanvasDoc?.();p.set('ws',canvas?'canvas':'document');if(activeDocId)p.set('sdoc',String(activeDocId));
+      if(canvas){if(activeCanvasPageId)p.set('page',String(activeCanvasPageId))}
+      else{const tab=scratchActiveTab?.(activeDocId);if(tab)p.set('stab',String(tab))}
+      const focus=scratchRouteFocusV39();if(focus)p.set('focus',focus);
+    }
+    if(typeof leftTab==='string'&&leftTab)p.set('left',leftTab);
+    if(typeof scratchRightPanelState==='object'&&scratchRightPanelState?.tab)p.set('right',scratchRightPanelState.tab);
+    const href=u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash;
+    if(!force&&href===scratchRouteLastHrefV39)return false;
+    scratchRouteLastHrefV39=href;
+    history.replaceState(history.state,'',href);
+    return true;
+  }catch(err){console.warn('live route write failed',err);return false}
+}
+function scratchRouteScheduleV39(delay=35){
+  if(scratchRouteApplyingV39||scratchRouteApplyingV36)return;
+  clearTimeout(scratchRouteTimerV39);scratchRouteTimerV39=setTimeout(()=>scratchRouteWriteV39(),delay);
+}
+function scratchRoutePollV39(){
+  if(!scratchRouteBootReadyV39||scratchRouteApplyingV39)return;
+  scratchRouteWriteV39();
+}
+function scratchRouteScrollLaterV39(el,x,y){
+  if(!el)return;const apply=()=>{el.scrollLeft=Math.max(0,scratchRouteNumV39(x,0));el.scrollTop=Math.max(0,scratchRouteNumV39(y,0))};
+  requestAnimationFrame(()=>{apply();requestAnimationFrame(apply)});setTimeout(apply,120);
+}
+function scratchRouteApplyMediaV39(s,r){
+  if(!s)return;
+  const [ftype,fid='']=String(r.focus||'').split(':',2);
+  if(r.rail&&['project','history'].includes(r.rail))scratchMediaOpenRailTab?.(r.rail);
+  if(s.kind==='image'&&s.image){
+    const im=s.image;
+    if(ftype==='layer'&&im.layers?.some(l=>l.id===fid))im.activeLayerId=fid;
+    if(r.tool)try{mediaImageSetTool(s,r.tool)}catch(_){im.tool=r.tool}
+    if(r.zoom!=='')im.zoom=Math.max(.05,Math.min(8,scratchRouteNumV39(r.zoom,im.zoom||1)));
+    if(r.isel){const q=r.isel.split(',').map(Number);if(q.length===4&&q.every(Number.isFinite))im.selection={x:q[0],y:q[1],w:q[2],h:q[3]}}
+    if(im.gif&&r.page){const idx=Math.max(0,Math.min(im.gif.frames.length-1,(Number(r.page)||1)-1));if(idx!==im.gif.current)scratchGifSwitchFrameV28?.(s,idx,{quiet:true})}
+    mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);mediaImageDrawOverlay?.(s);
+    scratchRouteScrollLaterV39($('#mediaImageViewport'),r.sx,r.sy);
+  }else if(s.kind==='audio'&&s.audio){
+    const a=s.audio;
+    if(ftype==='track'&&a.tracks?.some(t=>t.id===fid)){a.selectedTrackId=fid;a.selectedTrackIds=new Set([fid])}
+    if(r.tracks){const ids=r.tracks.split(',').filter(id=>a.tracks?.some(t=>t.id===id));if(ids.length){a.selectedTrackIds=new Set(ids);if(!a.selectedTrackId||!ids.includes(a.selectedTrackId))a.selectedTrackId=ids[0]}}
+    if(r.tool)mediaAudioSetTool?.(s,r.tool);
+    if(r.zoom!=='')a.zoom=Math.max(1,Math.min(200,scratchRouteNumV39(r.zoom,a.zoom||1)));
+    if(r.scroll!=='')a.scrollTime=Math.max(0,scratchRouteNumV39(r.scroll,a.scrollTime||0));
+    if(r.t!=='')a.cursor=Math.max(0,Math.min(mediaAudioProjectDuration(s),scratchRouteNumV39(r.t,a.cursor||0)));
+    if(r.sel){const q=r.sel.split(',').map(Number);if(q.length===2&&q.every(Number.isFinite))a.selection=[Math.min(q[0],q[1]),Math.max(q[0],q[1])]}else a.selection=[a.cursor,a.cursor];
+    mediaAudioRender(s);scratchRouteScrollLaterV39($('#mediaAudioTrackStack'),0,r.sy);
+  }else if(s.kind==='video'&&s.video?.mt){
+    const mt=s.video.mt;if(ftype==='clip'){for(const l of mt.lanes||[]){if(l.clips?.some(c=>c.id===fid)){mt.selectedLaneId=l.id;mt.selectedClipId=fid;break}}}
+    if(r.tool)mt.tool=r.tool;if(r.t!=='')scratchVideoMtSeekV28?.(s,scratchRouteNumV39(r.t,0),{quiet:true});scratchVideoMtRenderV28?.(s);scratchVideoMtCompositeV28?.(s,mt.playhead||0);
+  }else if(s.kind==='pdf'&&s.pdf){
+    const pg=Math.max(0,Math.min(s.pdf.pages.length-1,(Number(r.page)||1)-1));s.pdf.selectedPage=pg;
+    if(ftype==='overlay'&&(s.pdf.overlays?.[s.pdf.pages[pg]?.id]||[]).some(o=>o.id===fid))s.pdf.selectedOverlayId=fid;
+    scratchPdfRender?.(s,{preserveScroll:false,scrollToSelected:true});
+  }else if(s.kind==='docx'&&s.docx){
+    if(ftype==='docx')s.docx.selectedIndex=Math.max(0,Number(fid)||0);if(r.page)s.docx.activeSection=Math.max(0,(Number(r.page)||1)-1);scratchDocxRender?.(s);
+  }
+}
+async function scratchRouteRestoreV39(){
+  if(!scratchRouteBootReadyV39||scratchRouteRestoreDoneV39||scratchRouteRestoreInFlightV39)return false;
+  scratchRouteRestoreInFlightV39=true;scratchRouteApplyingV39=true;scratchRouteApplyingV36=true;
+  const r=scratchRouteParseV39();let restored=false;
+  try{
+    if(r.ws==='media'&&r.asset){
+      const meta=assets?.get?.(r.asset);
+      if(meta&&!meta.deleted){await openMediaWorkspace(r.asset);if(activeMediaEditor?.id===r.asset){scratchRouteApplyMediaV39(activeMediaEditor,r);restored=true}}
+    }else{
+      const docId=r.sdoc;
+      if(docId&&fsEntry?.(docId)){
+        selectDocument(docId,{persist:true,focus:false,quiet:true});if(r.stab)scratchSetActiveTab?.(r.stab);
+        if(r.ws==='canvas'||isCanvasDoc?.()){
+          if(r.page&&ypages?.get?.(r.page)?.docId===activeDocId)activeCanvasPageId=r.page;
+          const [ftype,fid='']=String(r.focus||'').split(':',2);
+          if(ftype==='object'&&ycanvas?.get?.(fid)?.docId===activeDocId){selectedCanvasObjectId=fid;propertySelection={kind:'canvas',id:fid}}else{selectedCanvasObjectId=null;if(propertySelection?.kind==='canvas')propertySelection=null}
+          renderCanvasPageTabs?.();renderCanvas?.();updatePropertiesPanel?.();restored=true;
+        }else{
+          const [ftype,fid='']=String(r.focus||'').split(':',2);if(ftype==='block'&&blockMeta?.(fid)?.docId===activeDocId){activeBlockId=fid;propertySelection={kind:'block',id:fid};renderStructuredWorkspace?.();requestAnimationFrame(()=>document.querySelector(`[data-block-id="${CSS.escape(fid)}"]`)?.scrollIntoView?.({block:'center'}))}restored=true;
+        }
+      }
+    }
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
+    if(r.rail&&activeMediaEditor&&['project','history'].includes(r.rail))scratchMediaOpenRailTab?.(r.rail);
+  }catch(err){console.warn('live route restore failed',err)}finally{
+    scratchRouteRestoreDoneV39=true;scratchRouteRestoreInFlightV39=false;scratchRouteApplyingV39=false;scratchRouteApplyingV36=false;
+    scratchRouteWriteV39({force:true});
+    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(scratchRoutePollV39,300);
+  }
+  return restored;
+}
+
+/* Supersede V36 routing without breaking the wrappers already installed above. */
+scratchRouteRestoredV36=true;
+scratchWriteRouteV36=scratchRouteWriteV39;
+scratchScheduleRouteV36=scratchRouteScheduleV39;
+scratchRestoreRouteV36=scratchRouteRestoreV39;
+
+/* Route restore must happen after loadLocal() and initWorkspaceLayout(), not merely
+   after DOMContentLoaded. The boot IIFE calls this wrapped function at exactly that point. */
+const scratchInitWorkspaceRouteV39Base=initWorkspaceLayout;
+initWorkspaceLayout=function(){
+  const out=scratchInitWorkspaceRouteV39Base();scratchRouteBootReadyV39=true;
+  setTimeout(()=>scratchRouteRestoreV39(),0);return out;
+};
+
+/* Flush route state on lifecycle boundaries as well as the live fingerprint poll. */
+window.addEventListener('pagehide',()=>scratchRouteWriteV39({force:true}),{capture:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')scratchRouteWriteV39({force:true})},{capture:true});
+
+/* Blank canvas means no selected canvas asset. This late capture listener is the
+   authoritative deselection rule and also removes stale selection chrome immediately. */
+function scratchCanvasDeselectV39(){
+  if(selectedCanvasObjectId==null&&propertySelection?.kind!=='canvas'&&splineEditObjectId==null)return false;
+  selectedCanvasObjectId=null;if(propertySelection?.kind==='canvas')propertySelection=null;splineEditObjectId=null;selectedSplineNodeIndex=-1;
+  $('#canvasStage')?.querySelectorAll('.canvasObject.selected,.canvasObject.spline-editing').forEach(el=>el.classList.remove('selected','spline-editing'));
+  renderScratchNavigator?.();updatePropertiesPanel?.();queuePresence?.(true);scratchRouteScheduleV39(0);return true;
+}
+document.addEventListener('pointerdown',e=>{
+  if(e.button!==0||!isCanvasDoc?.())return;
+  const surface=e.target.closest?.('#canvasSurface,#canvasStage');if(!surface)return;
+  if(e.target.closest?.('.canvasObject,.splineAnchor,.splineControl,.canvasHandle'))return;
+  scratchCanvasDeselectV39();
+},true);
+
 </script>
 
 
