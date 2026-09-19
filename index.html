@@ -271,6 +271,45 @@ body.resizing-media .assets{pointer-events:none}
   header .actions{padding-left:2px!important;padding-right:2px!important}
 }
 </style>
+
+<style id="scratchMediaWorkspaceStyles">
+/* ==========================================================================
+   MEDIA WORKSPACE V1 — native central editors
+   --------------------------------------------------------------------------
+   Extension contract for future agents:
+   1. Keep #mediaWorkspace as the single center-surface owner for asset editing.
+   2. Add media adapters in MEDIA_WORKSPACE_EDITORS rather than branching storage.
+   3. Persist edited outputs through addFiles() so encryption/mesh/file semantics stay shared.
+   4. Treat editor operations as non-destructive; create derived assets unless a future
+      migration explicitly introduces reference-safe asset versioning.
+   ========================================================================== */
+.syncbar #mediaToggle{display:inline-flex!important;margin-left:4px!important;width:24px!important;height:24px!important;flex:0 0 24px!important;align-items:center!important;justify-content:center!important}
+body.media-collapsed .syncbar #mediaToggle svg{transform:rotate(180deg)!important}
+body:not(.media-collapsed) .syncbar #mediaToggle svg{transform:none!important}
+#mediaPanel>.panelhead{display:none!important}
+.editorwrap.structured-media>#structuredEditor,.editorwrap.structured-media>#canvasSurface,.editorwrap.structured-media>#scratch,.editorwrap.structured-media>#markdownView,.editorwrap.structured-media>#cursorLayer{display:none!important}
+.mediaWorkspace{position:absolute;inset:0;display:none;min-width:0;min-height:0;background:#080a0c;color:var(--text);overflow:hidden}
+.editorwrap.structured-media>.mediaWorkspace{display:flex!important;flex-direction:column}
+.mediaWorkspace[hidden]{display:none!important}
+.mediaEditorTopbar{height:40px;flex:0 0 40px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;padding:4px 7px;background:#090b0d;min-width:0}
+.mediaEditorTopbar .mediaEditorIdentity{display:flex;flex-direction:column;min-width:0;margin:0 6px}
+.mediaEditorTopbar strong{font:800 9px/1.15 var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.mediaEditorTopbar small{font:7px/1.2 var(--mono);color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.mediaEditorSpacer{flex:1 1 auto}.mediaEditorBtn,.mediaToolBtn{height:28px;min-width:28px;border:1px solid var(--line);background:#0d1013;color:#7d8993;padding:0 7px;font:800 8px var(--mono);display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}.mediaEditorBtn:hover,.mediaToolBtn:hover,.mediaToolBtn.active{color:var(--text);border-color:#4c5660;background:#12171c}.mediaToolBtn.active{color:var(--accent);border-color:#66521f}.mediaEditorBtn.primary{color:#111;background:var(--accent);border-color:var(--accent)}.mediaEditorBtn.danger{color:var(--bad)}
+.mediaEditorMain{flex:1 1 auto;min-height:0;min-width:0;display:grid;grid-template-columns:44px minmax(0,1fr) 220px;background:#07090b}
+.mediaToolRail{min-height:0;border-right:1px solid var(--line);background:#090b0d;padding:6px 5px;display:flex;flex-direction:column;gap:5px;overflow:auto}.mediaToolRail .mediaToolBtn{width:32px;height:32px;padding:0;flex:0 0 32px}.mediaToolSep{height:1px;background:var(--line);margin:2px 0}
+.mediaEditorStage{position:relative;min-width:0;min-height:0;overflow:auto;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,#10151a 0,#080a0c 55%,#060708 100%)}
+.mediaStageChecker{background-color:#0b0d0f;background-image:linear-gradient(45deg,#11151a 25%,transparent 25%),linear-gradient(-45deg,#11151a 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#11151a 75%),linear-gradient(-45deg,transparent 75%,#11151a 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.mediaImageCanvasWrap{position:relative;flex:0 0 auto;box-shadow:0 18px 50px rgba(0,0,0,.42)}.mediaImageCanvasWrap canvas{display:block;max-width:none;image-rendering:auto}.mediaImageOverlay{position:absolute;inset:0;pointer-events:auto}
+.mediaInspector{min-width:0;min-height:0;border-left:1px solid var(--line);background:#090b0d;overflow:auto;padding:9px}.mediaInspectorSection{border-bottom:1px solid var(--line);padding:0 0 10px;margin:0 0 10px}.mediaInspectorSection:last-child{border-bottom:0}.mediaInspectorTitle{font:800 8px var(--mono);letter-spacing:.1em;color:var(--muted);margin:0 0 8px;text-transform:uppercase}.mediaControlRow{display:grid;grid-template-columns:74px minmax(0,1fr) 44px;align-items:center;gap:6px;margin:6px 0;color:var(--dim);font:8px var(--mono)}.mediaControlRow input[type=range]{width:100%}.mediaControlRow input[type=number],.mediaControlRow select,.mediaControlRow input[type=color]{width:100%;min-width:0;height:27px;border:1px solid var(--line);background:#07090b;color:var(--text);padding:0 5px;font:8px var(--mono)}.mediaControlRow output{text-align:right;color:var(--muted)}
+.mediaEditorBottom{flex:0 0 auto;border-top:1px solid var(--line);background:#080a0c;min-height:0}.mediaTimelineBar{height:30px;display:flex;align-items:center;gap:5px;padding:3px 7px;border-bottom:1px solid var(--line)}.mediaTimeline{height:116px;position:relative;padding:7px;overflow:hidden}.mediaTimeline canvas{width:100%;height:100%;display:block;border:1px solid var(--line);background:#07090b;cursor:crosshair}
+.mediaVideoStage video{display:block;max-width:calc(100% - 32px);max-height:calc(100% - 32px);background:#000;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.mediaAudioStage{width:min(840px,calc(100% - 32px));display:flex;flex-direction:column;gap:10px}.mediaAudioReadout{display:flex;justify-content:space-between;color:var(--muted);font:8px var(--mono)}.mediaAudioWave{width:100%;height:240px;border:1px solid var(--line);background:#07090b;cursor:crosshair}
+.mediaTextEditor{width:calc(100% - 24px);height:calc(100% - 24px);resize:none;border:1px solid var(--line);outline:none;background:#080a0c;color:var(--text);padding:16px;font:12px/1.55 var(--mono);tab-size:2}.mediaPdfFrame{width:100%;height:100%;border:0;background:#fff}.mediaGenericCard{width:min(520px,calc(100% - 32px));border:1px solid var(--line);background:#0b0e11;padding:18px}.mediaGenericCard h2{margin:0 0 8px;font:800 13px var(--mono)}.mediaGenericCard p{margin:4px 0;color:var(--muted);font:9px/1.5 var(--mono)}
+.mediaCropReadout{font:8px/1.5 var(--mono);color:var(--muted);padding:5px 0}.mediaFrameBadge{position:absolute;left:10px;top:10px;padding:4px 6px;border:1px solid var(--line);background:rgba(8,10,12,.86);color:var(--muted);font:8px var(--mono);pointer-events:none}
+@media(max-width:900px){.mediaEditorMain{grid-template-columns:40px minmax(0,1fr)}.mediaInspector{position:absolute;right:8px;top:48px;bottom:8px;width:min(250px,70vw);z-index:4;box-shadow:0 14px 40px rgba(0,0,0,.5)}.mediaEditorTopbar .mediaEditorBtn[data-media-action="external"]{display:none}}
+@media(max-width:620px){.mediaEditorTopbar{overflow-x:auto;scrollbar-width:none}.mediaEditorTopbar::-webkit-scrollbar{display:none}.mediaEditorTopbar .mediaEditorIdentity{min-width:120px}.mediaEditorBtn{padding:0 6px}.mediaEditorMain{grid-template-columns:38px minmax(0,1fr)}.mediaTimeline{height:92px}.mediaAudioWave{height:180px}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -449,6 +488,8 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
       <div class="editorwrap" id="editorWrap">
         <div class="structuredEditor" id="structuredEditor" data-agent-id="block-editor"><div class="blockDoc" id="blockDoc"></div></div>
         <div class="canvasSurface" id="canvasSurface" data-agent-id="canvas"><div class="canvasStage" id="canvasStage"></div></div>
+        <!-- MEDIA WORKSPACE V1: Native central media editor mount. The implementation lives in the main Scratch module so it can reuse encrypted asset storage, collaboration plumbing, and shared file ingestion without a parallel persistence layer. -->
+        <div class="mediaWorkspace" id="mediaWorkspace" data-agent-id="media-workspace" aria-label="Media editor" hidden></div>
 
         <aside class="workspaceInspector" id="workspaceInspector"><div class="workspaceInspectorHead"><span class="workspaceInspectorTitle" id="workspaceInspectorTitle">COMMENTS</span><span class="panelmeta" id="workspaceInspectorMeta"></span><button class="railArrow" id="workspaceInspectorClose" type="button" aria-label="Close inspector"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button></div><div class="workspaceInspectorBody" id="workspaceInspectorBody"></div></aside>
         <textarea id="scratch" data-agent-id="shared-text" data-agent-role="shared-document" aria-label="Shared scratchpad text" spellcheck="false" readonly placeholder="Paste or type anything here. Changes synchronize to peers holding the same #room-secret…"></textarea>
@@ -456,12 +497,12 @@ The URL #fragment is the room capability and must be preserved exactly.</pre>
         <div class="markdownView" id="markdownView" data-agent-id="markdown-view" aria-label="Rendered Markdown view" tabindex="0"></div>
         <div class="cursorlayer" id="cursorLayer" aria-hidden="true"></div>
       </div>
-      <div class="syncbar"><button class="railArrow syncRailArrow" id="historyRailToggle" type="button" aria-label="Open left sidebar" title="Open left sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span></div>
+      <div class="syncbar"><button class="railArrow syncRailArrow" id="historyRailToggle" type="button" aria-label="Open left sidebar" title="Open left sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button><span class="dot warn" id="syncDot"></span><span id="syncText">initializing encrypted room</span><span style="margin-left:auto" id="actorText"></span><button class="railArrow syncRailArrow rightSyncRailArrow" id="mediaToggle" type="button" aria-label="Collapse right drawer" title="Collapse right drawer" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
     </section>
     <div class="mediaSplitter" id="mediaSplitter" role="separator" aria-orientation="vertical" aria-label="Resize files and media panel" tabindex="0"></div>
     <button class="mobileMediaScrim" id="mobileMediaScrim" type="button" aria-label="Close files, media, or properties drawer"></button>
     <section class="assets right-tab-media" id="mediaPanel" data-right-tab-active="media">
-      <div class="panelhead"><span class="paneltitle" id="mediaPanelTitle">Files + media</span><span class="panelmeta" id="assetMeta">0 ITEMS</span><button class="railArrow" id="mediaToggle" type="button" aria-label="Collapse right drawer" title="Collapse right drawer" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div>
+      <span class="sr-only" id="mediaPanelTitle">Files + media</span><span class="sr-only" id="assetMeta">0 ITEMS</span>
       <div class="rightPanelTabs" id="rightPanelTabs" role="tablist" aria-label="Right drawer sections">
         <button class="rightPanelTab active" data-right-tab="media" type="button" aria-label="Media" title="Media" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 3 3 2-2 4 4"/></svg></button>
         <button class="rightPanelTab" data-right-tab="properties" type="button" aria-label="Properties" title="Properties" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/></svg></button>
@@ -3169,7 +3210,7 @@ async function renderAssets(){
   for(const m of visible){
     if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;card.dataset.agentFileId=m.id;card.draggable=true;card.setAttribute('data-agent-role','shared-file');
     card.innerHTML=`<div class="cardtop"><div><div class="fname">${escapeHtml(m.name)}</div><div class="fmeta">${escapeHtml(m.type)} · ${fmtBytes(m.size)} · ${have?'LOCAL + ENCRYPTED':'REMOTE · REQUESTING'}</div></div><div class="cardactions"><button class="mini open" data-agent-action="open-file">OPEN</button><button class="mini down" data-agent-action="save-file">SAVE</button><button class="mini danger del" data-agent-action="delete-file">×</button></div></div><div class="progress"><i></i></div>`;
-    card.querySelector('.open').onclick=()=>openAsset(m.id);card.querySelector('.down').onclick=()=>downloadAsset(m.id);card.querySelector('.del').onclick=()=>removeAsset(m.id);box.append(card);
+    card.querySelector('.open').onclick=()=>openAsset(m.id);card.querySelector('.down').onclick=()=>downloadAsset(m.id);card.querySelector('.del').onclick=()=>removeAsset(m.id);card.addEventListener('dblclick',e=>{if(!e.target.closest('button'))openAsset(m.id)});box.append(card);
     if(have&&m.type?.startsWith('image/')&&m.size<=8*1024*1024){
       try{const blob=await materializeAsset(m.id);if(token!==renderToken)return;const u=URL.createObjectURL(blob);previewUrls.set(m.id,u);const p=document.createElement('div');p.className='preview';p.innerHTML=`<img alt="${escapeHtml(m.name)}">`;p.querySelector('img').src=u;card.append(p)}catch(_){ }
     }
@@ -3256,7 +3297,7 @@ function canEditDocument(docId=activeDocId){return['owner','editor','agent'].inc
 function canCommentDocument(docId=activeDocId){return['owner','editor','commenter','agent'].includes(effectiveRole(docId))}
 function applyRoleUi(){const r=effectiveRole(),edit=canEditDocument();$('#docMeta')?.setAttribute('title','Role: '+r.toUpperCase());document.querySelectorAll('.blockEditable,.tableCell').forEach(x=>x.contentEditable=edit?'true':'false');$('#suggestToolBtn')?.toggleAttribute('disabled',!edit);$('#insertBlockBtn')?.toggleAttribute('disabled',!edit)}
 function renderRichEditor(){const box=$('#blockDoc');if(!box||!yblocks)return;ensureStructuredDoc();const focused=document.activeElement?.closest?.('[data-block-id]')?.dataset.blockId,sel=focused?getSelectionOffsets(document.activeElement):null;box.innerHTML=blocksForDoc().map(renderBlockHtml).join('')||'<div class="blockHint">Empty document. Insert a block.</div>';applyRichBlockVisualStyles(box);bindStructuredEditor(box);if(focused&&focused===activeBlockId&&sel){const el=box.querySelector(`.blockEditable[data-block-id="${CSS.escape(focused)}"]`);if(el){el.focus({preventScroll:true});restoreDomSelection(el,sel.start,sel.end)}}renderRichRemotePresence()}
-function renderStructuredWorkspace(){if(!ydoc||!currentDocMeta())return;ensureStructuredDoc();const wrap=$('#editorWrap'),toolbar=$('#workspaceToolbar'),canvasBar=$('#canvasPageBar');wrap.classList.remove('structured-rich','structured-source','structured-canvas');if(isCanvasDoc()){wrap.classList.add('structured-canvas');canvasBar.hidden=false;document.querySelectorAll('.richTool').forEach(x=>x.hidden=true);renderCanvas();renderCanvasPageTabs()}else{canvasBar.hidden=true;document.querySelectorAll('.richTool').forEach(x=>x.hidden=false);if(markdownEnabled){wrap.classList.add('structured-source');const src=serializeRichDocMarkdown();const s=$('#scratch');if(document.activeElement!==s&&!markdownSourceDirty)s.value=src;s.readOnly=!canEditDocument()}else{wrap.classList.add('structured-rich');renderRichEditor()}}toolbar.hidden=false;updateDocMeta();applyRoleUi();updatePropertiesPanel()}
+function renderStructuredWorkspace(){if(window.__scratchMediaWorkspaceActive)return;if(!ydoc||!currentDocMeta())return;ensureStructuredDoc();const wrap=$('#editorWrap'),toolbar=$('#workspaceToolbar'),canvasBar=$('#canvasPageBar');wrap.classList.remove('structured-rich','structured-source','structured-canvas');if(isCanvasDoc()){wrap.classList.add('structured-canvas');canvasBar.hidden=false;document.querySelectorAll('.richTool').forEach(x=>x.hidden=true);renderCanvas();renderCanvasPageTabs()}else{canvasBar.hidden=true;document.querySelectorAll('.richTool').forEach(x=>x.hidden=false);if(markdownEnabled){wrap.classList.add('structured-source');const src=serializeRichDocMarkdown();const s=$('#scratch');if(document.activeElement!==s&&!markdownSourceDirty)s.value=src;s.readOnly=!canEditDocument()}else{wrap.classList.add('structured-rich');renderRichEditor()}}toolbar.hidden=false;updateDocMeta();applyRoleUi();updatePropertiesPanel()}
 const legacyRenderEditorV3=renderEditor;
 renderEditor=function(sel=null){if(currentDocMeta()?.type==='doc'){renderStructuredWorkspace();scheduleAgentStateRefresh('render');return}legacyRenderEditorV3(sel)};
 const legacyUpdateDocMetaV3=updateDocMeta;
@@ -5965,16 +6006,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&innerWidth<=820)scr
 window.addEventListener('resize',()=>{if(innerWidth>820){document.body.classList.remove('mobile-inspector-open','left-mobile-open')}},{passive:true});
 
 
-/* V19. Responsive chrome relocation. */
+/* V19. Responsive chrome relocation. Right drawer control intentionally lives in syncbar on desktop and mobile. */
 function scratchPlaceResponsiveChrome(){
-  const mobile=innerWidth<=820, presence=$('#presenceBar'), actions=document.querySelector('header .actions'), padHead=document.querySelector('.pad>.panelhead'), mediaToggle=$('#mediaToggle'), sync=$('.syncbar'), assetsHead=document.querySelector('.assets>.panelhead');
+  const mobile=innerWidth<=820, presence=$('#presenceBar'), actions=document.querySelector('header .actions'), padHead=document.querySelector('.pad>.panelhead'), mediaToggle=$('#mediaToggle'), sync=$('.syncbar');
   if(mobile){
     if(presence&&actions&&presence.parentElement!==actions)actions.prepend(presence);
-    if(mediaToggle&&sync&&mediaToggle.parentElement!==sync)sync.append(mediaToggle);
-  }else{
-    if(presence&&padHead&&presence.parentElement!==padHead){const meta=$('#docMeta');padHead.insertBefore(presence,meta||null)}
-    if(mediaToggle&&assetsHead&&mediaToggle.parentElement!==assetsHead)assetsHead.append(mediaToggle);
+  }else if(presence&&padHead&&presence.parentElement!==padHead){
+    const meta=$('#docMeta');padHead.insertBefore(presence,meta||null);
   }
+  if(mediaToggle&&sync&&mediaToggle.parentElement!==sync)sync.append(mediaToggle);
 }
 window.addEventListener('resize',scratchPlaceResponsiveChrome,{passive:true});
 queueMicrotask(scratchPlaceResponsiveChrome);
@@ -6241,6 +6281,199 @@ document.addEventListener('click',e=>{const docMenu=e.target.closest?.('.docItem
 const leftNewCanvasBtn=$('#leftNewCanvasBtn');if(leftNewCanvasBtn)leftNewCanvasBtn.onclick=e=>{e.preventDefault();e.stopPropagation();const id=createCanvasDocument(activeFolderId);openLeftTab?.('canvas');return id};
 queueMicrotask(()=>{renderDocNavigator();scratchRenderDocTabs();renderScratchNavigator()});
 
+
+
+/* ============================================================================
+   MEDIA WORKSPACE V1 — central image / video / audio / text / PDF editing
+   ----------------------------------------------------------------------------
+   This section intentionally lives in the main Scratch ES module. It reuses:
+     - assets / materializeAsset() for source bytes
+     - addFiles() for encrypted, collaborative derived outputs
+     - the existing center #editorWrap rather than opening a modal/window
+   Future agents should extend MEDIA_WORKSPACE_EDITORS and keep asset persistence
+   going through addFiles(); do not create a parallel media database.
+   ============================================================================ */
+window.__scratchMediaWorkspaceActive=false;
+let activeMediaEditor=null;
+const MEDIA_WORKSPACE_EDITORS=Object.create(null);
+
+function mediaWorkspaceKind(meta){
+  const t=String(meta?.type||'').toLowerCase(),n=String(meta?.name||'').toLowerCase();
+  if(t.startsWith('image/')||/\.(png|jpe?g|webp|bmp|gif|avif|svg)$/i.test(n))return'image';
+  if(t.startsWith('video/')||/\.(mp4|webm|mov|m4v|ogv|mkv)$/i.test(n))return'video';
+  if(t.startsWith('audio/')||/\.(wav|mp3|m4a|aac|ogg|oga|flac|opus)$/i.test(n))return'audio';
+  if(t==='application/pdf'||/\.pdf$/i.test(n))return'pdf';
+  if(t.startsWith('text/')||/\.(txt|md|markdown|json|jsonl|csv|tsv|xml|html?|css|js|mjs|ts|tsx|jsx|py|rs|go|java|c|cc|cpp|h|hpp|sql|yaml|yml|log|geojson|ndjson|kml|gpx|wkt|topojson)$/i.test(n))return'text';
+  return'generic';
+}
+function mediaWorkspaceStem(name='asset'){return String(name).replace(/\.[^.]+$/,'').replace(/[\\/:*?"<>|]+/g,'-').trim()||'asset'}
+function mediaWorkspaceTime(t){t=Math.max(0,Number(t)||0);const m=Math.floor(t/60),s=t-m*60;return`${m}:${s.toFixed(2).padStart(5,'0')}`}
+function mediaWorkspaceBaseShell(session){
+  const host=$('#mediaWorkspace'),kind=session.kind.toUpperCase();
+  host.hidden=false;
+  host.innerHTML=`<div class="mediaEditorTopbar">
+    <button class="mediaEditorBtn" type="button" data-media-action="close" title="Back to document">←</button>
+    <div class="mediaEditorIdentity"><strong>${escapeHtml(session.meta.name)}</strong><small>${escapeHtml(kind)} · ${fmtBytes(session.meta.size||session.blob.size)}</small></div>
+    <div class="mediaEditorSpacer"></div>
+    <button class="mediaEditorBtn" type="button" data-media-action="undo" title="Undo">UNDO</button>
+    <button class="mediaEditorBtn" type="button" data-media-action="redo" title="Redo">REDO</button>
+    <button class="mediaEditorBtn" type="button" data-media-action="download">DOWNLOAD</button>
+    <button class="mediaEditorBtn" type="button" data-media-action="external">OPEN ↗</button>
+    <button class="mediaEditorBtn primary" type="button" data-media-action="save">SAVE COPY</button>
+  </div>
+  <div class="mediaEditorMain"><aside class="mediaToolRail" id="mediaToolRail"></aside><main class="mediaEditorStage" id="mediaEditorStage"></main><aside class="mediaInspector" id="mediaEditorInspector"></aside></div>
+  <div class="mediaEditorBottom" id="mediaEditorBottom"></div>`;
+  host.onclick=mediaWorkspaceClick;
+  host.oninput=mediaWorkspaceInput;
+  host.onchange=mediaWorkspaceChange;
+}
+function mediaWorkspaceSetStatus(text){const m=$('#docMeta');if(m)m.textContent=String(text||'').toUpperCase()}
+async function mediaWorkspaceAddBlob(blob,name,type=blob.type||'application/octet-stream'){
+  const file=new File([blob],name,{type,lastModified:Date.now()});
+  const r=await addFiles([file],{source:'media-editor',quiet:false});
+  return r?.[0]||null;
+}
+async function mediaWorkspaceOpenExternal(session=activeMediaEditor){
+  if(!session)return;const u=URL.createObjectURL(session.blob);window.open(u,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(u),60000)
+}
+function mediaWorkspaceCommonButtons(session,{undo=true,redo=true,save=true}={}){
+  const host=$('#mediaWorkspace');
+  const ub=host?.querySelector('[data-media-action="undo"]'),rb=host?.querySelector('[data-media-action="redo"]'),sb=host?.querySelector('[data-media-action="save"]');
+  if(ub)ub.disabled=!undo;if(rb)rb.disabled=!redo;if(sb)sb.disabled=!save;
+}
+async function openMediaWorkspace(id){
+  const meta=assets.get(String(id));if(!meta||meta.deleted)throw new Error('file unavailable');
+  const blob=await materializeAsset(meta.id);
+  await closeMediaWorkspace({restore:false});
+  const session={id:meta.id,meta:{...meta},blob,url:URL.createObjectURL(blob),kind:mediaWorkspaceKind(meta),cleanup:null,undo:null,redo:null,save:null};
+  activeMediaEditor=session;window.__scratchMediaWorkspaceActive=true;document.body.classList.add('media-workspace-mode');
+  const wrap=$('#editorWrap');wrap?.classList.remove('structured-rich','structured-source','structured-canvas');wrap?.classList.add('structured-media');
+  const toolbar=$('#workspaceToolbar');if(toolbar)toolbar.hidden=true;const cp=$('#canvasPageBar');if(cp)cp.hidden=true;
+  const title=$('#activeDocTitle');if(title)title.textContent=meta.name;mediaWorkspaceSetStatus(`${session.kind} · ${fmtBytes(meta.size||blob.size)}`);
+  mediaWorkspaceBaseShell(session);
+  const adapter=MEDIA_WORKSPACE_EDITORS[session.kind]||MEDIA_WORKSPACE_EDITORS.generic;
+  try{await adapter(session)}catch(err){console.error('media editor init',err);MEDIA_WORKSPACE_EDITORS.generic(session,err);toast(`<b>Media editor fallback.</b> ${escapeHtml(err.message||err)}`,'bad')}
+  scheduleAgentStateRefresh?.('media-workspace');return true;
+}
+async function closeMediaWorkspace({restore=true}={}){
+  const session=activeMediaEditor;if(session){try{await session.cleanup?.()}catch(_){}try{URL.revokeObjectURL(session.url)}catch(_){}}
+  activeMediaEditor=null;window.__scratchMediaWorkspaceActive=false;document.body.classList.remove('media-workspace-mode');
+  const host=$('#mediaWorkspace');if(host){host.hidden=true;host.innerHTML='';host.onclick=host.oninput=host.onchange=null}
+  const wrap=$('#editorWrap');wrap?.classList.remove('structured-media');
+  if(restore){renderStructuredWorkspace();updateActiveDocTitle?.();updateDocMeta?.()}
+  scheduleAgentStateRefresh?.('media-workspace');
+}
+window.__scratchOpenMediaWorkspace=openMediaWorkspace;
+window.__scratchCloseMediaWorkspace=closeMediaWorkspace;
+
+const scratchOpenAssetExternal=openAsset;
+openAsset=async function(id){
+  try{return await openMediaWorkspace(id)}catch(err){console.error(err);toast('<b>Unavailable.</b> '+escapeHtml(err.message||err),'bad');return false}
+};
+const scratchSelectDocumentBeforeMedia=selectDocument;
+selectDocument=function(id,opts={}){if(window.__scratchMediaWorkspaceActive)closeMediaWorkspace({restore:false});return scratchSelectDocumentBeforeMedia(id,opts)};
+const scratchUpdateDocMetaBeforeMedia=updateDocMeta;
+updateDocMeta=function(){if(activeMediaEditor){mediaWorkspaceSetStatus(`${activeMediaEditor.kind} · ${fmtBytes(activeMediaEditor.meta.size||activeMediaEditor.blob.size)}`);return}return scratchUpdateDocMetaBeforeMedia()};
+
+async function mediaWorkspaceClick(e){
+  const a=e.target.closest?.('[data-media-action]');if(a){e.preventDefault();const s=activeMediaEditor;if(!s)return;switch(a.dataset.mediaAction){
+    case'close':await closeMediaWorkspace();break;case'undo':await s.undo?.();break;case'redo':await s.redo?.();break;case'save':await s.save?.();break;case'download':downloadAsset(s.id);break;case'external':await mediaWorkspaceOpenExternal(s);break;
+  }return}
+  if(activeMediaEditor?.kind==='image')await mediaImageClick(e,activeMediaEditor);
+  else if(activeMediaEditor?.kind==='video')await mediaVideoClick(e,activeMediaEditor);
+  else if(activeMediaEditor?.kind==='audio')await mediaAudioClick(e,activeMediaEditor);
+}
+function mediaWorkspaceInput(e){const s=activeMediaEditor;if(!s)return;if(s.kind==='image')mediaImageInput(e,s);else if(s.kind==='video')mediaVideoInput(e,s);else if(s.kind==='audio')mediaAudioInput(e,s)}
+function mediaWorkspaceChange(e){const s=activeMediaEditor;if(!s)return;if(s.kind==='video')mediaVideoInput(e,s);else if(s.kind==='audio')mediaAudioInput(e,s)}
+
+/* ------------------------------- IMAGE ----------------------------------- */
+async function mediaImageSnapshot(s,label='Edit'){
+  const c=s.image.canvas;const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(!blob)return;
+  s.image.history.splice(s.image.historyIndex+1);s.image.history.push({blob,label});if(s.image.history.length>12)s.image.history.shift();s.image.historyIndex=s.image.history.length-1;mediaImageHistoryUi(s)
+}
+async function mediaImageRestore(s,index){
+  const h=s.image.history[index];if(!h)return;const bmp=await createImageBitmap(h.blob),c=s.image.canvas;c.width=bmp.width;c.height=bmp.height;s.image.ctx=c.getContext('2d',{willReadFrequently:true});s.image.ctx.drawImage(bmp,0,0);bmp.close?.();s.image.historyIndex=index;mediaImageSyncSize(s);mediaImageHistoryUi(s)
+}
+function mediaImageHistoryUi(s){mediaWorkspaceCommonButtons(s,{undo:s.image.historyIndex>0,redo:s.image.historyIndex<s.image.history.length-1,save:true})}
+function mediaImageSyncSize(s){const z=s.image.zoom,c=s.image.canvas,o=s.image.overlay;c.style.width=o.style.width=`${Math.max(1,c.width*z)}px`;c.style.height=o.style.height=`${Math.max(1,c.height*z)}px`;o.width=c.width;o.height=c.height;mediaImageDrawOverlay(s);const out=$('#mediaImageZoomOut');if(out)out.textContent=Math.round(z*100)+'%';mediaWorkspaceSetStatus(`image · ${c.width}×${c.height} · ${fmtBytes(s.blob.size)}`)}
+function mediaImagePoint(s,e){const r=s.image.canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*s.image.canvas.width/r.width,y:(e.clientY-r.top)*s.image.canvas.height/r.height}}
+function mediaImageDrawOverlay(s){const o=s.image.overlay,x=o.getContext('2d');x.clearRect(0,0,o.width,o.height);const c=s.image.crop;if(c){x.save();x.fillStyle='rgba(0,0,0,.36)';x.fillRect(0,0,o.width,o.height);x.clearRect(c.x,c.y,c.w,c.h);x.strokeStyle='#f4bd32';x.lineWidth=Math.max(1,1/s.image.zoom);x.setLineDash([8/s.image.zoom,5/s.image.zoom]);x.strokeRect(c.x,c.y,c.w,c.h);x.restore()}}
+async function mediaImageApplyPixel(s,fn,label){const c=s.image.canvas,x=s.image.ctx,img=x.getImageData(0,0,c.width,c.height),d=img.data;fn(d);x.putImageData(img,0,0);await mediaImageSnapshot(s,label)}
+async function mediaImageTransform(s,kind){const c=s.image.canvas,x=s.image.ctx,off=document.createElement('canvas'),ox=off.getContext('2d');if(kind==='rotateL'||kind==='rotateR'){off.width=c.height;off.height=c.width;ox.translate(off.width/2,off.height/2);ox.rotate((kind==='rotateR'?1:-1)*Math.PI/2);ox.drawImage(c,-c.width/2,-c.height/2)}else{off.width=c.width;off.height=c.height;ox.translate(kind==='flipH'?off.width:0,kind==='flipV'?off.height:0);ox.scale(kind==='flipH'?-1:1,kind==='flipV'?-1:1);ox.drawImage(c,0,0)}c.width=off.width;c.height=off.height;s.image.ctx=c.getContext('2d',{willReadFrequently:true});s.image.ctx.drawImage(off,0,0);mediaImageSyncSize(s);await mediaImageSnapshot(s,kind)}
+async function mediaImageApplyCrop(s){const r=s.image.crop;if(!r||r.w<2||r.h<2)return;const c=s.image.canvas,off=document.createElement('canvas');off.width=Math.max(1,Math.round(r.w));off.height=Math.max(1,Math.round(r.h));off.getContext('2d').drawImage(c,r.x,r.y,r.w,r.h,0,0,off.width,off.height);c.width=off.width;c.height=off.height;s.image.ctx=c.getContext('2d',{willReadFrequently:true});s.image.ctx.drawImage(off,0,0);s.image.crop=null;mediaImageSyncSize(s);await mediaImageSnapshot(s,'crop')}
+async function mediaImageEditor(s){
+  const bmp=await createImageBitmap(s.blob),stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector');stage.classList.add('mediaStageChecker');
+  tools.innerHTML=`<button class="mediaToolBtn active" data-image-tool="pan" title="Pan / inspect">↔</button><button class="mediaToolBtn" data-image-tool="brush" title="Brush">✎</button><button class="mediaToolBtn" data-image-tool="eraser" title="Eraser">⌫</button><button class="mediaToolBtn" data-image-tool="crop" title="Crop">⌗</button><div class="mediaToolSep"></div><button class="mediaToolBtn" data-image-op="rotateL" title="Rotate left">↶</button><button class="mediaToolBtn" data-image-op="rotateR" title="Rotate right">↷</button><button class="mediaToolBtn" data-image-op="flipH" title="Flip horizontal">⇆</button><button class="mediaToolBtn" data-image-op="flipV" title="Flip vertical">⇅</button>`;
+  stage.innerHTML='<div class="mediaImageCanvasWrap" id="mediaImageCanvasWrap"><canvas id="mediaImageCanvas"></canvas><canvas class="mediaImageOverlay" id="mediaImageOverlay"></canvas></div>';
+  ins.innerHTML=`<section class="mediaInspectorSection"><div class="mediaInspectorTitle">View</div><div class="mediaControlRow"><span>ZOOM</span><input id="mediaImageZoom" type="range" min="0.1" max="4" step="0.05" value="1"><output id="mediaImageZoomOut">100%</output></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Brush</div><div class="mediaControlRow"><span>COLOR</span><input id="mediaImageColor" type="color" value="#ffffff"><output></output></div><div class="mediaControlRow"><span>SIZE</span><input id="mediaImageSize" type="range" min="1" max="120" value="18"><output id="mediaImageSizeOut">18</output></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Adjust</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><button class="mediaEditorBtn" data-image-filter="bright">BRIGHT +</button><button class="mediaEditorBtn" data-image-filter="dark">BRIGHT −</button><button class="mediaEditorBtn" data-image-filter="contrast">CONTRAST +</button><button class="mediaEditorBtn" data-image-filter="gray">GRAYSCALE</button><button class="mediaEditorBtn" data-image-filter="invert">INVERT</button><button class="mediaEditorBtn" data-image-filter="sepia">SEPIA</button></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Crop</div><div class="mediaCropReadout" id="mediaCropReadout">Drag a crop rectangle with the Crop tool.</div><button class="mediaEditorBtn" data-image-apply-crop>APPLY CROP</button></section>`;
+  const c=$('#mediaImageCanvas'),o=$('#mediaImageOverlay');c.width=bmp.width;c.height=bmp.height;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(bmp,0,0);bmp.close?.();
+  s.image={canvas:c,overlay:o,ctx,tool:'pan',zoom:1,color:'#ffffff',size:18,crop:null,drawing:false,last:null,history:[],historyIndex:-1};
+  o.addEventListener('pointerdown',e=>mediaImagePointerDown(s,e));o.addEventListener('pointermove',e=>mediaImagePointerMove(s,e));o.addEventListener('pointerup',e=>mediaImagePointerUp(s,e));o.addEventListener('pointercancel',e=>mediaImagePointerUp(s,e));
+  s.undo=()=>mediaImageRestore(s,s.image.historyIndex-1);s.redo=()=>mediaImageRestore(s,s.image.historyIndex+1);s.save=async()=>{const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(blob)await mediaWorkspaceAddBlob(blob,mediaWorkspaceStem(s.meta.name)+'-edited.png','image/png')};
+  await mediaImageSnapshot(s,'original');mediaImageSyncSize(s)
+}
+async function mediaImageClick(e,s){
+  const tool=e.target.closest?.('[data-image-tool]');if(tool){s.image.tool=tool.dataset.imageTool;$('#mediaToolRail').querySelectorAll('[data-image-tool]').forEach(b=>b.classList.toggle('active',b===tool));return}
+  const op=e.target.closest?.('[data-image-op]');if(op){await mediaImageTransform(s,op.dataset.imageOp);return}
+  const f=e.target.closest?.('[data-image-filter]');if(f){const k=f.dataset.imageFilter;await mediaImageApplyPixel(s,d=>{for(let i=0;i<d.length;i+=4){let r=d[i],g=d[i+1],b=d[i+2];if(k==='bright'){r+=18;g+=18;b+=18}else if(k==='dark'){r-=18;g-=18;b-=18}else if(k==='contrast'){const q=1.12;r=(r-128)*q+128;g=(g-128)*q+128;b=(b-128)*q+128}else if(k==='gray'){const q=.299*r+.587*g+.114*b;r=g=b=q}else if(k==='invert'){r=255-r;g=255-g;b=255-b}else if(k==='sepia'){const rr=.393*r+.769*g+.189*b,gg=.349*r+.686*g+.168*b,bb=.272*r+.534*g+.131*b;r=rr;g=gg;b=bb}d[i]=Math.max(0,Math.min(255,r));d[i+1]=Math.max(0,Math.min(255,g));d[i+2]=Math.max(0,Math.min(255,b))}},k);return}
+  if(e.target.closest?.('[data-image-apply-crop]'))await mediaImageApplyCrop(s)
+}
+function mediaImageInput(e,s){if(e.target.id==='mediaImageZoom'){s.image.zoom=Number(e.target.value)||1;mediaImageSyncSize(s)}else if(e.target.id==='mediaImageColor')s.image.color=e.target.value;else if(e.target.id==='mediaImageSize'){s.image.size=Number(e.target.value)||1;const o=$('#mediaImageSizeOut');if(o)o.textContent=String(s.image.size)}}
+function mediaImagePointerDown(s,e){const p=mediaImagePoint(s,e),im=s.image;if(im.tool==='pan')return;im.drawing=true;im.last=p;e.currentTarget.setPointerCapture?.(e.pointerId);if(im.tool==='crop'){im.cropStart={...p};im.crop={x:p.x,y:p.y,w:0,h:0};mediaImageDrawOverlay(s);return}const x=im.ctx;x.save();x.lineCap='round';x.lineJoin='round';x.lineWidth=im.size;x.strokeStyle=im.tool==='eraser'?'rgba(0,0,0,1)':im.color;x.globalCompositeOperation=im.tool==='eraser'?'destination-out':'source-over';x.beginPath();x.moveTo(p.x,p.y);x.lineTo(p.x+.01,p.y+.01);x.stroke();x.restore()}
+function mediaImagePointerMove(s,e){const im=s.image;if(!im.drawing)return;const p=mediaImagePoint(s,e);if(im.tool==='crop'){const a=im.crop,start=im.cropStart||{x:a.x,y:a.y};a.x=Math.min(start.x,p.x);a.y=Math.min(start.y,p.y);a.w=Math.abs(p.x-start.x);a.h=Math.abs(p.y-start.y);mediaImageDrawOverlay(s);const r=$('#mediaCropReadout');if(r)r.textContent=`${Math.round(a.w)} × ${Math.round(a.h)} px`;return}const x=im.ctx;x.save();x.lineCap='round';x.lineJoin='round';x.lineWidth=im.size;x.strokeStyle=im.tool==='eraser'?'rgba(0,0,0,1)':im.color;x.globalCompositeOperation=im.tool==='eraser'?'destination-out':'source-over';x.beginPath();x.moveTo(im.last.x,im.last.y);x.lineTo(p.x,p.y);x.stroke();x.restore();im.last=p}
+async function mediaImagePointerUp(s,e){if(!s.image.drawing)return;s.image.drawing=false;try{e.currentTarget.releasePointerCapture?.(e.pointerId)}catch(_){}if(s.image.tool!=='crop')await mediaImageSnapshot(s,s.image.tool);else s.image.cropStart=null}
+MEDIA_WORKSPACE_EDITORS.image=mediaImageEditor;
+
+/* ------------------------------- VIDEO ----------------------------------- */
+function mediaVideoSnapshot(s,label='edit'){const v=s.video;s.video.history.splice(v.historyIndex+1);s.video.history.push({in:v.in,out:v.out,cuts:[...v.cuts],fps:v.fps,label});if(s.video.history.length>30)s.video.history.shift();s.video.historyIndex=s.video.history.length-1;mediaVideoHistoryUi(s);mediaVideoRenderTimeline(s)}
+function mediaVideoRestore(s,i){const h=s.video.history[i];if(!h)return;Object.assign(s.video,{in:h.in,out:h.out,cuts:[...h.cuts],fps:h.fps,historyIndex:i});mediaVideoHistoryUi(s);mediaVideoRenderTimeline(s);mediaVideoInspectorValues(s)}
+function mediaVideoHistoryUi(s){mediaWorkspaceCommonButtons(s,{undo:s.video.historyIndex>0,redo:s.video.historyIndex<s.video.history.length-1,save:true})}
+function mediaVideoInspectorValues(s){const a=$('#mediaVideoIn'),b=$('#mediaVideoOut'),f=$('#mediaVideoFps');if(a)a.value=s.video.in.toFixed(3);if(b)b.value=s.video.out.toFixed(3);if(f)f.value=s.video.fps}
+function mediaVideoRenderTimeline(s){const v=s.video,c=v.timeline,ctx=c?.getContext('2d');if(!ctx)return;ctx.clearRect(0,0,c.width,c.height);if(v.timelineBase)ctx.drawImage(v.timelineBase,0,0);else{ctx.fillStyle='#090b0d';ctx.fillRect(0,0,c.width,c.height)}const dur=Math.max(.001,v.el.duration||1),x=t=>Math.max(0,Math.min(c.width,t/dur*c.width));ctx.fillStyle='rgba(244,189,50,.14)';ctx.fillRect(x(v.in),0,Math.max(1,x(v.out)-x(v.in)),c.height);ctx.strokeStyle='#f4bd32';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x(v.in),0);ctx.lineTo(x(v.in),c.height);ctx.moveTo(x(v.out),0);ctx.lineTo(x(v.out),c.height);ctx.stroke();ctx.strokeStyle='#8b949e';ctx.setLineDash([3,4]);for(const t of v.cuts){ctx.beginPath();ctx.moveTo(x(t),0);ctx.lineTo(x(t),c.height);ctx.stroke()}ctx.setLineDash([]);ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x(v.el.currentTime),0);ctx.lineTo(x(v.el.currentTime),c.height);ctx.stroke();const badge=$('#mediaVideoTime');if(badge)badge.textContent=`${mediaWorkspaceTime(v.el.currentTime)} / ${mediaWorkspaceTime(dur)}`}
+async function mediaVideoGenerateThumbs(s){const v=s.video,base=document.createElement('canvas'),w=1200,h=100;base.width=w;base.height=h;const x=base.getContext('2d'),probe=document.createElement('video');probe.src=s.url;probe.muted=true;probe.preload='auto';await new Promise((res,rej)=>{probe.onloadedmetadata=res;probe.onerror=()=>rej(new Error('video metadata unavailable'))});const n=12,seg=w/n;for(let i=0;i<n;i++){probe.currentTime=Math.max(0,(probe.duration||0)*(i+.5)/n);await new Promise(res=>{const done=()=>{probe.removeEventListener('seeked',done);res()};probe.addEventListener('seeked',done);setTimeout(done,700)});try{x.drawImage(probe,i*seg,0,seg,h)}catch(_){}}v.timelineBase=base;mediaVideoRenderTimeline(s)}
+async function mediaVideoCaptureFrame(s){const v=s.video.el,c=document.createElement('canvas');c.width=v.videoWidth||1280;c.height=v.videoHeight||720;c.getContext('2d').drawImage(v,0,0,c.width,c.height);const blob=await new Promise(r=>c.toBlob(r,'image/png'));if(blob)await mediaWorkspaceAddBlob(blob,`${mediaWorkspaceStem(s.meta.name)}-frame-${Math.round(v.currentTime*1000)}.png`,'image/png')}
+async function mediaVideoExportTrim(s){const v=s.video,el=v.el;if(!el.captureStream||!window.MediaRecorder){toast('<b>Clip export unsupported.</b> This browser cannot capture the video element.','bad');return}const from=Math.max(0,v.in),to=Math.min(el.duration||v.out,v.out);if(!(to>from)){toast('<b>Invalid range.</b> Set OUT after IN.','bad');return}const wasTime=el.currentTime,wasMuted=el.muted;el.currentTime=from;await new Promise(r=>{if(Math.abs(el.currentTime-from)<.05)return r();el.addEventListener('seeked',()=>r(),{once:true})});const stream=el.captureStream(),mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(x=>MediaRecorder.isTypeSupported(x))||'';const rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined),chunks=[];rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};const stopped=new Promise(r=>rec.onstop=r);rec.start(250);el.muted=true;await el.play();await new Promise(r=>{const timer=setInterval(()=>{if(el.currentTime>=to||el.ended){clearInterval(timer);el.pause();r()}},20)});rec.stop();await stopped;stream.getTracks().forEach(t=>t.stop());el.currentTime=wasTime;el.muted=wasMuted;const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'});if(blob.size)await mediaWorkspaceAddBlob(blob,mediaWorkspaceStem(s.meta.name)+'-clip.webm',blob.type)}
+async function mediaVideoEditor(s){
+  const stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector'),bottom=$('#mediaEditorBottom');stage.classList.add('mediaVideoStage');tools.innerHTML=`<button class="mediaToolBtn" data-video-act="play" title="Play / pause">▶</button><button class="mediaToolBtn" data-video-act="prev" title="Previous frame">◀</button><button class="mediaToolBtn" data-video-act="next" title="Next frame">▶</button><div class="mediaToolSep"></div><button class="mediaToolBtn" data-video-act="markIn" title="Set In">I</button><button class="mediaToolBtn" data-video-act="markOut" title="Set Out">O</button><button class="mediaToolBtn" data-video-act="split" title="Split marker">✂</button><button class="mediaToolBtn" data-video-act="frame" title="Capture current frame">▣</button>`;stage.innerHTML=`<video id="mediaVideo" src="${escapeHtml(s.url)}" preload="metadata" playsinline controls></video><span class="mediaFrameBadge" id="mediaVideoTime">0:00</span>`;ins.innerHTML=`<section class="mediaInspectorSection"><div class="mediaInspectorTitle">Timeline</div><div class="mediaControlRow"><span>FPS</span><input id="mediaVideoFps" type="number" min="1" max="240" step="1" value="30"><output>STEP</output></div><div class="mediaControlRow"><span>IN</span><input id="mediaVideoIn" type="number" min="0" step="0.001" value="0"><output>SEC</output></div><div class="mediaControlRow"><span>OUT</span><input id="mediaVideoOut" type="number" min="0" step="0.001"><output>SEC</output></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Playback</div><div class="mediaControlRow"><span>SPEED</span><select id="mediaVideoRate"><option>.25</option><option>.5</option><option selected>1</option><option>1.5</option><option>2</option></select><output>×</output></div><div class="mediaControlRow"><span>VOLUME</span><input id="mediaVideoVolume" type="range" min="0" max="1" step="0.01" value="1"><output id="mediaVideoVolumeOut">100%</output></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Edit decision list</div><div class="mediaCropReadout">IN/OUT defines export range. Split markers are preserved in the editor state for future multi-clip assembly plumbing.</div><button class="mediaEditorBtn" data-video-act="export">EXPORT RANGE</button></section>`;bottom.innerHTML=`<div class="mediaTimelineBar"><button class="mediaEditorBtn" data-video-act="prev">−1 FRAME</button><button class="mediaEditorBtn" data-video-act="next">+1 FRAME</button><span class="mediaEditorSpacer"></span><span class="panelmeta">CLICK TIMELINE TO SEEK · I/O MARK RANGE · ✂ ADDS CUT</span></div><div class="mediaTimeline"><canvas id="mediaVideoTimeline" width="1200" height="100"></canvas></div>`;
+  const el=$('#mediaVideo');await new Promise((res,rej)=>{if(el.readyState>=1)return res();el.onloadedmetadata=res;el.onerror=()=>rej(new Error('video cannot be decoded'))});const tl=$('#mediaVideoTimeline');s.video={el,timeline:tl,timelineBase:null,fps:30,in:0,out:el.duration||0,cuts:[],history:[],historyIndex:-1};$('#mediaVideoOut').value=(el.duration||0).toFixed(3);tl.addEventListener('pointerdown',e=>{const r=tl.getBoundingClientRect(),t=(e.clientX-r.left)/r.width*(el.duration||0);el.currentTime=Math.max(0,Math.min(el.duration||0,t));mediaVideoRenderTimeline(s)});el.addEventListener('timeupdate',()=>mediaVideoRenderTimeline(s));el.addEventListener('loadeddata',()=>mediaVideoRenderTimeline(s));s.undo=()=>mediaVideoRestore(s,s.video.historyIndex-1);s.redo=()=>mediaVideoRestore(s,s.video.historyIndex+1);s.save=()=>mediaVideoExportTrim(s);mediaVideoSnapshot(s,'original');mediaWorkspaceSetStatus(`video · ${el.videoWidth}×${el.videoHeight} · ${mediaWorkspaceTime(el.duration)}`);mediaVideoGenerateThumbs(s).catch(()=>{});s.cleanup=()=>{el.pause()}
+}
+async function mediaVideoClick(e,s){const b=e.target.closest?.('[data-video-act]');if(!b)return;const v=s.video,el=v.el,step=1/Math.max(1,v.fps);switch(b.dataset.videoAct){case'play':el.paused?el.play():el.pause();break;case'prev':el.currentTime=Math.max(0,el.currentTime-step);break;case'next':el.currentTime=Math.min(el.duration||Infinity,el.currentTime+step);break;case'markIn':v.in=Math.min(el.currentTime,v.out);mediaVideoSnapshot(s,'in');mediaVideoInspectorValues(s);break;case'markOut':v.out=Math.max(el.currentTime,v.in);mediaVideoSnapshot(s,'out');mediaVideoInspectorValues(s);break;case'split':if(!v.cuts.some(t=>Math.abs(t-el.currentTime)<.02)){v.cuts.push(el.currentTime);v.cuts.sort((a,b)=>a-b);mediaVideoSnapshot(s,'split')}break;case'frame':await mediaVideoCaptureFrame(s);break;case'export':await mediaVideoExportTrim(s);break}mediaVideoRenderTimeline(s)}
+function mediaVideoInput(e,s){const v=s.video;if(e.target.id==='mediaVideoFps'){v.fps=Math.max(1,Math.min(240,Number(e.target.value)||30));mediaVideoSnapshot(s,'fps')}else if(e.target.id==='mediaVideoIn'){v.in=Math.max(0,Math.min(v.out,Number(e.target.value)||0));mediaVideoSnapshot(s,'in')}else if(e.target.id==='mediaVideoOut'){v.out=Math.max(v.in,Math.min(v.el.duration||Infinity,Number(e.target.value)||0));mediaVideoSnapshot(s,'out')}else if(e.target.id==='mediaVideoRate')v.el.playbackRate=Number(e.target.value)||1;else if(e.target.id==='mediaVideoVolume'){v.el.volume=Number(e.target.value)||0;const o=$('#mediaVideoVolumeOut');if(o)o.textContent=Math.round(v.el.volume*100)+'%'}}
+MEDIA_WORKSPACE_EDITORS.video=mediaVideoEditor;
+
+/* ------------------------------- AUDIO ----------------------------------- */
+function mediaAudioCloneChannels(ch){return ch.map(x=>new Float32Array(x))}
+function mediaAudioDuration(s){return s.audio.channels[0]?.length/s.audio.sampleRate||0}
+function mediaAudioSnapshot(s,label='edit'){const a=s.audio;a.history.splice(a.historyIndex+1);a.history.push({channels:mediaAudioCloneChannels(a.channels),selection:[...a.selection],cursor:a.cursor,label});if(a.history.length>10)a.history.shift();a.historyIndex=a.history.length-1;mediaAudioHistoryUi(s)}
+function mediaAudioRestore(s,i){const h=s.audio.history[i];if(!h)return;mediaAudioStop(s);s.audio.channels=mediaAudioCloneChannels(h.channels);s.audio.selection=[...h.selection];s.audio.cursor=h.cursor;s.audio.historyIndex=i;mediaAudioDraw(s);mediaAudioHistoryUi(s)}
+function mediaAudioHistoryUi(s){mediaWorkspaceCommonButtons(s,{undo:s.audio.historyIndex>0,redo:s.audio.historyIndex<s.audio.history.length-1,save:true})}
+function mediaAudioDraw(s){const a=s.audio,c=a.wave,ctx=c.getContext('2d'),w=c.width,h=c.height,dur=mediaAudioDuration(s);ctx.fillStyle='#07090b';ctx.fillRect(0,0,w,h);const data=a.channels[0]||new Float32Array(),step=Math.max(1,Math.floor(data.length/w));ctx.strokeStyle='#91a0ac';ctx.lineWidth=1;ctx.beginPath();for(let x=0;x<w;x++){let lo=1,hi=-1;for(let j=x*step;j<Math.min(data.length,(x+1)*step);j++){const v=data[j];if(v<lo)lo=v;if(v>hi)hi=v}const y1=(1-hi)*h/2,y2=(1-lo)*h/2;ctx.moveTo(x,y1);ctx.lineTo(x,y2)}ctx.stroke();const tx=t=>dur?Math.max(0,Math.min(w,t/dur*w)):0,sel=a.selection;ctx.fillStyle='rgba(244,189,50,.13)';ctx.fillRect(tx(sel[0]),0,Math.max(1,tx(sel[1])-tx(sel[0])),h);ctx.strokeStyle='#f4bd32';ctx.beginPath();ctx.moveTo(tx(sel[0]),0);ctx.lineTo(tx(sel[0]),h);ctx.moveTo(tx(sel[1]),0);ctx.lineTo(tx(sel[1]),h);ctx.stroke();ctx.strokeStyle='#fff';ctx.beginPath();ctx.moveTo(tx(a.cursor),0);ctx.lineTo(tx(a.cursor),h);ctx.stroke();const read=$('#mediaAudioReadout');if(read)read.innerHTML=`<span>${mediaWorkspaceTime(a.cursor)}</span><span>SEL ${mediaWorkspaceTime(sel[0])} → ${mediaWorkspaceTime(sel[1])}</span><span>${mediaWorkspaceTime(dur)}</span>`;mediaWorkspaceSetStatus(`audio · ${a.sampleRate} Hz · ${a.channels.length} ch · ${mediaWorkspaceTime(dur)}`)}
+function mediaAudioStop(s){const a=s.audio;if(a.source){try{a.source.stop()}catch(_){}a.source.disconnect?.();a.source=null}cancelAnimationFrame(a.raf);a.raf=0;a.playing=false}
+function mediaAudioBuffer(s){const a=s.audio,b=a.ctx.createBuffer(a.channels.length,a.channels[0]?.length||1,a.sampleRate);a.channels.forEach((ch,i)=>b.copyToChannel(ch,i));return b}
+async function mediaAudioPlay(s){const a=s.audio;if(a.playing){mediaAudioStop(s);return}await a.ctx.resume();const src=a.ctx.createBufferSource(),gain=a.ctx.createGain();src.buffer=mediaAudioBuffer(s);gain.gain.value=a.gain;src.connect(gain).connect(a.ctx.destination);const start=Math.min(a.cursor,Math.max(0,mediaAudioDuration(s)-.001));src.start(0,start);a.source=src;a.playing=true;a.playStart=performance.now()/1000-start;src.onended=()=>{if(a.source===src){a.playing=false;a.source=null;a.cursor=Math.min(mediaAudioDuration(s),performance.now()/1000-a.playStart);mediaAudioDraw(s)}};const tick=()=>{if(!a.playing)return;a.cursor=Math.min(mediaAudioDuration(s),performance.now()/1000-a.playStart);mediaAudioDraw(s);a.raf=requestAnimationFrame(tick)};tick()}
+function mediaAudioSelectionSamples(s){const a=s.audio,d=mediaAudioDuration(s),lo=Math.max(0,Math.min(d,a.selection[0])),hi=Math.max(lo,Math.min(d,a.selection[1]));return[Math.floor(lo*a.sampleRate),Math.floor(hi*a.sampleRate)]}
+function mediaAudioOperation(s,type){const a=s.audio;mediaAudioStop(s);let[i0,i1]=mediaAudioSelectionSamples(s);if(i1<=i0){i0=0;i1=a.channels[0].length}if(type==='trim'){a.channels=a.channels.map(ch=>ch.slice(i0,i1));a.selection=[0,mediaAudioDuration(s)];a.cursor=0}else if(type==='normalize'){let peak=0;for(const ch of a.channels)for(let i=i0;i<i1;i++)peak=Math.max(peak,Math.abs(ch[i]));if(peak>0){const k=.98/peak;for(const ch of a.channels)for(let i=i0;i<i1;i++)ch[i]*=k}}else if(type==='fadeIn'){const n=Math.max(1,i1-i0);for(const ch of a.channels)for(let i=i0;i<i1;i++)ch[i]*=(i-i0)/n}else if(type==='fadeOut'){const n=Math.max(1,i1-i0);for(const ch of a.channels)for(let i=i0;i<i1;i++)ch[i]*=(i1-i)/n}else if(type==='reverse'){for(const ch of a.channels){let l=i0,r=i1-1;while(l<r){const t=ch[l];ch[l]=ch[r];ch[r]=t;l++;r--}}}else if(type==='silence'){for(const ch of a.channels)ch.fill(0,i0,i1)}mediaAudioSnapshot(s,type);mediaAudioDraw(s)}
+function mediaAudioWavBlob(s){const a=s.audio,ch=a.channels,n=ch[0]?.length||0,channels=ch.length,bytes=44+n*channels*2,b=new ArrayBuffer(bytes),v=new DataView(b),str=(o,x)=>{for(let i=0;i<x.length;i++)v.setUint8(o+i,x.charCodeAt(i))};str(0,'RIFF');v.setUint32(4,36+n*channels*2,true);str(8,'WAVE');str(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,channels,true);v.setUint32(24,a.sampleRate,true);v.setUint32(28,a.sampleRate*channels*2,true);v.setUint16(32,channels*2,true);v.setUint16(34,16,true);str(36,'data');v.setUint32(40,n*channels*2,true);let o=44;for(let i=0;i<n;i++)for(let c=0;c<channels;c++){const x=Math.max(-1,Math.min(1,ch[c][i]||0));v.setInt16(o,x<0?x*0x8000:x*0x7fff,true);o+=2}return new Blob([b],{type:'audio/wav'})}
+async function mediaAudioEditor(s){
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)throw new Error('Web Audio is unavailable');const ctx=new AC(),decoded=await ctx.decodeAudioData(await s.blob.arrayBuffer()),channels=[];for(let i=0;i<decoded.numberOfChannels;i++)channels.push(new Float32Array(decoded.getChannelData(i)));const stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector'),bottom=$('#mediaEditorBottom');tools.innerHTML=`<button class="mediaToolBtn" data-audio-act="play" title="Play / pause">▶</button><button class="mediaToolBtn" data-audio-act="stop" title="Stop">■</button><div class="mediaToolSep"></div><button class="mediaToolBtn" data-audio-op="trim" title="Trim to selection">✂</button><button class="mediaToolBtn" data-audio-op="normalize" title="Normalize">N</button><button class="mediaToolBtn" data-audio-op="fadeIn" title="Fade in">↗</button><button class="mediaToolBtn" data-audio-op="fadeOut" title="Fade out">↘</button><button class="mediaToolBtn" data-audio-op="reverse" title="Reverse">↔</button><button class="mediaToolBtn" data-audio-op="silence" title="Silence selection">Ø</button>`;stage.innerHTML=`<div class="mediaAudioStage"><div class="mediaAudioReadout" id="mediaAudioReadout"></div><canvas class="mediaAudioWave" id="mediaAudioWave" width="1400" height="320"></canvas></div>`;ins.innerHTML=`<section class="mediaInspectorSection"><div class="mediaInspectorTitle">Playback</div><div class="mediaControlRow"><span>GAIN</span><input id="mediaAudioGain" type="range" min="0" max="2" step="0.01" value="1"><output id="mediaAudioGainOut">100%</output></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Destructive edit</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><button class="mediaEditorBtn" data-audio-op="trim">TRIM</button><button class="mediaEditorBtn" data-audio-op="normalize">NORMALIZE</button><button class="mediaEditorBtn" data-audio-op="fadeIn">FADE IN</button><button class="mediaEditorBtn" data-audio-op="fadeOut">FADE OUT</button><button class="mediaEditorBtn" data-audio-op="reverse">REVERSE</button><button class="mediaEditorBtn" data-audio-op="silence">SILENCE</button></div></section><section class="mediaInspectorSection"><div class="mediaInspectorTitle">Selection</div><div class="mediaCropReadout">Drag across the waveform to select a range. Click to move the playhead. Operations act on the selection; with no range they act on the entire waveform.</div></section>`;bottom.innerHTML=`<div class="mediaTimelineBar"><button class="mediaEditorBtn" data-audio-act="play">PLAY / PAUSE</button><button class="mediaEditorBtn" data-audio-act="stop">STOP</button><span class="mediaEditorSpacer"></span><span class="panelmeta">WAVEFORM EDITOR · PCM WORKING BUFFER · WAV EXPORT</span></div>`;
+  const wave=$('#mediaAudioWave'),dur=decoded.duration;s.audio={ctx,channels,sampleRate:decoded.sampleRate,wave,selection:[0,dur],cursor:0,gain:1,source:null,playing:false,raf:0,history:[],historyIndex:-1,dragStart:null};
+  wave.addEventListener('pointerdown',e=>{const r=wave.getBoundingClientRect(),t=(e.clientX-r.left)/r.width*mediaAudioDuration(s);s.audio.dragStart=t;s.audio.selection=[t,t];s.audio.cursor=t;wave.setPointerCapture?.(e.pointerId);mediaAudioDraw(s)});wave.addEventListener('pointermove',e=>{if(s.audio.dragStart==null)return;const r=wave.getBoundingClientRect(),t=Math.max(0,Math.min(mediaAudioDuration(s),(e.clientX-r.left)/r.width*mediaAudioDuration(s)));s.audio.selection=[Math.min(s.audio.dragStart,t),Math.max(s.audio.dragStart,t)];s.audio.cursor=t;mediaAudioDraw(s)});wave.addEventListener('pointerup',e=>{s.audio.dragStart=null;try{wave.releasePointerCapture?.(e.pointerId)}catch(_){}});
+  s.undo=()=>mediaAudioRestore(s,s.audio.historyIndex-1);s.redo=()=>mediaAudioRestore(s,s.audio.historyIndex+1);s.save=async()=>mediaWorkspaceAddBlob(mediaAudioWavBlob(s),mediaWorkspaceStem(s.meta.name)+'-edited.wav','audio/wav');s.cleanup=async()=>{mediaAudioStop(s);await ctx.close().catch(()=>{})};mediaAudioSnapshot(s,'original');mediaAudioDraw(s)
+}
+async function mediaAudioClick(e,s){const act=e.target.closest?.('[data-audio-act]'),op=e.target.closest?.('[data-audio-op]');if(act){if(act.dataset.audioAct==='play')await mediaAudioPlay(s);else if(act.dataset.audioAct==='stop'){mediaAudioStop(s);s.audio.cursor=0;mediaAudioDraw(s)}}else if(op)mediaAudioOperation(s,op.dataset.audioOp)}
+function mediaAudioInput(e,s){if(e.target.id==='mediaAudioGain'){s.audio.gain=Number(e.target.value)||0;const o=$('#mediaAudioGainOut');if(o)o.textContent=Math.round(s.audio.gain*100)+'%'}}
+MEDIA_WORKSPACE_EDITORS.audio=mediaAudioEditor;
+
+/* -------------------------- TEXT / PDF / FALLBACK ------------------------- */
+async function mediaTextEditor(s){const stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector');tools.innerHTML='<button class="mediaToolBtn active" title="Text editing">T</button>';const text=await s.blob.text();stage.innerHTML='<textarea class="mediaTextEditor" id="mediaTextEditor" spellcheck="false"></textarea>';$('#mediaTextEditor').value=text;ins.innerHTML=`<section class="mediaInspectorSection"><div class="mediaInspectorTitle">Source</div><div class="mediaCropReadout">Plain-text/source asset editor. SAVE COPY creates a new encrypted shared asset and preserves the original.</div></section>`;mediaWorkspaceCommonButtons(s,{undo:false,redo:false,save:true});s.save=async()=>{const value=$('#mediaTextEditor')?.value??'',blob=new Blob([value],{type:s.meta.type||'text/plain'});await mediaWorkspaceAddBlob(blob,mediaWorkspaceStem(s.meta.name)+'-edited'+(s.meta.name.match(/\.[^.]+$/)?.[0]||'.txt'),blob.type)}}
+MEDIA_WORKSPACE_EDITORS.text=mediaTextEditor;
+function mediaPdfEditor(s){const stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector');tools.innerHTML='<button class="mediaToolBtn active" title="PDF viewer">PDF</button>';stage.innerHTML=`<iframe class="mediaPdfFrame" src="${escapeHtml(s.url)}" title="${escapeHtml(s.meta.name)}"></iframe>`;ins.innerHTML='<section class="mediaInspectorSection"><div class="mediaInspectorTitle">PDF</div><div class="mediaCropReadout">Native PDF presentation is mounted in the central workspace. Annotation/page-edit plumbing can be added here without changing the asset storage contract.</div></section>';mediaWorkspaceCommonButtons(s,{undo:false,redo:false,save:false})}
+MEDIA_WORKSPACE_EDITORS.pdf=mediaPdfEditor;
+function mediaGenericEditor(s,err=null){const stage=$('#mediaEditorStage'),tools=$('#mediaToolRail'),ins=$('#mediaEditorInspector');tools.innerHTML='<button class="mediaToolBtn active" title="Asset">FILE</button>';stage.innerHTML=`<div class="mediaGenericCard"><h2>${escapeHtml(s.meta.name)}</h2><p>${escapeHtml(s.meta.type||'application/octet-stream')}</p><p>${fmtBytes(s.meta.size||s.blob.size)}</p>${err?`<p>${escapeHtml(err.message||err)}</p>`:''}<p>This format does not yet have a specialized native editor. It remains available for download, external open, drag/drop, and encrypted peer transfer.</p></div>`;ins.innerHTML='<section class="mediaInspectorSection"><div class="mediaInspectorTitle">Asset</div><div class="mediaCropReadout">Add a format adapter to MEDIA_WORKSPACE_EDITORS to promote this type into a first-class editor.</div></section>';mediaWorkspaceCommonButtons(s,{undo:false,redo:false,save:false})}
+MEDIA_WORKSPACE_EDITORS.generic=mediaGenericEditor;
+
+// Explicit agent-facing hooks for future automation / editor extensions.
+window.ScratchMediaWorkspace={open:openMediaWorkspace,close:closeMediaWorkspace,register(kind,adapter){if(!kind||typeof adapter!=='function')throw new TypeError('register(kind, adapter) requires a function');MEDIA_WORKSPACE_EDITORS[String(kind).toLowerCase()]=adapter;return true},get active(){return activeMediaEditor?{id:activeMediaEditor.id,kind:activeMediaEditor.kind,name:activeMediaEditor.meta.name}:null},get kinds(){return Object.keys(MEDIA_WORKSPACE_EDITORS)}};
 </script>
 
 
