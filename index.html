@@ -3187,24 +3187,10 @@ async function requestAssetOnce(sourceActor,wireId,canonicalId){
   assetRequests.set(canonicalId,now);const sent=await sendCtlActor(sourceActor,newMessage('asset-need',{ids:[wireId]}));if(sent===false)assetRequests.delete(canonicalId);return sent!==false;
 }
 async function migrateAssetCache(){
-  if(!assets.size)return;const grouped=new Map();
-  for(const raw of assets.values()){
-    const sha=String(raw?.sha||'').toLowerCase();const key=/^[0-9a-f]{64}$/.test(sha)?sha:'id:'+raw.id;let arr=grouped.get(key);if(!arr){arr=[];grouped.set(key,arr)}arr.push(raw);
-  }
-  const normalized=new Map();
-  for(const [key,list] of grouped){
-    let winner=list[0];for(const m of list.slice(1))if(cmpV(m.v,winner.v)>0)winner=m;
-    const sha=String(winner?.sha||'').toLowerCase(),canonical=/^[0-9a-f]{64}$/.test(sha)?'f-'+sha:String(winner.id);const meta={...winner,id:canonical};normalized.set(canonical,meta);
-    let canonicalPacket=await idbGet('files',canonical);
-    if(!canonicalPacket&&!meta.deleted){
-      for(const old of list){
-        const packet=await idbGet('files',old.id);if(!packet)continue;
-        try{const plain=await decryptBytes(packet,'file:'+old.id);canonicalPacket=old.id===canonical?packet:await encryptBytes(plain,'file:'+canonical);await idbPut('files',canonical,canonicalPacket);break}catch(e){console.warn('asset cache migration skipped',old.id,e)}
-      }
-    }
-    for(const old of list)if(old.id!==canonical)await idbDel('files',old.id);
-  }
-  assets.clear();for(const [id,m] of normalized)assets.set(id,m);await saveAssets();
+  // SAFETY: Never rename, rewrite, canonicalize, or delete persisted asset blobs during startup.
+  // Existing IndexedDB file IDs are immutable storage keys. Dedupe/canonical SHA identity
+  // must remain metadata-only unless an explicit, verified migration is initiated by the user.
+  return;
 }
 
 async function handleControl(packet,{peerId},w){
