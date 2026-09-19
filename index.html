@@ -9708,6 +9708,243 @@ document.addEventListener('pointerdown',e=>{
   scratchCanvasDeselectV39();
 },true);
 
+
+/* ============================================================================
+   V40 — DURABLE MEDIA FILE NODES + AUTHORITATIVE REOPEN + IMAGE SOURCE INVARIANT
+         + ASSET→IMAGE DROP + TRUE-SIZE COLLABORATIVE DOCUMENT POINTERS
+   ============================================================================ */
+
+/* Capture the requested route before any boot-time fallback can rewrite it. */
+const scratchInitialHrefV40=location.href;
+const scratchInitialUrlV40=new URL(scratchInitialHrefV40);
+const scratchInitialParamsV40=new URLSearchParams(scratchInitialUrlV40.search);
+const scratchInitialMediaRouteV40=(scratchInitialParamsV40.get('ws')==='media'||scratchInitialParamsV40.get('view')==='media')&&!!(scratchInitialParamsV40.get('asset')||scratchInitialParamsV40.get('mfile'));
+let scratchDurableRoutePendingV40=scratchInitialMediaRouteV40;
+let scratchDurableRouteRunningV40=false;
+let scratchActiveMediaNodeV40='';
+/* Block the older queued restorers immediately, before their zero-delay timers can run. */
+if(scratchInitialMediaRouteV40){scratchRouteRestoredV36=true;scratchRouteRestoreDoneV39=true;}
+
+/* Media files are represented in docTree by small synchronized references. The
+   binary is NOT copied into Yjs; the node points at the canonical encrypted asset. */
+function scratchMediaFileNodeForAssetV40(assetId){
+  assetId=String(assetId||'');if(!assetId||!yfs)return null;
+  return fsEntries().find(x=>x.type==='media'&&!x.trashed&&String(x.assetId||'')===assetId)||null;
+}
+function scratchMediaFileNodeV40(nodeId){const m=fsEntry(nodeId);return m?.type==='media'&&m.assetId?m:null}
+function scratchEnsureMediaFileNodeV40(assetId){
+  assetId=String(assetId||'');const meta=assets?.get?.(assetId);if(!assetId||!meta||meta.deleted||!yfs||!ydoc)return null;
+  let node=scratchMediaFileNodeForAssetV40(assetId);
+  const kind=mediaWorkspaceKind(meta),parent=(fsEntry(activeFolderId)?.type==='folder'?activeFolderId:(currentDocMeta()?.parent||null));
+  if(!node){
+    const id='media-'+crypto.randomUUID();
+    ydoc.transact(()=>yfs.set(id,{type:'media',parent,name:safeName(meta.name||'Media file'),assetId,editorKind:kind,mime:meta.type||'',created:Date.now(),updated:Date.now(),deleted:false}),LOCAL_ORIGIN);
+    node=fsEntry(id);
+  }else if(node.name!==meta.name||node.editorKind!==kind||node.mime!==meta.type){
+    ydoc.transact(()=>setFsEntry(node.id,{name:safeName(meta.name||node.name||'Media file'),editorKind:kind,mime:meta.type||node.mime||''}),LOCAL_ORIGIN);node=fsEntry(node.id);
+  }
+  scratchActiveMediaNodeV40=node?.id||'';renderDocNavigator?.();return node;
+}
+
+/* Render media references as first-class file rows without pretending they are rich docs. */
+const scratchDocRowHtmlV40Base=docRowHtml;
+docRowHtml=function(m,depth){
+  if(m?.type!=='media')return scratchDocRowHtmlV40Base(m,depth);
+  const active=activeMediaEditor&&String(activeMediaEditor.id)===String(m.assetId),kind=String(m.editorKind||'file').toUpperCase();
+  return `<div class="docRow media-file ${active?'active':''}" data-doc-id="${escapeHtml(m.id)}" data-doc-type="media" draggable="true" data-asset-id="${escapeHtml(m.assetId||'')}" style="--indent:${4+depth*15}px;--folder-color:#7b8791"><button class="docTypeBtn" type="button" aria-label="${escapeHtml(kind)} file"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v5h5"/></svg></button><button class="docNameBtn" type="button" title="${escapeHtml(m.name||'File')}">${escapeHtml(m.name||'File')}</button><span class="docMediaKind">${escapeHtml(kind)}</span><button class="docItemMenu" type="button" aria-label="Actions for ${escapeHtml(m.name||'File')}">···</button><div class="docRowActions"><button class="mini" data-media-fs-act="open">OPEN</button><button class="mini" data-media-fs-act="download">SAVE</button><button class="mini" data-media-fs-act="rename">RENAME</button><button class="mini danger" data-media-fs-act="remove">REMOVE</button></div></div>`;
+};
+
+/* Existing docTree handlers intentionally only know folder/doc. Intercept media rows
+   in capture phase so none of the document-only download/open paths see them. */
+document.addEventListener('click',e=>{
+  const row=e.target?.closest?.('#docTree .docRow[data-doc-type="media"]');if(!row)return;
+  const node=scratchMediaFileNodeV40(row.dataset.docId);if(!node)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const act=e.target.closest?.('[data-media-fs-act]')?.dataset.mediaFsAct;
+  if(act==='download')return void downloadAsset(node.assetId);
+  if(act==='rename')return void renameFsEntry(node.id);
+  if(act==='remove'){ydoc.transact(()=>setFsEntry(node.id,{deleted:true}),LOCAL_ORIGIN);if(scratchActiveMediaNodeV40===node.id)scratchActiveMediaNodeV40='';renderDocNavigator();scratchRouteScheduleV39?.(0);return}
+  openMediaWorkspace(node.assetId).catch(err=>toast('<b>Could not open file.</b> '+escapeHtml(err.message||err),'bad'));
+},true);
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter'&&e.key!==' ')return;const row=e.target?.closest?.('#docTree .docRow[data-doc-type="media"]');if(!row)return;const node=scratchMediaFileNodeV40(row.dataset.docId);if(!node)return;e.preventDefault();e.stopImmediatePropagation();openMediaWorkspace(node.assetId).catch(console.error);
+},true);
+
+/* Make any media open durable immediately. */
+const scratchOpenMediaWorkspaceV40NodeBase=openMediaWorkspace;
+openMediaWorkspace=async function(id){
+  const node=scratchEnsureMediaFileNodeV40(id);
+  const ok=await scratchOpenMediaWorkspaceV40NodeBase(id);
+  if(ok){scratchActiveMediaNodeV40=node?.id||scratchMediaFileNodeForAssetV40(id)?.id||'';renderDocNavigator?.();scratchRouteScheduleV39?.(0)}
+  return ok;
+};
+window.__scratchOpenMediaWorkspace=openMediaWorkspace;
+const scratchCloseMediaWorkspaceV40NodeBase=closeMediaWorkspace;
+closeMediaWorkspace=async function(opts={}){const r=await scratchCloseMediaWorkspaceV40NodeBase(opts);scratchActiveMediaNodeV40='';renderDocNavigator?.();scratchRouteScheduleV39?.(0);return r};
+window.__scratchCloseMediaWorkspace=closeMediaWorkspace;
+/* Keep the workspace title aligned with the active durable media-file node. */
+const scratchUpdateActiveDocTitleV40Base=updateActiveDocTitle;
+updateActiveDocTitle=function(){if(activeMediaEditor){const el=$('#activeDocTitle');if(el)el.textContent=activeMediaEditor.meta?.name||'Media file';return}return scratchUpdateActiveDocTitleV40Base()};
+
+/* Route V39 gains the synchronized file-node id as a second durable locator. */
+const scratchRouteClearV40Base=scratchRouteClearV39;
+scratchRouteClearV39=function(u){u=scratchRouteClearV40Base(u);u.searchParams.delete('mfile');return u};
+const scratchRouteParseV40Base=scratchRouteParseV39;
+scratchRouteParseV39=function(){const r=scratchRouteParseV40Base();r.mfile=new URL(location.href).searchParams.get('mfile')||'';return r};
+const scratchRouteWriteV40Base=scratchRouteWriteV39;
+scratchRouteWriteV39=function(opts={}){
+  /* Never let the default Canvas boot state overwrite a requested media URL while
+     the durable target is still being resolved. */
+  if(scratchDurableRoutePendingV40)return false;
+  const result=scratchRouteWriteV40Base(opts);
+  try{
+    const u=new URL(location.href);
+    if(activeMediaEditor){const node=scratchMediaFileNodeForAssetV40(activeMediaEditor.id)||scratchEnsureMediaFileNodeV40(activeMediaEditor.id);if(node)u.searchParams.set('mfile',node.id)}else u.searchParams.delete('mfile');
+    const href=u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash;
+    scratchRouteLastHrefV39=href;history.replaceState(history.state,'',href);
+    try{localStorage.setItem('scratch-last-interface-route:'+roomHash,href)}catch(_){}
+  }catch(err){console.warn('durable media route write failed',err)}
+  return result;
+};
+scratchWriteRouteV36=scratchRouteWriteV39;
+scratchScheduleRouteV36=scratchRouteScheduleV39;
+
+function scratchInitialRouteObjectV40(){
+  const p=scratchInitialParamsV40,old=p.get('view')||'';
+  return{ws:p.get('ws')||old,mfile:p.get('mfile')||'',asset:p.get('asset')||'',editor:p.get('editor')||'',page:p.get('page')||'',focus:p.get('focus')||p.get('component')||'',t:p.get('t')||p.get('time')||'',sel:p.get('sel')||p.get('selection')||'',isel:p.get('isel')||'',left:p.get('left')||'',right:p.get('right')||'',rail:p.get('rail')||'',tool:p.get('tool')||'',zoom:p.get('zoom')||'',sx:p.get('sx')||'',sy:p.get('sy')||'',scroll:p.get('scroll')||'',tracks:p.get('tracks')||''};
+}
+async function scratchRestoreDurableMediaRouteV40(){
+  if(!scratchDurableRoutePendingV40||scratchDurableRouteRunningV40)return false;scratchDurableRouteRunningV40=true;
+  const r=scratchInitialRouteObjectV40();let restored=false;
+  /* Disable the older route restorers for this boot; this one owns the captured URL. */
+  scratchRouteRestoreDoneV39=true;scratchRouteRestoredV36=true;
+  try{
+    for(let i=0;i<180;i++){
+      if(!ydoc||!db){await new Promise(res=>setTimeout(res,80));continue}
+      let assetId=r.asset;
+      if(r.mfile){const n=scratchMediaFileNodeV40(r.mfile);if(n?.assetId)assetId=String(n.assetId)}
+      if(!assetId){await new Promise(res=>setTimeout(res,80));continue}
+      const meta=assets?.get?.(assetId);
+      if(!meta||meta.deleted){await new Promise(res=>setTimeout(res,100));continue}
+      await openMediaWorkspace(assetId);
+      if(activeMediaEditor?.id===assetId){scratchRouteApplyMediaV39(activeMediaEditor,r);scratchActiveMediaNodeV40=scratchMediaFileNodeForAssetV40(assetId)?.id||r.mfile||'';restored=true;break}
+    }
+    if(r.left&&['files','canvas','assets','drive'].includes(r.left))openLeftTab?.(r.left);
+    if(r.right&&['media','properties','search','activity','comments','outline','inference'].includes(r.right))setRightPanelTab?.(r.right,{open:false});
+    if(r.rail&&activeMediaEditor&&['project','history'].includes(r.rail))scratchMediaOpenRailTab?.(r.rail);
+  }catch(err){console.warn('durable media route restore failed',err)}finally{
+    scratchDurableRoutePendingV40=false;scratchDurableRouteRunningV40=false;scratchRouteApplyingV39=false;scratchRouteApplyingV36=false;
+    if(restored){renderDocNavigator?.();queuePresence?.(true)}
+    scratchRouteWriteV39({force:true});
+    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(scratchRoutePollV39,300);
+  }
+  return restored;
+}
+if(scratchInitialMediaRouteV40)setTimeout(()=>scratchRestoreDurableMediaRouteV40(),0);
+
+/* IMAGE OPEN INVARIANT ----------------------------------------------------
+   A saved project may add/edit layers, but on initial open it may not silently replace
+   the actual clicked image with a legacy blank/background-only stack. The check is based
+   on canonical layer identity, not merely on whether *some* opaque pixel exists. */
+let scratchImageOpenRepairGenerationV40=0;
+async function scratchImageEnsureCanonicalOnOpenV40(s,{persist=true}={}){
+  const im=s?.image;if(!im||im.gif||activeMediaEditor!==s)return false;
+  let layer=im.layers?.find(l=>String(l.sourceAssetId||'')===String(s.id));
+  const sourceVisible=s.__imageCanonicalSourceInfoV37?.visible;
+  const layerUsable=!!(layer?.canvas&&layer.canvas.width>0&&layer.canvas.height>0&&(sourceVisible===false||scratchImageCanvasHasVisiblePixelsV37(layer.canvas)));
+  if(layerUsable)return false;
+  let decoded;try{decoded=await scratchImageDecodeCanonicalSourceV37(s)}catch(err){console.error('canonical image reopen repair failed',err);return false}
+  if(decoded.visible===false&&sourceVisible===false)return false;
+  const priorActive=im.activeLayerId;
+  if(!layer){
+    layer=mediaImageNewLayer(s,s.meta?.name||'Source');const at=im.layers.indexOf(layer);if(at>=0)im.layers.splice(at,1);im.layers.unshift(layer);
+  }
+  scratchImageResetCanonicalLayerV38(s,layer,decoded);layer.name=s.meta?.name||layer.name||'Source';
+  if(priorActive&&im.layers.some(l=>l.id===priorActive))im.activeLayerId=priorActive;else im.activeLayerId=layer.id;
+  scratchImageNormalizeDocV33(s);mediaImageComposite(s);mediaImageSyncSize(s);mediaImageRenderLayers(s);mediaImageUpdateContext(s);scratchImageRefreshProUiV33?.(s);
+  /* Replace the current persisted state in-place instead of creating a fake extra edit. */
+  if(Array.isArray(im.history)&&im.history.length){
+    const idx=Math.max(0,Math.min(im.history.length-1,Number(im.historyIndex)||0)),label=im.history[idx]?.label||'Recovered source';
+    const snap=await scratchImageBuildSnapshotV34(s,label);snap.__baseline=idx===0;if(idx===0)snap.__canonicalSource=true;im.history[idx]=snap;if(idx===0)s.__imageSourceBaselineV34=snap;
+    scratchImageHistoryButtonsV34?.(s);scratchRenderMediaRail?.();
+  }
+  if(persist){s.__mediaProjectDirty=true;scratchMediaSchedulePersistV6?.(s,100)}
+  return true;
+}
+const scratchOpenMediaWorkspaceV40ImageBase=openMediaWorkspace;
+openMediaWorkspace=async function(id){
+  const generation=++scratchImageOpenRepairGenerationV40,r=await scratchOpenMediaWorkspaceV40ImageBase(id),s=activeMediaEditor;
+  if(r&&s?.kind==='image'&&!s.image?.gif){
+    const pass=()=>{if(generation===scratchImageOpenRepairGenerationV40&&activeMediaEditor===s)scratchImageEnsureCanonicalOnOpenV40(s,{persist:true}).catch(console.error)};
+    await pass();[60,180,450,900,1600].forEach(ms=>setTimeout(pass,ms));
+  }
+  return r;
+};
+window.__scratchOpenMediaWorkspace=openMediaWorkspace;
+
+/* ASSET / FILE → IMAGE LAYER DND ----------------------------------------
+   Publish the canonical asset id from every asset representation, then own image drops
+   in capture phase so nested editor handlers cannot consume or cancel the transfer. */
+document.addEventListener('dragstart',e=>{
+  const src=e.target?.closest?.('#assetList .card[data-id],[data-asset-id]');if(!src||!e.dataTransfer)return;
+  let id=src.dataset.id||src.dataset.assetId||'';
+  if(src.dataset.docType==='media'){const n=scratchMediaFileNodeV40(src.dataset.docId);id=n?.assetId||id}
+  if(!id||!assets?.get?.(id))return;
+  try{e.dataTransfer.setData('application/x-scratch-asset',String(id));e.dataTransfer.setData('text/plain',String(id));e.dataTransfer.effectAllowed='copy'}catch(_){}
+},true);
+function scratchImageDropAssetIdV40(dt){
+  if(!dt)return'';let id='';try{id=dt.getData('application/x-scratch-asset')||''}catch(_){}
+  if(!id)try{const t=String(dt.getData('text/plain')||'').trim();if(assets?.get?.(t))id=t}catch(_){}
+  return String(id||'');
+}
+function scratchImageDropEligibleV40(dt){if(!dt)return false;const types=[...(dt.types||[])];return !!(scratchImageDropAssetIdV40(dt)||dt.files?.length||types.includes('application/x-scratch-asset')||types.includes('Files'))}
+document.addEventListener('dragover',e=>{
+  const s=activeMediaEditor,ws=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!ws||!scratchImageDropEligibleV40(e.dataTransfer))return;
+  e.preventDefault();e.stopImmediatePropagation();if(e.dataTransfer)e.dataTransfer.dropEffect='copy';scratchImageSetDropUiV38?.(true,scratchImageDropAssetIdV40(e.dataTransfer)?'DROP ASSET · NEW LAYER':'DROP IMAGE · NEW LAYER');
+},true);
+document.addEventListener('drop',e=>{
+  const s=activeMediaEditor,ws=e.target?.closest?.('#mediaWorkspace');if(s?.kind!=='image'||!ws||!scratchImageDropEligibleV40(e.dataTransfer))return;
+  e.preventDefault();e.stopImmediatePropagation();scratchImageSetDropUiV38?.(false);const point=scratchImageDropPointV37(s,e),assetId=scratchImageDropAssetIdV40(e.dataTransfer);
+  (async()=>{
+    if(assetId){await scratchImageImportAssetLayerV38(s,assetId,point);return}
+    const files=[...(e.dataTransfer?.files||[])].filter(scratchImageFileLikeV37);for(let i=0;i<files.length;i++)await scratchImageImportLayerAtV37(s,files[i],point,i);
+  })().catch(err=>{console.error('image workspace drop failed',err);toast('<b>Could not add image layer.</b> '+escapeHtml(err.message||err),'bad')});
+},true);
+
+/* TRUE-SIZE COLLABORATIVE POINTERS + STRUCTURED DOCUMENT POINTERS -------- */
+const scratchPeerStyleV40=document.getElementById('scratchPeerStyleV40')||document.head.appendChild(Object.assign(document.createElement('style'),{id:'scratchPeerStyleV40'}));
+scratchPeerStyleV40.textContent=`
+.smoothPeerCursor,.canvasRemoteCursor.smoothPeerCursor,.mediaPeerCursor.smoothPeerCursor,.docPeerCursor.smoothPeerCursor{width:14px!important;height:18px!important;max-width:14px!important;max-height:18px!important;transform-origin:0 0!important}
+.smoothPeerCursor svg,.canvasRemoteCursor.smoothPeerCursor svg,.mediaPeerCursor.smoothPeerCursor svg,.docPeerCursor.smoothPeerCursor svg{width:14px!important;height:18px!important;min-width:14px!important;min-height:18px!important;max-width:14px!important;max-height:18px!important}
+.peerCursorTag,.smoothPeerCursor .canvasCursorTag{left:10px!important;top:12px!important;font-size:6px!important;line-height:1.15!important;padding:2px 4px!important;max-width:130px!important}
+#scratchDocPeerCursorLayer{position:fixed!important;inset:0!important;z-index:2147482000!important;pointer-events:none!important;overflow:hidden!important}
+.docRow.media-file .docMediaKind{font:700 6px var(--mono);color:var(--dim);padding:0 3px;white-space:nowrap}.docRow.media-file.active{background:#151b20;box-shadow:inset 2px 0 0 var(--accent)}
+`;
+let scratchLocalDocPointerV40=null;
+function scratchUpdateLocalDocPointerV40(e){
+  if(activeMediaEditor||!isRichDoc?.()||markdownEnabled)return false;const ed=e.target?.closest?.('#structuredEditor');if(!ed)return false;const r=ed.getBoundingClientRect();if(r.width<1||r.height<1)return false;
+  const sw=Math.max(ed.scrollWidth||0,ed.clientWidth||0,r.width),sh=Math.max(ed.scrollHeight||0,ed.clientHeight||0,r.height),x=e.clientX-r.left+(ed.scrollLeft||0),y=e.clientY-r.top+(ed.scrollTop||0);
+  scratchLocalDocPointerV40={x:Math.max(0,Math.min(1,x/Math.max(1,sw))),y:Math.max(0,Math.min(1,y/Math.max(1,sh))),ts:Date.now()};return true;
+}
+document.addEventListener('pointermove',e=>{if(scratchUpdateLocalDocPointerV40(e))queuePresence(false)},{capture:true,passive:true});
+document.addEventListener('pointerdown',e=>{if(scratchUpdateLocalDocPointerV40(e))queuePresence(true)},{capture:true,passive:true});
+document.addEventListener('pointerout',e=>{const ed=$('#structuredEditor');if(!ed||!ed.contains(e.target)||ed.contains(e.relatedTarget))return;if(scratchLocalDocPointerV40){scratchLocalDocPointerV40=null;queuePresence(true)}},{capture:true,passive:true});
+const scratchPresenceV40Base=currentPresence;
+currentPresence=function(){const p=scratchPresenceV40Base();if(!activeMediaEditor&&isRichDoc?.()&&!markdownEnabled)return{...p,docPointer:scratchLocalDocPointerV40?{x:scratchLocalDocPointerV40.x,y:scratchLocalDocPointerV40.y}:null};return{...p,docPointer:null}};
+function scratchDocPeerLayerV40(){let l=$('#scratchDocPeerCursorLayer');if(!l){l=document.createElement('div');l.id='scratchDocPeerCursorLayer';l.setAttribute('aria-hidden','true');document.body.append(l)}return l}
+function scratchRenderDocPeerPointersV40(){
+  const layer=scratchDocPeerLayerV40(),ed=$('#structuredEditor');if(!layer||!ed||activeMediaEditor||!isRichDoc?.()||markdownEnabled){layer?.replaceChildren();return}
+  const r=ed.getBoundingClientRect(),sw=Math.max(ed.scrollWidth||0,ed.clientWidth||0,r.width),sh=Math.max(ed.scrollHeight||0,ed.clientHeight||0,r.height),now=Date.now(),keep=new Set();
+  for(const [id,p] of remotePresence){const ptr=p?.docPointer;if(!actorRoutes.has(id)||p.docId!==activeDocId||!ptr||now-Number(p.ts||0)>35000)continue;const lx=Math.max(0,Math.min(1,Number(ptr.x)||0))*sw-(ed.scrollLeft||0),ly=Math.max(0,Math.min(1,Number(ptr.y)||0))*sh-(ed.scrollTop||0);const key=`doc:${activeDocId}:${id}`,el=scratchPeerCursorDomV30(layer,id,p,'docPeerCursor');keep.add(String(id));const visible=lx>=-14&&ly>=-18&&lx<=r.width+14&&ly<=r.height+18;el.hidden=!visible;if(visible)scratchPeerCursorTargetV30(key,el,r.left+lx,r.top+ly)}
+  layer.querySelectorAll('.docPeerCursor[data-peer-cursor-id]').forEach(el=>{const id=el.dataset.peerCursorId;if(keep.has(id))return;scratchPeerCursorDropV30(`doc:${activeDocId}:${id}`);el.remove()});
+}
+const scratchRenderRemoteV40Base=renderRemoteCursors;
+renderRemoteCursors=function(){const r=scratchRenderRemoteV40Base();scratchRenderDocPeerPointersV40();return r};
+document.addEventListener('scroll',()=>requestAnimationFrame(scratchRenderDocPeerPointersV40),true);window.addEventListener('resize',()=>requestAnimationFrame(scratchRenderDocPeerPointersV40),{passive:true});
+
+/* Re-run the requested media route after all V40 wrappers exist. */
+if(scratchInitialMediaRouteV40)setTimeout(()=>scratchRestoreDurableMediaRouteV40(),40);
+
 </script>
 
 
