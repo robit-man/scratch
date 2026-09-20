@@ -4,6 +4,37 @@
   <link rel="icon" href="data:,">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<script id="scratchRuntimeConsoleGovernor">
+(()=>{
+  if(window.__scratchConsoleGovernorInstalled)return;
+  window.__scratchConsoleGovernorInstalled=true;
+  const raw={};for(const k of ['log','debug','info','warn','error'])raw[k]=console[k]?.bind(console)||(()=>{});
+  const seen=new Map(),WINDOW=30000,BURST=4,GLOBAL_WINDOW=60000,GLOBAL_MAX=180,MAX_SIGS=256;
+  let globalStart=Date.now(),globalCount=0,suppressed=0;
+  const snapshot=(v,depth=0,stack=new WeakSet())=>{
+    try{
+      if(v==null||typeof v==='string'||typeof v==='number'||typeof v==='boolean'||typeof v==='bigint')return String(v);
+      if(v instanceof Error)return String(v.stack||v.message||v.name).slice(0,4000);
+      if(typeof v==='function')return `[Function ${v.name||'anonymous'}]`;
+      if(typeof v!=='object')return String(v);
+      if(stack.has(v))return '[Circular]';if(depth>2)return `[${v.constructor?.name||'Object'}]`;stack.add(v);
+      if(Array.isArray(v))return '['+v.slice(0,16).map(x=>snapshot(x,depth+1,stack)).join(', ')+(v.length>16?', …':'')+']';
+      const keys=Object.keys(v).slice(0,20),body=keys.map(k=>`${k}:${snapshot(v[k],depth+1,stack)}`).join(', ');
+      return `{${body}${Object.keys(v).length>20?', …':''}}`;
+    }catch(_){return Object.prototype.toString.call(v)}
+  };
+  const prune=now=>{for(const [k,v] of seen)if(now-v.last>WINDOW*3)seen.delete(k);while(seen.size>MAX_SIGS)seen.delete(seen.keys().next().value)};
+  const wrap=name=>(...args)=>{
+    const now=Date.now();if(now-globalStart>GLOBAL_WINDOW){globalStart=now;globalCount=0;suppressed=0;prune(now)}
+    const flat=args.map(x=>snapshot(x));const sig=(name+'|'+flat.join(' ')).slice(0,1600);let rec=seen.get(sig);
+    if(!rec||now-rec.start>WINDOW){rec={start:now,last:now,count:0,suppressed:0};seen.set(sig,rec)}rec.last=now;
+    if(rec.count>=BURST||globalCount>=GLOBAL_MAX){rec.suppressed++;suppressed++;window.__scratchRuntimeLogStats={suppressed,signatures:seen.size,windowCount:globalCount};return}
+    rec.count++;globalCount++;raw[name](...flat);window.__scratchRuntimeLogStats={suppressed,signatures:seen.size,windowCount:globalCount};
+  };
+  for(const k of Object.keys(raw))console[k]=wrap(k);
+  window.ScratchRuntimeLogs={stats:()=>({...window.__scratchRuntimeLogStats}),reset:()=>{seen.clear();globalStart=Date.now();globalCount=0;suppressed=0}};
+})();
+</script>
 <script>
 (()=>{
   const LOCK='width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
@@ -4364,7 +4395,7 @@ const agentInstructionsV4=$('#agentInstructions');if(agentInstructionsV4)agentIn
  // Prototype inspector is a meaningful contextual surface, not a dead control.
  $q('#prototypeToolProxy')?.addEventListener('click',()=>{if(!selectedCanvasObjectId)return toast?.('<b>Select a canvas object first.</b>','bad');openWorkspaceInspector?.('prototype');const body=$q('#workspaceInspectorBody');if(body)body.innerHTML=`<div class="inspectorEmpty"><strong>PROTOTYPE</strong><br><br>Selected layer: ${escapeHtml(ycanvas.get(selectedCanvasObjectId)?.name||selectedCanvasObjectId)}<br><br>Prototype connections are stored as object metadata. Use the right-click entity menu or Agent API to attach navigation/actions while this UI is expanded.</div>`});
  // Keep left resources and mode in sync with CRDT/render changes without polling heavily.
- let resourceRenderFaultReported=false;const rerenderResources=()=>{try{setWorkspaceKind();renderLeftResources();resourceRenderFaultReported=false}catch(err){if(!resourceRenderFaultReported){resourceRenderFaultReported=true;console.error('Workspace resource refresh failed:',err)}}};setTimeout(rerenderResources,0);setInterval(rerenderResources,2200);
+ let resourceRenderFaultReported=false;const rerenderResources=()=>{try{setWorkspaceKind();renderLeftResources();resourceRenderFaultReported=false}catch(err){if(!resourceRenderFaultReported){resourceRenderFaultReported=true;console.error('Workspace resource refresh failed:',err)}}};setTimeout(rerenderResources,0);setInterval(()=>{if(document.visibilityState==='visible'&&(leftTab==='assets'||document.body.classList.contains('left-mobile-open')))rerenderResources()},12000);
  const oldSelectScratch=selectDocument;selectDocument=function(...args){const r=oldSelectScratch.apply(this,args);setTimeout(()=>{setWorkspaceKind();if(isCanvasDoc())openLeftTab('canvas')},0);return r}
 
  // Scratch stateful canvas creation / selection tools.
@@ -9464,7 +9495,7 @@ async function scratchRouteRestoreV39(){
   }catch(err){console.warn('live route restore failed',err)}finally{
     scratchRouteRestoreDoneV39=true;scratchRouteRestoreInFlightV39=false;scratchRouteApplyingV39=false;scratchRouteApplyingV36=false;
     scratchRouteWriteV39({force:true});
-    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(scratchRoutePollV39,300);
+    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(()=>{if(document.visibilityState==='visible')scratchRoutePollV39()},1000);
   }
   return restored;
 }
@@ -9630,7 +9661,7 @@ async function scratchRestoreDurableMediaRouteV40(){
     scratchDurableRoutePendingV40=false;scratchDurableRouteRunningV40=false;scratchRouteApplyingV39=false;scratchRouteApplyingV36=false;
     if(restored){renderDocNavigator?.();queuePresence?.(true)}
     scratchRouteWriteV39({force:true});
-    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(scratchRoutePollV39,300);
+    if(!scratchRoutePollTimerV39)scratchRoutePollTimerV39=setInterval(()=>{if(document.visibilityState==='visible')scratchRoutePollV39()},1000);
   }
   return restored;
 }
@@ -9788,6 +9819,91 @@ const renderAssetsV42Base=renderAssets;
 renderAssets=async function(){const r=await renderAssetsV42Base();document.querySelectorAll('#assetList .card[data-id],[data-asset-id]').forEach(el=>{el.draggable=true;el.querySelectorAll?.('img').forEach(img=>img.draggable=false)});return r};
 window.__scratchImagePipelineVersion='V42';
 
+
+
+/* ============================================================================
+   V43 — RUNTIME LIFECYCLE / MEMORY HARDENING
+   Browser GC is intentionally left to the browser; this layer removes retained
+   references, caps binary histories/caches, lazily decodes previews, and stops
+   high-frequency idle UI churn so objects are actually collectible.
+   ========================================================================== */
+const SCRATCH_IMAGE_HISTORY_MAX_V43=8;
+const SCRATCH_IMAGE_HISTORY_BYTES_V43=48*1024*1024;
+const SCRATCH_AUDIO_HISTORY_MAX_V43=5;
+const SCRATCH_AUDIO_HISTORY_BYTES_V43=64*1024*1024;
+const SCRATCH_ASSET_PREVIEW_MAX_V43=10;
+
+function scratchHistoryBlobBytesV43(v,seen=new Set()){
+  if(v==null)return 0;if(typeof v!=='object')return typeof v==='string'?Math.min(v.length*2,2*1024*1024):0;if(seen.has(v))return 0;seen.add(v);
+  if(v instanceof Blob)return v.size||0;if(ArrayBuffer.isView(v))return v.byteLength||0;if(v instanceof ArrayBuffer)return v.byteLength||0;
+  let n=0;if(Array.isArray(v)){for(const x of v)n+=scratchHistoryBlobBytesV43(x,seen)}else for(const x of Object.values(v))n+=scratchHistoryBlobBytesV43(x,seen);return n;
+}
+function scratchTrimBinaryHistoryV43(model,{maxEntries,byteBudget}){
+  const h=model?.history;if(!Array.isArray(h)||h.length<=1)return;
+  let idx=Math.max(0,Math.min(h.length-1,Number(model.historyIndex)||0));
+  const total=()=>h.reduce((n,x)=>n+scratchHistoryBlobBytesV43(x),0);
+  let bytes=total(),guard=0;
+  while((h.length>maxEntries||bytes>byteBudget)&&h.length>2&&guard++<128){
+    let remove=1;if(remove===idx)remove=(idx+1<h.length?idx+1:h.length-2);if(remove<=0||remove>=h.length||remove===idx)break;
+    const gone=h.splice(remove,1)[0];if(remove<idx)idx--;bytes=Math.max(0,bytes-scratchHistoryBlobBytesV43(gone));
+  }
+  model.historyIndex=Math.max(0,Math.min(h.length-1,idx));
+}
+function scratchTrimImageHistoryV43(s){if(s?.image)scratchTrimBinaryHistoryV43(s.image,{maxEntries:SCRATCH_IMAGE_HISTORY_MAX_V43,byteBudget:SCRATCH_IMAGE_HISTORY_BYTES_V43})}
+function scratchTrimAudioHistoryV43(s){if(s?.audio)scratchTrimBinaryHistoryV43(s.audio,{maxEntries:SCRATCH_AUDIO_HISTORY_MAX_V43,byteBudget:SCRATCH_AUDIO_HISTORY_BYTES_V43})}
+
+const mediaImageSnapshotV43Base=mediaImageSnapshot;
+mediaImageSnapshot=async function(s,label='Edit'){const r=await mediaImageSnapshotV43Base(s,label);scratchTrimImageHistoryV43(s);mediaImageHistoryUi?.(s);return r};
+const mediaAudioSnapshotV43Base=mediaAudioSnapshot;
+mediaAudioSnapshot=function(s,label='edit'){const r=mediaAudioSnapshotV43Base(s,label);scratchTrimAudioHistoryV43(s);mediaAudioHistoryUi?.(s);return r};
+const scratchMediaLoadProjectV43Base=scratchMediaLoadProjectV6;
+scratchMediaLoadProjectV6=async function(s){const r=await scratchMediaLoadProjectV43Base(s);if(s?.kind==='image')scratchTrimImageHistoryV43(s);else if(s?.kind==='audio')scratchTrimAudioHistoryV43(s);return r};
+const scratchMediaProjectPayloadV43Base=scratchMediaProjectPayloadV6;
+scratchMediaProjectPayloadV6=function(s){if(s?.kind==='image')scratchTrimImageHistoryV43(s);else if(s?.kind==='audio')scratchTrimAudioHistoryV43(s);return scratchMediaProjectPayloadV43Base(s)};
+
+/* Asset previews are decoded only when near the visible asset list and only a small
+   LRU working set remains decoded at once. */
+let scratchAssetPreviewObserverV43=null;
+const scratchAssetPreviewTouchV43=new Map();
+function scratchAssetPreviewDisposeOneV43(id){const u=previewUrls.get(id);if(u){try{URL.revokeObjectURL(u)}catch(_){}previewUrls.delete(id)}scratchAssetPreviewTouchV43.delete(id);const shell=document.querySelector(`#assetList .preview[data-preview-id="${CSS.escape(String(id))}"]`);if(shell){const img=shell.querySelector('img');if(img)img.remove();shell.classList.remove('loaded');shell.textContent='PREVIEW'}}
+function scratchAssetPreviewEvictV43(){if(previewUrls.size<=SCRATCH_ASSET_PREVIEW_MAX_V43)return;const rows=[...scratchAssetPreviewTouchV43.entries()].sort((a,b)=>a[1]-b[1]);for(const [id] of rows){const shell=document.querySelector(`#assetList .preview[data-preview-id="${CSS.escape(String(id))}"]`);if(shell?.dataset.visible==='1')continue;scratchAssetPreviewDisposeOneV43(id);if(previewUrls.size<=SCRATCH_ASSET_PREVIEW_MAX_V43)break}}
+function scratchAssetPreviewDisposeAllV43(){scratchAssetPreviewObserverV43?.disconnect?.();scratchAssetPreviewObserverV43=null;for(const id of [...previewUrls.keys()])scratchAssetPreviewDisposeOneV43(id);previewUrls.clear();scratchAssetPreviewTouchV43.clear()}
+async function scratchAssetPreviewHydrateV43(shell,m,token){
+  if(!shell?.isConnected||previewUrls.has(m.id)||token!==renderToken)return;try{const blob=await materializeAsset(m.id);if(token!==renderToken||!shell.isConnected)return;const u=URL.createObjectURL(blob);previewUrls.set(m.id,u);scratchAssetPreviewTouchV43.set(m.id,performance.now());const img=document.createElement('img');img.alt=m.name||'';img.loading='lazy';img.decoding='async';img.draggable=false;img.onload=()=>scratchAssetPreviewEvictV43();img.onerror=()=>scratchAssetPreviewDisposeOneV43(m.id);img.src=u;shell.replaceChildren(img);shell.classList.add('loaded');scratchAssetPreviewEvictV43()}catch(_){shell.textContent='PREVIEW'}
+}
+function scratchAssetEditInfoV43(card,m){const rows=Array.isArray(m.editHistory)?m.editHistory:[],info=m.editProject;if(!info&&!rows.length)return;const fmeta=card.querySelector('.fmeta');if(fmeta){const b=document.createElement('span');b.className='assetEditBadge';b.textContent=` · EDITED · ${rows.length||info?.editCount||0} STEP${(rows.length||info?.editCount||0)===1?'':'S'}`;fmeta.appendChild(b)}const d=document.createElement('details');d.className='assetEditHistory';const count=rows.length||info?.editCount||0;d.innerHTML=`<summary>EDIT HISTORY · ${count}</summary><div class="assetEditHistoryRows">${rows.length?[...rows].reverse().slice(0,80).map(x=>`<div class="assetEditHistoryRow"><strong>${escapeHtml(x.label||'edit')}</strong><span>${escapeHtml(x.context||'')}</span><time>${x.time?new Date(x.time).toLocaleString():''}</time></div>`).join(''):'<div class="assetEditHistoryEmpty">Project state saved for this asset.</div>'}</div>`;card.appendChild(d)}
+renderAssets=async function(){
+  const token=++renderToken,box=$('#assetList');scratchAssetPreviewDisposeAllV43();if(!box)return;box.innerHTML='';
+  const visible=[...assets.values()].filter(m=>!m.deleted).sort((a,b)=>b.created-a.created);updateCollapsedMediaSummary();
+  if(!visible.length){box.innerHTML='<div class="empty">No shared files yet.<br>Drop files above or paste an image from the clipboard.</div>';return}
+  scratchAssetPreviewObserverV43=('IntersectionObserver'in window)?new IntersectionObserver(entries=>{for(const e of entries){const shell=e.target,id=shell.dataset.previewId,m=assets.get(id);shell.dataset.visible=e.isIntersecting?'1':'0';if(e.isIntersecting&&m)scratchAssetPreviewHydrateV43(shell,m,token);else scratchAssetPreviewEvictV43()}},{root:box,rootMargin:'220px 0px',threshold:.01}):null;
+  let fallbackCount=0;
+  for(const m of visible){
+    if(token!==renderToken)return;const have=!!(await idbGet('files',m.id));const card=document.createElement('div');card.className='card';card.dataset.id=m.id;card.dataset.agentFileId=m.id;card.dataset.assetId=m.id;card.draggable=true;card.setAttribute('data-agent-role','shared-file');
+    card.innerHTML=`<div class="cardtop"><div><div class="fname">${escapeHtml(m.name)}</div><div class="fmeta">${escapeHtml(m.type)} · ${fmtBytes(m.size)} · ${have?'LOCAL + ENCRYPTED':'REMOTE · REQUESTING'}</div></div><div class="cardactions"><button class="mini open" data-agent-action="open-file">OPEN</button><button class="mini down" data-agent-action="save-file">SAVE</button><button class="mini danger del" data-agent-action="delete-file">×</button></div></div><div class="progress"><i></i></div>`;
+    card.querySelector('.open').onclick=()=>openAsset(m.id);card.querySelector('.down').onclick=()=>downloadAsset(m.id);card.querySelector('.del').onclick=()=>removeAsset(m.id);card.addEventListener('dblclick',e=>{if(!e.target.closest('button'))openAsset(m.id)});box.append(card);scratchAssetEditInfoV43(card,m);
+    if(have&&m.type?.startsWith('image/')&&m.size<=16*1024*1024){const shell=document.createElement('div');shell.className='preview';shell.dataset.previewId=m.id;shell.textContent='PREVIEW';card.append(shell);if(scratchAssetPreviewObserverV43)scratchAssetPreviewObserverV43.observe(shell);else if(fallbackCount++<4)scratchAssetPreviewHydrateV43(shell,m,token)}
+    if(transferProgress.has(m.id))updateCardProgress(m.id,transferProgress.get(m.id));
+  }
+  scheduleAgentStateRefresh('assets');
+};
+
+function scratchReleaseCanvasV43(c){try{if(c instanceof HTMLCanvasElement){c.width=1;c.height=1}}catch(_){}}
+function scratchReleaseImageSessionV43(s){const im=s?.image;if(!im)return;for(const l of im.layers||[]){scratchReleaseCanvasV43(l.canvas);scratchReleaseCanvasV43(l.maskCanvas)}for(const h of im.history||[])if(h?.layers)for(const l of h.layers){l.blob=null;l.maskBlob=null;l.sourceBlob=null}if(im.gif?.frames)for(const f of im.gif.frames)for(const l of f.layers||[]){scratchReleaseCanvasV43(l.canvas);scratchReleaseCanvasV43(l.maskCanvas);l.blob=null;l.maskBlob=null}scratchReleaseCanvasV43(im.canvas);scratchReleaseCanvasV43(im.overlay);scratchReleaseCanvasV43(im.selectionMaskCanvas);scratchReleaseCanvasV43(im.cloneSnapshot);im.layers=[];im.history=[];im.selectionMask=null;im.selectionRuns=null;im.selectionMaskCanvas=null;im.clipboard=null;im.cloneSnapshot=null}
+function scratchReleaseAudioSessionV43(s){const a=s?.audio;if(!a)return;const releaseTracks=tracks=>{for(const t of tracks||[])for(const c of t.clips||[])c.channels=[]};releaseTracks(a.tracks);for(const h of a.history||[])releaseTracks(h.tracks);a.tracks=[];a.history=[];a.clipboard=null}
+function scratchReleaseVideoSessionV43(s){const v=s?.video;if(!v)return;try{v.el?.pause?.()}catch(_){};for(const l of v.mt?.lanes||[])for(const c of l.clips||[]){try{c.el?.pause?.()}catch(_){};c.el=null;c.img=null;c.blob=null}if(v.mt){v.mt.lanes=[];v.mt.history=[]}v.timelineBase=null;v.el=null;v.hoverProbe=null}
+const closeMediaWorkspaceV43Base=closeMediaWorkspace;
+closeMediaWorkspace=async function(opts={}){const s=activeMediaEditor;if(s?.__mediaProjectDirty){const t=scratchMediaProjectTimersV6.get(s.id);if(t){clearTimeout(t);scratchMediaProjectTimersV6.delete(s.id)}await scratchMediaPersistProjectV6(s,{quiet:true}).catch(()=>{})}const r=await closeMediaWorkspaceV43Base(opts);if(s){scratchMediaCheckpointStore.delete(s.id);if(s.kind==='image')scratchReleaseImageSessionV43(s);else if(s.kind==='audio')scratchReleaseAudioSessionV43(s);else if(s.kind==='video')scratchReleaseVideoSessionV43(s);s.blob=null;s.meta=null;s.cleanup=null;s.undo=s.redo=s.save=null}return r};
+window.__scratchCloseMediaWorkspace=closeMediaWorkspace;
+
+function scratchRuntimeMaintenanceV43(){
+  const now=Date.now();for(const [k,t] of seenMessages)if(now-t>10*60*1000)seenMessages.delete(k);for(const [k,t] of seenYUpdates)if(now-t>5*60*1000)seenYUpdates.delete(k);for(const [k,t] of assetRequests)if(now-t>30000)assetRequests.delete(k);for(const [k,t] of assetSentRecently)if(now-t>30000)assetSentRecently.delete(k);for(const [k,p] of pendingBins)if(now-Number(p?.ts||0)>65000)pendingBins.delete(k);for(const [key,state] of scratchPeerCursorMotionV30)if(!state.el?.isConnected)scratchPeerCursorMotionV30.delete(key);scratchAssetPreviewEvictV43();
+}
+const scratchRuntimeMaintenanceTimerV43=setInterval(scratchRuntimeMaintenanceV43,30000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){scratchRuntimeMaintenanceV43();scratchAssetPreviewDisposeAllV43();if(scratchPeerCursorRafV30){cancelAnimationFrame(scratchPeerCursorRafV30);scratchPeerCursorRafV30=0}}else{if($('#assetList')?.isConnected)renderAssets().catch(()=>{})}},{passive:true});
+window.addEventListener('pagehide',()=>{scratchRuntimeMaintenanceV43();scratchAssetPreviewDisposeAllV43()},{capture:true});
+window.ScratchRuntimeMemory={maintenance:scratchRuntimeMaintenanceV43,stats:()=>({assetPreviewUrls:previewUrls.size,seenMessages:seenMessages.size,seenYUpdates:seenYUpdates.size,pendingBins:pendingBins.size,peerCursorStates:scratchPeerCursorMotionV30.size,activeEditor:activeMediaEditor?.kind||null,imageHistory:activeMediaEditor?.image?.history?.length||0,audioHistory:activeMediaEditor?.audio?.history?.length||0})};
+window.__scratchImagePipelineVersion='V43';
 </script>
 
 
@@ -14090,7 +14206,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('online',()=>{log('ok','Browser online.');if(state.joined)broadcastHello()});
 window.addEventListener('offline',()=>log('warn','Browser offline; local inference remains available.'));
-setInterval(()=>{state.topologyTick++;drawTopology()},3000);
+setInterval(()=>{if(document.visibilityState==='visible'){state.topologyTick++;drawTopology()}},10000);
 
 
 function setApiResponse(value,status=200){
@@ -14809,7 +14925,7 @@ function updateMinimalWorkbenchStatus(){
   const t=$('#wbStatusText'),d=$('#wbDot');if(!t||!d)return;const peers=[...state.peers.values()].filter(p=>p.online&&p.verified);const freeUp=COMMONS_FREE_ORDER.filter(k=>COMMONS_FREE_RUNTIME[k].status==='up').length;const models=consolidatedModels().length;
   d.className='wb-dot '+(state.joined?(peers.length||freeUp?'on':'warn'):'');t.textContent=state.joined?`${peers.length} peer${peers.length===1?'':'s'} · ${models} route${models===1?'':'s'} · free ${freeUp}/${COMMONS_FREE_ORDER.length}`:'connecting';
 }
-setInterval(updateMinimalWorkbenchStatus,1500);setTimeout(()=>{refreshModelSelect();commonsProbeAll();updateMinimalWorkbenchStatus();$('#promptInput')?.focus()},900);
+setInterval(()=>{if(document.visibilityState==='visible')updateMinimalWorkbenchStatus()},5000);setTimeout(()=>{refreshModelSelect();commonsProbeAll();updateMinimalWorkbenchStatus();$('#promptInput')?.focus()},900);
 
 
 /* ========================================================================
@@ -15332,7 +15448,7 @@ runBrowserToolLoop=async function({messages,invoke,onDelta=null,onTool=null,onRe
 
 
 function enableCommonsToolsDefault(){const key='commons.omniHarnessDefaults.v8';if(localStorage.getItem(key)==='1')return;for(const name of Object.keys(browserToolCatalog()))state.enabledBrowserTools.add(name);state.toolsEnabled=true;state.toolMaxRounds=0;localStorage.setItem(key,'1');persistPolicy()}
-function commonsInstallContextSettings(){const root=$('#leftSidebar');if(!root||$('#commonsContextPanel'))return;const sec=document.createElement('section');sec.className='section side-section';sec.id='commonsContextPanel';sec.innerHTML=`<details class="side-collapse"><summary><span class="side-title">Context / harness</span></summary><div class="side-section-body"><div class="mini">Qwen Omni browser harness · all tools default on · unbounded chaining + duplicate guard · attach/drag/drop/paste PDF, DOCX, XLS/XLSX/ODS, text, Markdown, JSON/JSONL, CSV/TSV, XML/HTML/YAML, logs/SQL and geospatial text formats into the composer.</div><div class="row" style="margin-top:8px"><button class="btn small" id="commonsContextClear">clear session context</button><button class="btn small" id="commonsToolsAll">enable all tools</button></div><div class="mini" id="commonsContextStats" style="margin-top:7px">context loading</div></div></details>`;root.append(sec);$('#commonsContextClear').onclick=async()=>{$('#commonsContextStats').textContent=`cleared ${await commonsCtxDeleteSession()} context records`};$('#commonsToolsAll').onclick=()=>{for(const n of Object.keys(browserToolCatalog()))state.enabledBrowserTools.add(n);state.toolsEnabled=true;state.toolMaxRounds=0;persistPolicy();renderBrowserTools();$('#commonsContextStats').textContent=`${state.enabledBrowserTools.size} tools enabled`};setInterval(async()=>{const el=$('#commonsContextStats');if(!el)return;const rows=await commonsCtxAll().catch(()=>[]),events=await chatEventsForSession().catch(()=>[]),est=await navigator.storage?.estimate?.().catch?.(()=>null);const used=est?.usage?`${(est.usage/1048576).toFixed(1)} MB`:null;el.textContent=`${state.enabledBrowserTools.size} tools · ${events.length} journal events · ${rows.filter(x=>x.kind==='document').length} docs · ${rows.filter(x=>x.kind==='memory').length} memory · ${rows.filter(x=>x.kind==='evidence').length} evidence${used?` · ${used} stored`:''}`},2500)}
+function commonsInstallContextSettings(){const root=$('#leftSidebar');if(!root||$('#commonsContextPanel'))return;const sec=document.createElement('section');sec.className='section side-section';sec.id='commonsContextPanel';sec.innerHTML=`<details class="side-collapse"><summary><span class="side-title">Context / harness</span></summary><div class="side-section-body"><div class="mini">Qwen Omni browser harness · all tools default on · unbounded chaining + duplicate guard · attach/drag/drop/paste PDF, DOCX, XLS/XLSX/ODS, text, Markdown, JSON/JSONL, CSV/TSV, XML/HTML/YAML, logs/SQL and geospatial text formats into the composer.</div><div class="row" style="margin-top:8px"><button class="btn small" id="commonsContextClear">clear session context</button><button class="btn small" id="commonsToolsAll">enable all tools</button></div><div class="mini" id="commonsContextStats" style="margin-top:7px">context loading</div></div></details>`;root.append(sec);$('#commonsContextClear').onclick=async()=>{$('#commonsContextStats').textContent=`cleared ${await commonsCtxDeleteSession()} context records`};$('#commonsToolsAll').onclick=()=>{for(const n of Object.keys(browserToolCatalog()))state.enabledBrowserTools.add(n);state.toolsEnabled=true;state.toolMaxRounds=0;persistPolicy();renderBrowserTools();$('#commonsContextStats').textContent=`${state.enabledBrowserTools.size} tools enabled`};setInterval(async()=>{const el=$('#commonsContextStats'),details=el?.closest('details');if(!el||document.visibilityState!=='visible'||!details?.open)return;const rows=await commonsCtxAll().catch(()=>[]),events=await chatEventsForSession().catch(()=>[]),est=await navigator.storage?.estimate?.().catch?.(()=>null);const used=est?.usage?`${(est.usage/1048576).toFixed(1)} MB`:null;el.textContent=`${state.enabledBrowserTools.size} tools · ${events.length} journal events · ${rows.filter(x=>x.kind==='document').length} docs · ${rows.filter(x=>x.kind==='memory').length} memory · ${rows.filter(x=>x.kind==='evidence').length} evidence${used?` · ${used} stored`:''}`},15000)}
 
 window.addEventListener('pageshow',()=>{commonsCtxCleanup().catch(()=>{})});
 
@@ -15401,6 +15517,13 @@ window.COMMONS.harness.continuationSelfTest=async()=>{let n=0;const r=await runB
 })();
 
 window.ScratchInference=window.OIM||window.ScratchInference;
+
+
+/* V43 inference lifecycle hardening: keep the in-panel journal useful without
+   continuously retaining duplicate status chatter or rebuilding hidden UI. */
+const scratchInferenceLogV43Base=log,scratchInferenceLogSeenV43=new Map();
+log=function(level,message){const now=Date.now(),sig=`${level}|${String(message||'')}`;let r=scratchInferenceLogSeenV43.get(sig);if(!r||now-r.start>30000){r={start:now,count:0,last:now};scratchInferenceLogSeenV43.set(sig,r)}r.last=now;if(r.count++>=3)return;scratchInferenceLogV43Base(level,message);const box=$('#log');while(box?.children?.length>120)box.firstChild.remove();if(scratchInferenceLogSeenV43.size>180)for(const [k,v] of scratchInferenceLogSeenV43)if(now-v.last>90000)scratchInferenceLogSeenV43.delete(k)};
+setInterval(()=>{const now=Date.now();for(const [k,v] of scratchInferenceLogSeenV43)if(now-v.last>90000)scratchInferenceLogSeenV43.delete(k);if(document.visibilityState!=='visible')return;try{cleanupPeers?.()}catch(_){}},30000);
 </script>
 
   <div class="workspaceToolTooltip" id="workspaceToolTooltip" role="tooltip" aria-hidden="true"></div>
